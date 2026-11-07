@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import "./globals.css";
 import { BRAND } from "@/brand/tokens";
 import { HoldingPage } from "@/components/holding-page";
+import { PrivacyFooter } from "@/components/privacy-footer";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { PATH_HEADER } from "@/site/path";
 import { showsHoldingPage } from "@/site/holding";
@@ -58,7 +59,8 @@ export const viewport: Viewport = { themeColor: BRAND.ink, colorScheme: "light d
 /**
  * The root layout: the theme (from the vg_theme cookie, so the first paint is right), the theme switch, and the
  * holding page in place of the page while GET /api/v1/site says `holding` (except on `holdingPages`). While holding,
- * the theme switch is not drawn (as on the backend: no form is sent from a held site but the contact form).
+ * the theme switch is not drawn (as on the backend: no form is sent from a held site but the contact form). The footer
+ * with "Your Privacy Choices" and "Cookie settings" is on every page, held or not.
  */
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [site, theme, t, incoming] = await Promise.all([loadSite(), currentTheme(), getT(), headers()]);
@@ -73,6 +75,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </header>
         )}
         {held ? <HoldingPage t={t} /> : children}
+        <PrivacyFooter t={t} />
       </body>
     </html>
   );
