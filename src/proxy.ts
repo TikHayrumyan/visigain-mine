@@ -12,6 +12,7 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Not the API (rewritten or routed to the backend), not the static files.
-  matcher: ["/((?!api/|_next/static|_next/image|favicon.ico|robots.txt).*)"],
+  // Not the API (rewritten or routed to the backend), not the static files (under the asset prefix, /fe/_next/:
+  // src/site/asset-prefix.ts; a literal here, as Next reads the matcher when it builds).
+  matcher: ["/((?!api/|fe/_next/|_next/static|_next/image|favicon.ico|robots.txt).*)"],
 };

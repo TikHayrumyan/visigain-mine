@@ -74,3 +74,25 @@ test("API calls from the browser stay on the page's own origin", async ({ page }
   });
   expect(answer).toEqual({ status: 200, holding: false });
 });
+
+test("Next's files load from /fe/_next (the asset prefix) and every answer says x-served-by: frontend", async ({
+  page,
+}) => {
+  const files: { url: string; status: number }[] = [];
+  page.on("response", (r) => {
+    if (new URL(r.url()).pathname.includes("/_next/")) files.push({ url: r.url(), status: r.status() });
+  });
+  const res = await page.goto("/example");
+  expect(res?.headers()["x-served-by"]).toBe("frontend");
+  await page.waitForLoadState("networkidle");
+
+  const paths = files.map((f) => new URL(f.url).pathname);
+  expect(paths.length).toBeGreaterThan(0);
+  // Not one file from the bare /_next/: the load balancer sends that to the backend.
+  expect(paths.filter((p) => !p.startsWith("/fe/_next/"))).toEqual([]);
+  expect(files.filter((f) => f.status !== 200)).toEqual([]);
+
+  const one = await page.request.get(paths.find((p) => p.startsWith("/fe/_next/static/"))!);
+  expect(one.status()).toBe(200);
+  expect(one.headers()["x-served-by"]).toBe("frontend");
+});
