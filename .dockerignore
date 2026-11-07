@@ -1,0 +1,17 @@
+# What the image build never needs, or must never get.
+.git
+node_modules
+.next
+.env
+.env.*
+!.env.example
+coverage
+test-results
+playwright-report
+blob-report
+*.tsbuildinfo
+*.log
+.DS_Store
+Thumbs.db
+.idea
+.vscode

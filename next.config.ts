@@ -10,6 +10,9 @@ import { apiRewriteTarget } from "./src/api/origin";
  * Rewrites are read when the app is built or the dev server starts: change MOCK or API_ORIGIN, then restart.
  */
 const nextConfig: NextConfig = {
+  // The Docker image (Dockerfile) sets NEXT_OUTPUT=standalone: a self-contained server.js with only the files it
+  // needs. Everywhere else (`pnpm build && pnpm start`, CI's smoke test) the output stays the default.
+  output: process.env.NEXT_OUTPUT === "standalone" ? "standalone" : undefined,
   poweredByHeader: false,
   reactStrictMode: true,
   // No floating dev badge (it lands in screenshots and accessibility runs).
