@@ -87,7 +87,13 @@ user, port 8080). The backend's `deploy/20-frontend-staging.sh` builds it with D
 `frontend-staging` with `API_ORIGIN` and `SITE_ORIGIN` set to backend-staging's address and `API_ID_TOKEN=metadata`.
 With that flag this app's server fetches an ID token for the `API_ORIGIN` audience from the metadata server, holds it
 for 45 minutes and sends it as `Authorization: Bearer` beside the visitor's own cookie (`src/api/id-token.ts`). The
-browser never gets it. To try the image locally against the mock: `pnpm mock`, then
+browser never gets it. When the owner has made the secret `backend-staging-frontend-forward-key`, the same deploy
+mounts it as `FRONTEND_FORWARD_KEY`, and this app's server then adds the signed `x-visigain-visitor` header (the
+visitor's address, a timestamp and an HMAC-SHA256; `src/api/visitor.ts`) to the calls it makes for a visitor
+(`serverApi`), so the backend's per-address limits and its hashed addresses are the visitor's, not this service's. The
+address is the `X-Forwarded-For` entry counted from the right by `TRUSTED_PROXY_HOPS` (1 behind Cloud Run alone, 2
+behind the load balancer), as the backend reads it. The key is server-only (`tests/client-bundle.test.ts`). To try the
+image locally against the mock: `pnpm mock`, then
 `docker build -t visigain-frontend . && docker run --rm -p 127.0.0.1:3080:8080 -e MOCK=1 -e MOCK_ORIGIN=http://host.docker.internal:4010 visigain-frontend`
 and open http://127.0.0.1:3080/example.
 
