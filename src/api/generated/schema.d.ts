@@ -16,6 +16,10 @@ export interface paths {
          * @description Only approved entries are ever returned (the wording gate is server-side). A key the frontend needs and does
          *     not find here is a question for Backend, never a sentence to type. `version` is the catalogue's content hash,
          *     also sent as the `ETag`; send it back in `If-None-Match` for a 304.
+         *
+         *     **The mock** (Prism) answers every call with the whole English export (api/examples/wordings.en.json, built by
+         *     `pnpm api:examples`): it ignores `ns`, `locale` and `If-None-Match`, never answers 304, and always sends the
+         *     same ETag. Filter by namespace yourself when you work against the mock; the real endpoint filters.
          */
         get: operations["getWordings"];
         put?: never;
@@ -2473,17 +2477,50 @@ export interface components {
     };
     requestBodies: never;
     headers: {
-        /** @description An opaque version; send it back in If-None-Match. */
-        ETag: string;
-        /** @description How long the answer may be kept. */
-        CacheControl: string;
-        /** @description Always `no-store`. */
+        /**
+         * @description The catalogue's version (the body's `version`), quoted; send it back in If-None-Match. The mock always sends this one.
+         * @example "7449d8e501c28102"
+         */
+        WordingsETag: string;
+        /**
+         * @description The catalogue may be kept 5 minutes, then checked again with If-None-Match.
+         * @example public, max-age=300, must-revalidate
+         */
+        WordingsCacheControl: string;
+        /**
+         * @description The switches may be kept at most 60 seconds.
+         * @example public, max-age=60
+         */
+        SiteCacheControl: string;
+        /**
+         * @description The picture's version (32 hex characters, quoted).
+         * @example "5d41402abc4b2a76b9719d911017c592"
+         */
+        MapETag: string;
+        /**
+         * @description As the current map route sends it.
+         * @example private, max-age=86400, stale-while-revalidate=2592000
+         */
+        MapCacheControl: string;
+        /**
+         * @description Always `no-store`.
+         * @example no-store
+         */
         NoStore: "no-store";
-        /** @description Seconds until the limit's window ends. */
+        /**
+         * @description Seconds until the limit's window ends.
+         * @example 1800
+         */
         RetryAfter: number;
-        /** @description `vg_session=<token>; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=2592000` */
+        /**
+         * @description `vg_session=<token>; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=2592000`
+         * @example vg_session=bW9jay1zZXNzaW9uLXRva2VuLWludmVudGVk; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=2592000
+         */
         SetSessionCookie: string;
-        /** @description `vg_session=; Path=/; Max-Age=0` */
+        /**
+         * @description `vg_session=; Path=/; Max-Age=0`
+         * @example vg_session=; Path=/; Max-Age=0
+         */
         ClearSessionCookie: string;
     };
     pathItems: never;
@@ -2508,8 +2545,8 @@ export interface operations {
             /** @description The catalogue (or one namespace of it). */
             200: {
                 headers: {
-                    ETag: components["headers"]["ETag"];
-                    "Cache-Control": components["headers"]["CacheControl"];
+                    ETag: components["headers"]["WordingsETag"];
+                    "Cache-Control": components["headers"]["WordingsCacheControl"];
                     [name: string]: unknown;
                 };
                 content: {
@@ -2519,7 +2556,7 @@ export interface operations {
             /** @description Not modified (the ETag matched). */
             304: {
                 headers: {
-                    ETag: components["headers"]["ETag"];
+                    ETag: components["headers"]["WordingsETag"];
                     [name: string]: unknown;
                 };
                 content?: never;
@@ -2540,7 +2577,7 @@ export interface operations {
             /** @description The switches, read on every request (cache for at most 60 seconds). */
             200: {
                 headers: {
-                    "Cache-Control": components["headers"]["CacheControl"];
+                    "Cache-Control": components["headers"]["SiteCacheControl"];
                     [name: string]: unknown;
                 };
                 content: {
@@ -3251,8 +3288,8 @@ export interface operations {
             /** @description The picture. */
             200: {
                 headers: {
-                    ETag: components["headers"]["ETag"];
-                    "Cache-Control": components["headers"]["CacheControl"];
+                    ETag: components["headers"]["MapETag"];
+                    "Cache-Control": components["headers"]["MapCacheControl"];
                     [name: string]: unknown;
                 };
                 content: {

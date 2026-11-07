@@ -1,5 +1,5 @@
 {
-  "summary": "A Monitoring renewal with part of the credit",
+  "summary": "A Monitoring renewal (the credit was used on the first invoice)",
   "value": {
     "kind": "invoice",
     "organisation": "Sunset Glow Med Spa (invented)",
@@ -27,9 +27,9 @@
       "subtotalCents": 14900,
       "taxCents": 0,
       "totalCents": 14900,
-      "creditAppliedCents": 5000,
-      "amountPaidCents": 9900,
-      "amountDueCents": 9900,
+      "creditAppliedCents": 0,
+      "amountPaidCents": 14900,
+      "amountDueCents": 14900,
       "currency": "usd",
       "paidAt": "2026-10-11T08:02:00Z"
     }

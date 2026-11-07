@@ -86,6 +86,15 @@ x-wordings:
     payments_unavailable: errors.payments_unavailable
     cancel_failed: errors.cancel_failed
     unknown: errors.global_error.something_went_wrong_on_our_side
+  theme:
+    description: "The theme switch (src/components/theme-toggle.tsx; the frontend keeps the theme itself, no API call). The button's label is switch, with [now] and [next] the theme names; [next] in lower case."
+    x-wording-keys:
+      group: common.theme_toggle.theme
+      switch: common.theme_toggle.theme_switch_to
+      follow_device: common.theme_toggle.follow_my_device
+      system: common.theme.system
+      light: common.theme.light
+      dark: common.theme.dark
   pending:
     errors.legal_version_changed: { status: draft needed, for: "409: the legal version in force changed since the buyer saw the terms (new behaviour)" }
     errors.already_monitored: { status: catalogue gap, for: "409 already_monitored", source: "src/server/monitoring/index.ts ALREADY_MONITORED_WORDS" }
@@ -117,6 +126,7 @@ x-wordings:
     dashboard.grid.basis.*: { status: catalogue gap, for: "GridNumbers.basis and changeReason", source: "src/server/v2/load.ts grid numbers" }
     dashboard.v2.*: { status: catalogue gap, for: "other loader sentences (reviews.notAvailable, standardNote and markers, refund why)", source: "src/server/v2/load.ts, standard-change.ts, src/server/orders/refund-shown.ts" }
     common.customers.*: { status: catalogue gap, for: "CategoryWords: what a kind of business calls its customers", source: "src/server/v2/category-words/wording.ts" }
+    common.theme.*: { status: catalogue gap, for: "the theme names System, Light and Dark (drawn through tr(LABEL[theme]), which the catalogue build doesn't follow)", source: "src/components/theme-toggle.tsx LABEL" }
     common.customer.*: { status: catalogue gap, for: "CategoryWords (singular)", source: "src/server/v2/category-words/wording.ts" }
 
 paths:
@@ -130,6 +140,10 @@ paths:
         Only approved entries are ever returned (the wording gate is server-side). A key the frontend needs and does
         not find here is a question for Backend, never a sentence to type. `version` is the catalogue's content hash,
         also sent as the `ETag`; send it back in `If-None-Match` for a 304.
+
+        **The mock** (Prism) answers every call with the whole English export (api/examples/wordings.en.json, built by
+        `pnpm api:examples`): it ignores `ns`, `locale` and `If-None-Match`, never answers 304, and always sends the
+        same ETag. Filter by namespace yourself when you work against the mock; the real endpoint filters.
       parameters:
         - name: locale
           in: query
@@ -148,8 +162,8 @@ paths:
         "200":
           description: The catalogue (or one namespace of it).
           headers:
-            ETag: { $ref: "#/components/headers/ETag" }
-            Cache-Control: { $ref: "#/components/headers/CacheControl" }
+            ETag: { $ref: "#/components/headers/WordingsETag" }
+            Cache-Control: { $ref: "#/components/headers/WordingsCacheControl" }
           content:
             application/json:
               schema: { $ref: "#/components/schemas/WordingCatalogue" }
@@ -158,7 +172,7 @@ paths:
         "304":
           description: Not modified (the ETag matched).
           headers:
-            ETag: { $ref: "#/components/headers/ETag" }
+            ETag: { $ref: "#/components/headers/WordingsETag" }
         "422": { $ref: "#/components/responses/Unprocessable" }
         "429": { $ref: "#/components/responses/RateLimited" }
 
@@ -171,7 +185,7 @@ paths:
         "200":
           description: The switches, read on every request (cache for at most 60 seconds).
           headers:
-            Cache-Control: { $ref: "#/components/headers/CacheControl" }
+            Cache-Control: { $ref: "#/components/headers/SiteCacheControl" }
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Site" }
@@ -800,8 +814,8 @@ paths:
         "200":
           description: The picture.
           headers:
-            ETag: { $ref: "#/components/headers/ETag" }
-            Cache-Control: { $ref: "#/components/headers/CacheControl" }
+            ETag: { $ref: "#/components/headers/MapETag" }
+            Cache-Control: { $ref: "#/components/headers/MapCacheControl" }
           content:
             image/png:
               schema: { type: string, contentMediaType: image/png }
@@ -1258,24 +1272,42 @@ components:
         `cross_site_refused` before routing. Browsers send it themselves on same-origin fetches.
 
   headers:
-    ETag:
-      description: An opaque version; send it back in If-None-Match.
+    WordingsETag:
+      description: The catalogue's version (the body's `version`), quoted; send it back in If-None-Match. The mock always sends this one.
       schema: { type: string }
-    CacheControl:
-      description: How long the answer may be kept.
+      example: '"7449d8e501c28102"'
+    WordingsCacheControl:
+      description: The catalogue may be kept 5 minutes, then checked again with If-None-Match.
       schema: { type: string }
+      example: public, max-age=300, must-revalidate
+    SiteCacheControl:
+      description: The switches may be kept at most 60 seconds.
+      schema: { type: string }
+      example: public, max-age=60
+    MapETag:
+      description: The picture's version (32 hex characters, quoted).
+      schema: { type: string }
+      example: '"5d41402abc4b2a76b9719d911017c592"'
+    MapCacheControl:
+      description: As the current map route sends it.
+      schema: { type: string }
+      example: private, max-age=86400, stale-while-revalidate=2592000
     NoStore:
       description: Always `no-store`.
       schema: { type: string, const: no-store }
+      example: no-store
     RetryAfter:
       description: Seconds until the limit's window ends.
       schema: { type: integer, minimum: 1 }
+      example: 1800
     SetSessionCookie:
       description: "`vg_session=<token>; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=2592000`"
       schema: { type: string }
+      example: vg_session=bW9jay1zZXNzaW9uLXRva2VuLWludmVudGVk; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=2592000
     ClearSessionCookie:
       description: "`vg_session=; Path=/; Max-Age=0`"
       schema: { type: string }
+      example: vg_session=; Path=/; Max-Age=0
 
   parameters:
     BusinessDomain:

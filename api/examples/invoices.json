@@ -13,8 +13,8 @@
           }
         },
         "number": "VG-DEMO-0002",
-        "amountCents": 9900,
-        "creditCents": 5000,
+        "amountCents": 14900,
+        "creditCents": 0,
         "refundedCents": null,
         "status": "paid"
       },
@@ -29,8 +29,8 @@
           }
         },
         "number": "VG-DEMO-0001",
-        "amountCents": 0,
-        "creditCents": 14900,
+        "amountCents": 5000,
+        "creditCents": 9900,
         "refundedCents": null,
         "status": "paid"
       },

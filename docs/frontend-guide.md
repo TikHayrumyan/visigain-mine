@@ -67,13 +67,23 @@ the plan's label, then `shows`.
 **The public pages** (`/`, `/scan`, `/pricing`, `/sample-report`, `/faq`, `/contact`, `/articles`, `/about`) keep
 their addresses: they are in printed QR codes. Their endpoints are in the spec's `public` tag.
 
-**After launch:** Monitoring's sub-pages, fixers, chat, settings, team, sessions, listing, reviews, onboarding, share.
-They are not in the contract yet.
+**After launch:** the Monitoring page and its sub-pages, progress, fixers, chat, settings, team, sessions, listing,
+reviews, onboarding, share and partner. They are not in the contract yet (see below for the ones emails link to).
 
-**Addresses that stay with the backend.** Some paths are in clients' email, on their sites or registered with outside
-services, so the load balancer sends them to the backend for good (the list: [`api.md`](api.md), "Legacy backend
-paths"): sign-in links, confirmations, `/v/…`, badges, the PDFs, `/admin`, and others. Do not build a page at one of
-those paths without asking Backend.
+**Which paths this app serves at the switch.** [`api.md`](api.md), "Paths at the switch", splits every path in two:
+
+- **(a) backend for good:** tokens and codes in emails (`/scan/confirm/…`, `/invite/…`, `/monitoring/confirm`), `/v/…`,
+  badges and shared links, the OAuth callbacks (`/auth/google/**`, Connect Google), the PDFs and images, `/admin/**`,
+  `/api/**` and the crawler files. Never build a page at one of these; link to them, or use `/api/v1` (the PDF and the
+  grid map have `/api/v1` addresses).
+- **(b) pages this app builds, at the same paths** so emailed links keep working: the public pages, `/scan` and
+  `/scan/[token]`, `/terms`, `/refunds`, `/legal/**`, `/signin`, `/auth/verify`, `/dashboard` and its grid, ranks,
+  citations, orders and reports, `/dashboard/buy`, `/checkout/done`, `/account` and its invoices. The table in
+  `api.md` names the calls each one uses.
+- **Emailed, but no launch API: they stay on the backend after the switch until their endpoints exist.**
+  `/dashboard/monitoring`, `/dashboard/progress`, `/dashboard/team` and `/partner` are linked from emails (and
+  Stripe's return), but have no endpoint at launch. The load balancer's list names them, so they keep going to the
+  backend. **This app does not build them at launch**; each moves when its endpoints are in the spec.
 
 ## 4. Things the design must not break
 

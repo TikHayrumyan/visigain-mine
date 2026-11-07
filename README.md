@@ -35,7 +35,7 @@ On Windows PowerShell, the second is `$env:MOCK="1"; pnpm dev`.
 
 Open http://127.0.0.1:3000/example: a few wordings by key and the prices from `GET /api/v1/pricing`. It proves the
 wiring and is not a designed page. A key the mock's catalogue lacks shows as the key itself (for example
-`common.theme_toggle.light`): that is a question for Backend, never a sentence to type (CONTRIBUTING.md).
+`common.theme.light`): that is a question for Backend, never a sentence to type (CONTRIBUTING.md).
 
 **The mock.** Every answer is an example from the spec. Pick another with the header `Prefer: example=<name>` (the
 dashboard overview has `monitoring`, `report` and `free`), or another status with `Prefer: code=429`. A session call
@@ -60,24 +60,34 @@ CI (`.github/workflows/ci.yml`, GitHub Actions) runs the same, in that order, on
 | ----------------------------- | ------------------------------------------------------------ | --------------------------------------------------------- |
 | `MOCK=1`                      | `/api/v1/*` on its own origin, rewritten to the mock         | the mock (`MOCK_ORIGIN`, default `http://127.0.0.1:4010`) |
 | development, `API_ORIGIN` set | `/api/v1/*`, rewritten to `API_ORIGIN`                       | `API_ORIGIN`                                              |
-| production                    | `/api/v1/*`: the load balancer sends `/api/*` to the backend | `API_ORIGIN`                                              |
+| production                    | `/api/v1/*`: the load balancer sends `/api/*` to the backend | `API_ORIGIN` (open: decided in Phase 3)                   |
 
 `src/api/origin.ts` decides this; `next.config.ts` holds the rewrite. Rewrites are read when the dev server starts or
 the app is built, so restart after changing `MOCK` or `API_ORIGIN`. `.env.example` lists every variable, all blank.
 
-## Pointing at staging, later
+## Pointing at staging, later (coming with frontend-staging, Phase 3b)
 
-Staging is private: every request carries a Google identity allowed to call it. Once Raf has granted your Google
-account (`roles/run.invoker` on the staging services) and Backend has said the staging API is up:
+Staging is private: every request carries a Google identity allowed to call it. The plan, once Raf has granted your
+Google account (`roles/run.invoker` on the staging services) and Backend has shipped it:
 
 1. Install the Google Cloud CLI and `gcloud auth login` with that account.
-2. Run the backend's staging proxy on your laptop. It is `deploy/staging-proxy.mjs` in the backend repository; Backend
-   gives you the staging address and the exact command (for example on port 3200). The proxy adds your identity
-   token to each request and never prints it.
-3. `API_ORIGIN=http://localhost:3200 pnpm dev` (without `MOCK`).
+2. Run your app as usual: `pnpm dev` on http://127.0.0.1:3000.
+3. Run the backend's staging proxy in its one-origin mode on http://127.0.0.1:3200 (`deploy/staging-proxy.mjs` in
+   the backend repository; Backend gives you the exact command). It sends `/api/**` and the backend-only paths
+   ([`docs/api.md`](docs/api.md), "Paths at the switch", list (a), plus the emailed pages that have no launch API yet) to `backend-staging`, signed with your own Google identity
+   (the token is never printed), and everything else to your `next dev` on 3000.
+4. Open http://127.0.0.1:3200. The browser sees one origin, as in production, so the session cookie and the
+   backend's Origin check on every non-GET work as they will on visigain.com.
+
+`API_ORIGIN` stays for the server side only: what this app's own server calls while rendering a page (in this setup,
+the proxy at http://127.0.0.1:3200).
 
 Staging sends no email: for a signed-in page, ask Backend for a one-time sign-in link for an invented `.test` client.
 You never get, need or call production.
+
+**Open (Phase 3): production's `API_ORIGIN`.** In production the browser's `/api/*` goes through the load balancer,
+but this app's server calls the backend at `API_ORIGIN`. Which address that is has not been decided; likely the
+backend's own run.app address, called with an ID token.
 
 ## The contract
 

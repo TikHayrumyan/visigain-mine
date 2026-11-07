@@ -61,7 +61,7 @@ route switches on.
 | Dashboard › Your key numbers              | Monitoring — changes since (2); hover on a change badge; hover on the grade chart    | 1440       | `/dashboard`                                                               | tooltips are new                                                                                                                               |
 | Dashboard › General states                | More menu; navigation; notifications open; account menu open; business switcher open | 1440       | `/dashboard` (header)                                                      | **No route yet**: a notifications bell for clients, a "Tracked keywords" editor, "Weekly check settings" as a menu, an "Email reports" setting |
 | Dashboard › Your key numbers — grades A–F | Grade A, B, C, D, F                                                                  | 544        | `/dashboard` (the grade block)                                             | the colours match ours (section 4.1)                                                                                                           |
-| Dashboard › 3 levels                      | No business — main · numbered                                                        | 1440       | `/dashboard` with no business ("Getting started"), `/dashboard/onboarding` | the frame says $99 for the full report; the price comes from GET /pricing, never the frame (Illia's own note flags it)                         |
+| Dashboard › 3 levels                      | No business — main · numbered                                                        | 1440       | `/dashboard` with no business ("Getting started"), `/dashboard/onboarding` | the frame's $99 for the Full Report is today's price (US$99 since 14 October 2026); draw it from GET /pricing, never the frame                 |
 | Dashboard › 3 levels                      | Free scan — main                                                                     | 1440       | `/dashboard` (Free plan)                                                   | the public free grade result is `/scan/[token]` and `/grade/[domain]`, not designed here                                                       |
 | Dashboard › 3 levels                      | Full Report — main                                                                   | 1440       | `/dashboard` (Full Report plan)                                            |                                                                                                                                                |
 | Dashboard › Mobal                         | Monitoring — mobile; mobile menu open                                                | 390        | `/dashboard` (on a phone)                                                  | sidebar becomes a top bar and a full-screen menu                                                                                               |
@@ -274,15 +274,15 @@ some is not, and the two look alike. A sentence the design needs that has no key
 
 Places where the design's text is known to differ from what is approved:
 
-| where                           | what differs                                                                                                    |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Dashboard subtitle              | the design's date and day line is not the approved one (the business name, the weekly slot, the latest reading) |
-| Full report, Monitoring credit  | the design's credit sentence is shorter than the approved two sentences                                         |
-| Connect Google Business Profile | the approved sentence also names the date of the latest photo                                                   |
-| Block titles                    | there is no approved "Your key numbers" row; the listing block has another approved title                       |
-| Reviews tile                    | the design's label has a typo; the approved label is different                                                  |
-| Report fine print               | an old refund paragraph; the legal text comes only from the API (`/legal/*`, `/checkout/terms`)                 |
-| Prices                          | the frames show different prices; prices come only from `GET /api/v1/pricing`                                   |
+| where                           | what differs                                                                                                                                                                 |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Dashboard subtitle              | the design's date and day line is not the approved one (the business name, the weekly slot, the latest reading)                                                              |
+| Full report, Monitoring credit  | the design's credit sentence is shorter than the approved two sentences                                                                                                      |
+| Connect Google Business Profile | the approved sentence also names the date of the latest photo                                                                                                                |
+| Block titles                    | there is no approved "Your key numbers" row; the listing block has another approved title                                                                                    |
+| Reviews tile                    | the design's label has a typo; the approved label is different                                                                                                               |
+| Report fine print               | an old refund paragraph; the legal text comes only from the API (`/legal/*`, `/checkout/terms`)                                                                              |
+| Prices                          | some frames show other prices; today's are US$99 for the Full Report and US$149 a month for Monitoring, and a page always reads them from `GET /api/v1/pricing`, never typed |
 
 The design also uses **a real business's name, domain, people and competitors, and real-looking reviews** as sample
 data. None of it may appear in this repository, a test, a screenshot or a pull request: use invented `*.test`

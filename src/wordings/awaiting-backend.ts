@@ -7,9 +7,8 @@
  * sentence.
  */
 export const AWAITING_BACKEND: readonly string[] = [
-  // The theme switch's "Light" and "Dark": live on the backend's pages today (src/components/theme-toggle.tsx LABEL,
-  // drawn through tr()), but not in the catalogue export. The names are this app's proposal; "Theme" and
-  // "Follow my device" are in the catalogue (common.theme_toggle.*).
-  "common.theme_toggle.light",
-  "common.theme_toggle.dark",
+  // The theme names: a catalogue gap in the spec (x-wordings.pending "common.theme.*"; source: the backend's
+  // src/components/theme-toggle.tsx LABEL, drawn through tr()). "Theme" and "Follow my device" are in the catalogue.
+  "common.theme.light",
+  "common.theme.dark",
 ];

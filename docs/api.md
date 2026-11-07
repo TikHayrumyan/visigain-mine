@@ -21,6 +21,7 @@ endpoint is built, the mock answers for it. The current app keeps working throug
 - `curl http://127.0.0.1:4010/api/v1/site` returns the first example.
 - `-H "Prefer: example=free"` picks a named example. For instance, the overview has `monitoring`, `report` and `free`; the free scan has `running`, `ready` and `failed`.
 - `-H "Prefer: code=429"` picks a status.
+- `GET /wordings` answers the whole English export (`api/examples/wordings.en.json`) whatever `ns`, `locale` or `If-None-Match` say: Prism can't filter by a query value, and it never answers 304. Filter by namespace yourself against the mock. Headers come from the spec's examples (a fixed ETag, the real Cache-Control values).
 - A session call needs a cookie, any value will do: `-H "Cookie: vg_session=mock"`. Without one, the mock answers 401, as the API will.
 - From the frontend's dev server, proxy `/api/v1/*` to the mock (a Next.js rewrite). The browser then calls its own origin, exactly as in production.
 
@@ -181,31 +182,55 @@ Other switches never reach the frontend:
   - `in_grade`, `empty`, `error`, `held`, `unavailable`, `not_in_area`: the status's key in `SectionStatus`'s `x-wording-keys` (`empty` has a weekly variant on Monitoring, `in_grade` one per feature).
 - **The header line** is the plan's label, then `shows`.
 
-## Legacy backend paths (routed to the backend for good)
-Plan §2.1: these addresses are already in clients' email, on their sites, in printed QR codes, or registered with
-outside services. The load balancer (production) and the staging proxy send them to the backend, besides `/api/*`.
-They go into `raf-commands-frontend-switch.txt`, with a check for each one. Each path's `/es/...` form goes too, where
-one exists.
+## Paths at the switch: what stays on the backend, what the frontend builds
+Plan §2.1. Today every page is served by the backend. When the load balancer (production) or the staging proxy
+switches, each path goes to one of two places. The (a) list goes into `raf-commands-frontend-switch.txt`, with a check
+for each path. Each path's `/es/...` form follows its English path.
+
+### (a) Backend for good: these can't move
+These are tokens and codes in emails and on clients' sites, outside services' callbacks, files, and the backend's own tools.
 
 | group | paths | who links to them |
 |---|---|---|
-| sign-in | `/auth/verify`, `/auth/google`, `/auth/google/callback`, `/signin`, `/signin/check-email` | the magic-link email; Google's registered redirect; outreach replies (`/signin?next=…`) |
-| confirmations | `/scan/confirm/[code]`, `/scan/[token]`, `/free-ai-check/confirm/[code]`, `/free-ai-check/r/[token]`, `/free-ai-check/s/[token]`, `/monitoring/confirm`, `/invite/[token]` | the free grade, free AI check, monitor recipient and invitation emails; share links |
+| tokens and codes in emails | `/scan/confirm/[code]`, `/free-ai-check/confirm/[code]`, `/free-ai-check/r/[token]`, `/free-ai-check/s/[token]`, `/monitoring/confirm?token=`, `/invite/[token]` | the free grade, free AI check, monitor recipient and invitation emails |
+| unsubscribe and email preferences | `/api/webhooks/unsubscribe/[token]`, `/api/webhooks/email-preferences/[token]`, `/api/webhooks/marketing-unsubscribe/[token]`, `/api/webhooks/review-request-unsubscribe/[token]` | every email's footer (already under `/api/*`) |
 | video landing page | `/v/[token]` and everything under it (`/stop`, `/go`, `/media/[kind]`, `/event`) | cold outreach (Instantly) |
-| badges and links on clients' sites | `/visibility/[token]`, `/visibility/[token]/badge`, `/badge/[domain]` and `/grade/[domain]` (retired, answering 404, but old embeds exist), `/r/[code]`, `/r/s/[token]`, `/p/[code]`, `/p/[code]/start`, `/partner` | embed codes, the referral, share and partner links |
-| dashboard deep links | `/dashboard`, `/dashboard/orders/[id]`, `/dashboard/monitoring`, `/dashboard/progress`, `/dashboard/progress/monthly/[id]/pdf`, `/dashboard/buy`, `/dashboard/team` | the order, report, weekly, alert, series and monthly emails |
-| outside-service callbacks | `/dashboard/monitoring/google/{start,callback,disconnect}`, `/checkout/done`, `/dashboard/orders/[id]?checkout=success`, `/dashboard/monitoring?checkout=success`, `/account` (`?card=…&si=…`) | Connect Google; Stripe's `return_url` |
-| account | `/account` | the payment-failed and renewal emails; the checkout terms ("visigain.com/account") |
-| PDFs | `/dashboard/reports/[id]/pdf`, `/dashboard/review-card/pdf/[kind]`, `/print/reports/[id]` | dashboard links and the monthly email |
-| legal | `/terms`, `/refunds`, `/legal/archive/[version]/[slug]` | receipt footers; the terms-change email |
-| admin | `/admin/**` (the whole tree) | the staff emails |
-| files | `/brand/*`, `/og.png`, `/icon-*.png`, `/favicon.ico`, `/icon.svg`, `/apple-icon.png`, `/manifest.webmanifest`, `/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/articles/feed.xml`, `/benchmarks/**/card`, and `/_next/static/*` while backend pages are served | email logos, social cards, crawlers |
-| old addresses | `/med-spas`, `/personal-injury` (301 to `/`) | old links |
-| reserved | `/fixes/approve` | a planned email link (not sent yet) |
+| clients' sites and shared links | `/visibility/[token]`, `/visibility/[token]/badge`, `/badge/[domain]`, `/grade/[domain]` (both retired: they answer 404, but old embeds exist), `/r/[code]`, `/r/s/[token]`, `/p/[code]`, `/p/[code]/start` | embed codes; the referral, share and partner links |
+| OAuth callbacks | `/auth/google`, `/auth/google/callback` (the address registered with Google); `/dashboard/monitoring/google/start`, `/dashboard/monitoring/google/callback`, `/dashboard/monitoring/google/disconnect` (Connect Google) | Google |
+| PDFs and images | `/dashboard/reports/[id]/pdf`, `/dashboard/progress/monthly/[id]/pdf` (the monthly email), `/dashboard/review-card/pdf/[kind]`, `/dashboard/review-card/qr/[format]`, `/dashboard/grid/map`, `/print/**` | dashboard links, the monthly email |
+| admin | `/admin/**` | the staff emails |
+| API and webhooks | `/api/**` | the frontend, Stripe, Postmark, DocuSeal, engine, Instantly, the scheduler |
+| files | `/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/articles/feed.xml`, the OG cards (`/benchmarks/**/card`, `/grade/[domain]/card`), `/brand/*` (email logos), and `/_next/static/*` for the pages above | crawlers, social cards, emails |
 
-Webhooks, unsubscribe and email-preference links, `/api/internal/*` and `/api/health` are all under `/api/*`
-already. The marketing pages in printed QR codes (`/`, `/scan`, `/pricing`, `/sample-report`, `/faq`, `/contact`,
-`/articles`) move to the frontend, so the frontend must keep those addresses.
+The frontend's own calls never use the (a) page paths. It uses `/api/v1` (a PDF link is `GET /api/v1/reports/{id}/pdf`, the grid map is `GET /api/v1/dashboard/grid/map`).
+
+### (b) Pages the new frontend builds: they move at the switch
+The frontend serves **the same paths**, so emails that link to them keep working.
+
+| path | API calls it uses |
+|---|---|
+| `/` and the public pages (`/pricing`, `/contact`, `/faq`, `/about`, `/articles`, `/articles/[slug]`, `/sample-report`, `/privacy`, `/cookies`, `/accessibility`, `/privacy-choices`) | `GET /site`, `GET /wordings`, `GET /legal/lines`, `POST /consent`, `POST /events`; then `GET /pricing`, `POST /contact`, `GET /faq`, `GET /about`, `GET /articles`, `GET /articles/{slug}`, `GET /sample-report`, `GET /legal/{slug}` as the page needs |
+| `/scan`, `/scan/[token]` | `GET /scans/form`, `POST /scans`; `GET /scans/{token}` (`/scan/confirm/[code]` stays on the backend and redirects here) |
+| `/terms`, `/refunds` | `GET /legal/{slug}` |
+| `/legal/[slug]` (redirects), `/legal/archive/[version]/[slug]` | `GET /legal/archive`, `GET /legal/archive/{version}/{slug}` |
+| `/signin`, `/signin/check-email` | `POST /auth/magic-link`; Google's button links to `/auth/google` (a) |
+| `/auth/verify` | `POST /auth/verify` (the token from `#token=`), then go to `redirectTo` |
+| `/dashboard` | `GET /session`, `GET /dashboard/overview`, `GET /dashboard/grade-history`, `POST /dashboard/tasks/tick`, `POST /dashboard/quick-wins/tick`, `POST /session/organisation` |
+| `/dashboard/grid`, `/dashboard/ranks`, `/dashboard/citations` | `GET /dashboard/grid`, `GET /dashboard/ranks`, `GET /dashboard/citations` |
+| `/dashboard/orders`, `/dashboard/orders/[id]`, `/dashboard/reports/[id]` | `GET /reports`, `GET /orders/{id}`, `GET /reports/{id}` |
+| `/dashboard/buy` | `GET /checkout/terms`, `POST /checkout/full-report`, `GET /checkout/{id}`, `POST /checkout/{id}/confirm` |
+| `/checkout/done` | `GET /checkout/{id}` |
+| `/account`, `/account/invoices/[id]` | `GET /account`, `GET /account/invoices`, `GET /account/invoices/{id}`, `POST /account/payment-method` and `/finish`, `POST /account/monitoring/cancel` |
+| `/dashboard/monitoring`, `/dashboard/monitoring/pay` | `POST /checkout/monitoring`, `GET /checkout/{id}`, `POST /checkout/{id}/confirm`; **the Monitoring page itself has no launch endpoint** (see below) |
+| `/dashboard/progress`, `/dashboard/team`, `/partner`, the other `/dashboard/**` pages | none at launch: the Monitoring sub-pages, team and partner are after launch |
+
+### Every emailed link, checked against the two lists
+I read the links built in `src/server/**` (`config().APP_URL` plus a path, and the path constants such as `REPORT_CREDIT_PATH`, `accountUrl` and the series links):
+- **in (a):** `/scan/confirm/[code]`, `/free-ai-check/confirm/[code]`, `/monitoring/confirm`, `/invite/[token]`, `/v/[token]` and `/stop`, the four unsubscribe and preference links, `/dashboard/progress/monthly/[id]/pdf`, `/admin/notifications`, `/admin/inbound`, `/admin/outreach`, `/admin/orgs/[id]`, `/admin/limits`, `/admin/providers`, `/brand/*`.
+- **in (b):** `/auth/verify` (and `/es/auth/verify`), `/dashboard` (`?b=`), `/dashboard/orders/[id]`, `/dashboard/buy`, `/scan`, `/account`, `/terms`, `/refunds`, `/legal/archive/v[N]/terms`, `/signin?next=`.
+- **in (b), but no launch API behind them:** `/dashboard/monitoring` (the subscription-started, report-ready credit, weekly and alert emails, and Stripe's return), `/dashboard/progress` (the weekly letters), `/dashboard/team` (series) and `/partner` (partner approved). At the switch the frontend must serve these paths. Until their endpoints exist (after launch), either the frontend shows a page built from the launch calls, or these paths stay in (a) and go to the backend.
+- **in neither:** `/fixes/approve#token=` (`src/server/fixes/approvals.ts`). Nothing sends it yet and no page serves it, so it answers 404 today. When the fixers ship, it belongs in (a).
+- **old addresses:** `/med-spas` and `/personal-injury` answer 301 to `/`. The frontend keeps the redirects.
 
 ## What the launch list covers
 The spec has 47 operations:

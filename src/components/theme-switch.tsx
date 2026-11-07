@@ -3,8 +3,8 @@ import { THEMES, type Theme } from "@/theme/theme";
 import type { T } from "@/wordings/t";
 
 const LABEL: Record<Theme, string> = {
-  light: "common.theme_toggle.light",
-  dark: "common.theme_toggle.dark",
+  light: "common.theme.light",
+  dark: "common.theme.dark",
   system: "common.theme_toggle.follow_my_device",
 };
 
