@@ -71,6 +71,8 @@ sub-pages, fixers and chat. Its `docs/pages.md` lists them with their calls. Thi
 - **The "Dashboard" link** in the header shows when the `vg_signed_in=1` hint cookie is present (on `.visigain.com`,
   non-sensitive, readable here) and goes to `https://app.visigain.com/dashboard`. The session cookie is host-only on
   app.visigain.com; this app never sees it and never calls a signed-in endpoint.
+- **Both are an `AppLink`** (`src/components/app-link.tsx`), never a hand-written `<a>`: it adds `?vg_ref=<code>`
+  when the visitor holds a valid referral code in `vg_ref` on this host (the README, "Every link to the app").
 
 The old addresses on visigain.com (`/dashboard/...`, `/account`, `/signin`, `/auth/verify`, `/checkout/...`) answer
 a 308 to the same path on app.visigain.com, set up by Backend on the load balancer.
