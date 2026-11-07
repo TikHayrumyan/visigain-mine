@@ -1,0 +1,91 @@
+{
+  "summary": "One category in one place (invented)",
+  "value": {
+    "methodology": true,
+    "indexable": false,
+    "minBusinesses": 20,
+    "cardPath": "/benchmarks/plumber-example-valley-standard-1-9/card",
+    "title": {
+      "key": "site.benchmarks.in_visibility_benchmark",
+      "params": {
+        "category": "Plumber",
+        "place": "Example Valley"
+      }
+    },
+    "lead": {
+      "key": "site.benchmarks.we_graded_businesses_listed_as_in",
+      "params": {
+        "businesses": 84,
+        "category": "Plumber",
+        "place": "Example Valley",
+        "state": "CA",
+        "from": "Sep 1, 2026",
+        "to": "Sep 3, 2026"
+      }
+    },
+    "page": {
+      "slug": "plumber-example-valley-standard-1-9",
+      "level": "area",
+      "category": "Plumber",
+      "place": "Example Valley",
+      "state": "CA",
+      "businesses": 84,
+      "from": "Sep 1, 2026",
+      "to": "Sep 3, 2026",
+      "fromDay": "2026-09-01",
+      "toDay": "2026-09-03",
+      "version": "1.9",
+      "median": "C (61.2)",
+      "low": "D (52.4)",
+      "high": "C (66.8)",
+      "gaps": [
+        {
+          "area": "Experience",
+          "finding": "Pages load quickly on mobile",
+          "measured": 84,
+          "missed": "77.4",
+          "short": "83.3"
+        },
+        {
+          "area": "Findability",
+          "finding": "Services listed on the profile",
+          "measured": 84,
+          "missed": "64.3",
+          "short": "71.4"
+        },
+        {
+          "area": "Credibility",
+          "finding": "Replies to recent reviews",
+          "measured": 80,
+          "missed": "55",
+          "short": "68.8"
+        }
+      ],
+      "allMissed": [
+        {
+          "area": "Reach",
+          "finding": "Posts on a social profile in the last month",
+          "measured": 84
+        }
+      ],
+      "top": {
+        "businesses": 21,
+        "median": "B (72.5)",
+        "items": [
+          {
+            "area": "Credibility",
+            "finding": "Replies to recent reviews",
+            "top": "85.7",
+            "rest": "30.2"
+          },
+          {
+            "area": "Evidence",
+            "finding": "Team and credentials shown",
+            "top": "61.9",
+            "rest": "12.7"
+          }
+        ]
+      }
+    }
+  }
+}

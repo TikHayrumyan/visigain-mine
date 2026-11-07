@@ -10,6 +10,9 @@ operation answers from the backend, as the spec says, and `tests/api/v1-public.t
 `v1-dashboard.test.ts` and `v1-checkout.test.ts` check each live answer against the spec. The current app keeps
 working throughout. What building it settled is under "What the implementation settled" below.
 
+Added 8 November 2026 (night-g0, the plan's section 10, groups 0 and 5): every operation tagged `launch` or
+`behind-switch` ("Availability" below), `GET /site`'s `switches` and `modules`, and the business extras.
+
 ## Commands
 
 | command | what it does |
@@ -91,12 +94,12 @@ written `code@operationId`). The client turns an answer that is not this shape (
 | 401 | no session, or it ended | `unauthenticated`, `link_invalid` (verify) |
 | 403 | Origin check; role | `cross_site_refused`, `owner_only` |
 | 404 | unknown, or another organisation's. The two are never told apart: one business can never read another's data | `not_found` |
-| 409 | the state does not allow it | `no_organisation` (show onboarding), `no_business`, `report_covered`, `already_monitored`, `legal_version_changed`, `pdf_preparing` |
+| 409 | the state does not allow it | `no_organisation` (show onboarding), `no_business`, `report_covered`, `already_monitored`, `legal_version_changed`, `pdf_preparing`; the fixers: `fixers_hidden`, `fix_refused`, `needs_change`, `module_locked`, `fair_use_reached`, `business_paused` |
 | 410 | gone for good | `report_refunded` |
 | 413 | body too large | `too_large` |
 | 422 | invalid input; the code names the field | `invalid_email`, `invalid_domain`, `invalid_name`, `invalid_message`, `invalid_category`, `category_unsupported`, `invalid_state`, `consent_required`, `disposable_email`, `form_expired`, `idempotency_key_reused` (a key sent again with another body) |
 | 429 | over a limit; `Retry-After` gives the seconds | `rate_limited` |
-| 503 | paused by a switch, or a provider did not answer; nothing changed or charged | `checkout_paused`, `scans_paused`, `payments_unavailable`, `cancel_failed` |
+| 503 | paused by a switch, or a provider did not answer; nothing changed or charged | `checkout_paused`, `scans_paused`, `payments_unavailable`, `cancel_failed`, `draft_failed` |
 
 ## Pagination
 Lists that grow take `cursor` and `limit` (1 to 100, default 20) and answer `{ items, nextCursor }`. A null
@@ -123,6 +126,7 @@ These are today's limits, read from the code. Each is a fixed-window counter in 
 | free scan form stamp | at least 3 seconds open and at most a day; each stamp used at most 3 times | `src/server/freescan/abuse/form-guard.ts` |
 | consent records | 60 a minute per address (`opt_out` is never refused) | `CONSENT_RECORDS_PER_MINUTE` |
 | page-view events | 120 a minute per address; body at most 4,000 bytes | `src/app/api/events/route.ts` |
+| `/api/v1` public reads (only with `FRONTEND_FORWARD_KEY`) | 300 a minute per address, all of them together | `PUBLIC_READS` in `src/server/api/v1/respond.ts` |
 | guest checkout (staging only, `CHECKOUT_PAY_FIRST`) | 10 an hour per address, 5 an hour per email | `src/server/checkout/pay-first.ts` |
 
 Every operation in the spec lists 429. Session endpoints that have no limit today get a per-session one in Phase 3.
@@ -131,23 +135,63 @@ Under `/api/v1` (the public part, as built):
 - **The forms keep their limits exactly**, through the same code: `POST /contact` (`submitContact`), `POST /scans`
   (`submitFreeScan`), `POST /consent`, `POST /events`.
 - **`POST /scans/confirm/{code}` is new:** 30 an hour per address. The emailed link (a GET of a backend page) has none.
-- **The public reads have no limit** (`/site`, `/wordings`, `/pricing`, the legal pages, `/faq`, `/articles`, `/about`,
-  `/sample-report`, `/scans/form`, `/scans/{token}`): their 429 is in the spec but never sent today. Until the signed
-  visitor-IP header exists, the frontend's server would share one address for every visitor, so a per-address limit on
-  a read it makes on every render would refuse everyone at once.
+- **The public reads: 300 a minute per address, all of them together** (`/site`, `/wordings`, `/pricing`, the legal
+  pages and `/legal/lines`, `/faq`, `/articles`, `/about`, `/sample-report`, `/scans/form`, `/scans/{token}`;
+  `PUBLIC_READS` in `src/server/api/v1/respond.ts`), 429 with the minute's own end as `Retry-After`. **Only while
+  `FRONTEND_FORWARD_KEY` is configured:** without it the frontend's server cannot say whose read it makes, and every
+  visitor it renders a page for would share its one address, so with no key there is no limit, as before. The address
+  is the signed header's when it checks, else the request's own (a browser's read through the load balancer). The
+  frontend's own process-wide reads (the switches every 30 seconds, the catalogue re-checked every minute) carry no
+  visitor and count against its own address, far below the limit.
 - **`Retry-After`:** the window's own end where the limiter knows it (`/events`, `/scans/confirm`); 3600 for
   `/contact` and `/scans` (their shortest window is an hour, and the code that counts them answers only "limited");
   60 for `/consent`.
 
-**Planned: the signed visitor-IP header** (plan §2.3).
-- **The problem:** when the frontend renders a page on its server and calls the API, the backend sees the frontend service's address, not the visitor's. Every visitor would then share one limit, and consent and contact records would hash the wrong address.
-- **The fix:** the frontend's server forwards the visitor's address in a header signed with a shared key. The key lives in Secret Manager, for the frontend service only. The API trusts the header only when the signature checks. The header's name and signature format are fixed in Phase 3.
+**The signed visitor-IP header** (plan §2.3; `src/server/security/visitor-header.ts`, the frontend's `src/api/visitor.ts`).
+- **The problem:** when the frontend renders a page on its server and calls the API, the backend sees the frontend
+  service's address, not the visitor's. Every visitor would then share one limit, and consent and contact records would
+  hash the wrong address.
+- **The header**, on the frontend server's calls made for a visitor (never on the browser's):
+
+  ```
+  x-visigain-visitor: v=1;ip=<the visitor's IP>;ts=<unix seconds>;sig=<base64url HMAC-SHA256, no padding>
+  ```
+
+  The HMAC is keyed with `FRONTEND_FORWARD_KEY` over the five lines `v1`, the method in capitals, the path without the
+  query string (exactly as sent, e.g. `/api/v1/scans/abc`), the IP and the timestamp, joined by `\n`.
+- **Trusted only when** the key is configured (32 characters or more), the signature checks (a constant-time compare),
+  the timestamp is within 60 seconds of the backend's clock either way, and the IP is an IPv4 or IPv6 address. Then
+  that address is the one `requestMeta` gives `/api/v1` (`metaOf`): its hash on consent and contact records, the free
+  scan's and sign-in's rows, and every per-address limit. Anything else (no key, a bad signature, an old or future
+  timestamp, another shape) is ignored, and the request is read as before (`TRUSTED_PROXY_HOPS`, `clientIp`). An
+  ignored header is logged (`api.v1.visitor_header_ignored`, with its reason) at most once a minute for each reason,
+  never with the key, the signature or the address.
+- **Which address the frontend forwards:** the entry of the incoming `X-Forwarded-For` that the nearest trusted proxy
+  appended, counted from the right by the frontend's own `TRUSTED_PROXY_HOPS`, as `clientIp` does here: 1 on
+  frontend-staging (Cloud Run's front end appends the caller's address, the last entry), 2 on frontend-prod behind the
+  load balancer (it appends `<client>, <load balancer>`, so the second from the right). The entries before it are the
+  client's own and never trusted.
+- **The key:** one secret per environment in Secret Manager, read by both services: `backend-staging-frontend-forward-key`
+  (staging) and, later, `backend-prod-frontend-forward-key`. 32 random bytes, base64. The owner makes it; nothing in
+  this repository creates it:
+
+  ```
+  openssl rand -base64 32 | tr -d '\n' | gcloud secrets create backend-staging-frontend-forward-key --project visigain-prod --replication-policy automatic --data-file=-
+  gcloud secrets add-iam-policy-binding backend-staging-frontend-forward-key --project visigain-prod --member serviceAccount:backend-staging@visigain-prod.iam.gserviceaccount.com --role roles/secretmanager.secretAccessor
+  ```
+
+  backend-staging mounts it as `FRONTEND_FORWARD_KEY` when it exists and its account may read it (`deploy/config.sh`
+  `SECRETS_OPTIONAL`, `deploy/03-deploy.sh` `mount_optional`; absent, the deploy goes on without it).
+  frontend-staging mounts the same secret as `FRONTEND_FORWARD_KEY` (`deploy/20-frontend-staging.sh` step 5b, which
+  grants its account `secretAccessor` on that one secret when it exists), and so does app-staging, the customer app
+  (`deploy/23-app-staging.sh` step 5b). Production's frontend (`deploy/21-frontend-prod.sh`)
+  does not mount it yet.
 - **Not affected:** browser calls to `/api/v1` go through the load balancer and don't need the header.
 
 ## Caching
 Every `/api/v1` answer names its own `Cache-Control` (the proxy leaves it to the route there):
 - `GET /wordings`: `public, max-age=300, must-revalidate`, with the ETag (304 on a match, the same headers);
-- `GET /site`: `public, max-age=60`;
+- `GET /site`: `public, max-age=60` with `Vary: Cookie`; `no-store` when it carries `modules` (a session);
 - `GET /scans/form` and `GET /scans/{token}`: `no-store`;
 - everything else, errors included: `private, no-store`, as every `/api` answer has always been.
 
@@ -164,8 +208,8 @@ and `POST /contact`. Every other `/api/v1` address answers 404 `not_found`, in t
 - Every spec change runs `pnpm api:types`, `pnpm api:lint` and the contract test, and goes through a pull request that Backend reviews.
 
 ## The switches (`GET /site`)
-Read `/site` on every page render, cached for at most 60 seconds. Only what a page needs is exposed, and the switch
-names below are the backend's own (`src/server/config.ts`).
+Read `/site` on every page render, cached for at most 60 seconds. The fields below came first; `switches` (further down)
+lists every client-facing switch. The switch names are the backend's own (`src/server/config.ts`).
 
 | field | backend switch | what the frontend does |
 |---|---|---|
@@ -184,10 +228,56 @@ as `apiCheckout` (added 7 November 2026; `checkout` there is still the pages' sw
 proposal (`errors.legal_version_changed`), so the API's starts stay off in production until it is approved. On staging,
 deploy with `API_CHECKOUT_ENABLED=true`. Everything else of checkout and account answers whatever it says.
 
-Other switches never reach the frontend:
-- **Off in production:** quick wins (`QUICK_WINS_ENABLED`, staging only) and guest checkout (`CHECKOUT_PAY_FIRST`, refused in production).
+**Every client-facing switch: `switches`** (added 8 November 2026, `src/server/api/v1/switches.ts`). An object keyed
+by the backend's own names, each `true` or `false` as the code obeys it now: after `config()`'s production refusals and
+each feature's own gate (its drafts rule, holding). The fields above stay, and say the same where they overlap. To show
+or hide a page, read its switch here, never a guess. `tests/api/v1-site-businesses.test.ts` checks that every switch
+`deploy/config.sh` refuses in production (its "stays false in production" lines and `STAGING_ONLY_SWITCHES`) is
+`false` there, with the environment asking for `true`.
+
+| switches | read through |
+|---|---|
+| `SITE_HOLDING`, `CHECKOUT_ENABLED`, `CHECKOUT_WALLETS`, `API_CHECKOUT_ENABLED`, `SPANISH_SITE_ENABLED`, `SHARE_REPORT_ENABLED` | the same as `holding`, `checkout`, `checkoutWallets`, `apiCheckout`, `spanish`, `share` |
+| `CHECKOUT_PAY_FIRST` | `payFirstEnabled` (refused in production) |
+| `GOOGLE_SIGNIN_ENABLED` | `googleEnabled`: on only with its credentials |
+| `AI_CHAT_ENABLED` | the switch, and the chat's drafts rule (`draftsMayShow`): off in production while a chat sentence is a draft. A business may still be off. |
+| `SITE_INDEXABLE` | never while holding (as `robots.ts` and the proxy) |
+| `STANDARD_PUBLIC`, `STANDARD_CHANGE_NOTE`, `CITY_AVERAGES_ON_DEMAND`, `ENGINE_SCAN_ANY_CATEGORY`, `REFERRAL_CREDIT_ENABLED` | the setting |
+| `FIXERS_ENABLED`, `GOOGLE_CONNECT_ENABLED` | `fixersEnabled`, `googleConnectEnabled` (refused in production) |
+| `QUICK_WINS_ENABLED`, `RIVALS_EMAIL_ENABLED`, `PAUSE_SUBSCRIPTION_ENABLED`, `VISIBILITY_BADGE_ENABLED` | the retention pack's gates (refused in production, dark while a sentence is a draft outside staging) |
+| `FREE_AI_CHECK_ENABLED`, `PARTNER_PROGRAM_ENABLED`, `BENCHMARK_PAGES_ENABLED`, `BENCHMARK_INDEXING_ENABLED`, `METHODOLOGY_PAGE_ENABLED` | each feature's gate (refused in production) |
+| `EMAIL_NURTURE_ENABLED`, `EMAIL_CHECKOUT_REMINDER_ENABLED`, `EMAIL_REPORT_TO_MONITORING_ENABLED`, `EMAIL_ONBOARDING_ENABLED`, `EMAIL_FAILED_PAYMENT_ENABLED`, `EMAIL_WINBACK_ENABLED` | the setting (for the email preferences pages; the emails stay in the backend) |
+| `TAG_GA4_ENABLED`, `TAG_CLARITY_ENABLED`, `TAG_META_ENABLED`, `TAG_LINKEDIN_ENABLED`, `TAG_TIKTOK_ENABLED`, `TAG_GOOGLE_ADS_ENABLED` | `tagSwitchOn`, and off while holding (a tag still needs its real id and the consent rules) |
+
+**Left out of `switches`, and why:** none of these changes what a client page shows.
+- Plumbing: `PAYMENTS_MODE`, `ENGINE_MODE`, `ENGINE_V2_PARTS`, `EMAIL_PROVIDER`, `EMAIL_SENDING_ENABLED`, `PDF_MODE`, `MONITOR_SCAN_TYPE`, `STRIPE_LIVE_APPROVED`, `STRIPE_ALLOW_RESTRICTED_TEST_KEY`, `INSTANTLY_EVENT_POLLING`, and `VIDEO_PLACEHOLDER` (the `/v/` page stays on the backend).
+- Admin and staff tools: `SCORECARD_ENABLED`, `FUNNEL_ANALYTICS_ENABLED`, `OUTREACH_CAMPAIGNS_ENABLED` (on the STAGING ONLY list, but admin only), `ENGINE_COSTS_ENABLED`, `WORDINGS_REWORD`, `CONTACT_NOTIFY_ONLY`, `INBOUND_CRM_PUSH`, `FIX_DRAFTS_BATCH`.
+- Server-to-server analytics: `CONVERSIONS_*`, `GA4_MP_*`, `GA4_ANALYTICS_ONLY`.
+- The jobs: `RETENTION_*`, `MAINTENANCE_MONEY_PASSES`, `MAINTENANCE_ENGINE_PASSES`, `INTERNAL_OIDC_*`.
+- Database switches: each fix module's own is in `modules` (below); the chat's per-business switches are per business; pricing's Monitoring price is `monitoring.priceShown` in `GET /pricing`.
+
+**The 8 modules: `modules`** (added 8 November 2026). With a session cookie, `/site` also gives the fix modules of one
+of the session organisation's businesses: `?b=<domain>`, as on the dashboard reads (missing or empty: the first).
+Each item has `module`, `unlocked`, `unlockDay` (0, 14, 30, 60 or 90), `daysIn` (days since the live Monitoring
+subscription started; null without one), `earlyUnlock` (an admin's) and `on` (`FIXERS_ENABLED` and the module's own
+switch). Show a module's page only when it is `on` and `unlocked`. Without a session, for a `b` that isn't one of the
+organisation's own, or with no business, there is no `modules`: never another organisation's. With `modules` the
+answer is `no-store`; without it, `public, max-age=60` with `Vary: Cookie`. `/site` never answers 401, and is not
+counted against the session's limit.
+
+Also:
 - **Shown in the data:** a part that is off arrives as null or as a section with its status.
 - **Pricing's Monitoring price:** `GET /pricing` carries `monitoring.priceShown`, from the setting `pricing.monitoring_public`.
+
+## Availability: `launch` or `behind-switch`
+Every operation in the spec carries `x-visigain-availability`:
+- `launch`: it answers in production as it is. Build it in the plan's order.
+- `behind-switch`: it answers only while a switch is on. The switch is named in `x-visigain-switch`, by its backend name, and is one of `GET /site`'s `switches`. While it is false, hide the page (the operation answers as its description says, for example 503 `checkout_paused`).
+
+Today only the two checkout starts (`POST /checkout/full-report`, `POST /checkout/monitoring`) are `behind-switch`, on
+`API_CHECKOUT_ENABLED`. Two checks hold it: `pnpm api:lint` (the Redocly rules `rule/operation-availability` and
+`rule/behind-switch-names-its-switch` in `api/redocly.yaml`), and `tests/api/contract.test.ts`, which also pins the
+list of operations behind a switch and checks each names a switch of `/site`. A new operation without the tag fails both.
 
 ## Wordings and the approval gate
 - **The frontend never types a sentence.** Every word a client sees comes from `GET /api/v1/wordings?locale=en|es&ns=<namespace>`, which answers `{ locale, version, entries: { [key]: string } }`.
@@ -226,6 +316,7 @@ for each path. Each path's `/es/...` form follows its English path.
 
 ### (a) Backend for good: these can't move
 These are tokens and codes in emails and on clients' sites, outside services' callbacks, files, and the backend's own tools.
+The same list is code in `deploy/backend-paths.mjs` (the staging proxy's one-origin mode routes by it, and production's load balancer does: `deploy/frontend-switch-map.mjs` writes the URL map of `deploy/22-frontend-switch.sh` from it, with `/_next/**` on the backend, as the frontend's own files are at `/fe/_next/**`); `tests/deploy/staging-proxy-one-origin.test.ts` holds the two together, so change both at once.
 
 | group | paths | who links to them |
 |---|---|---|
@@ -268,6 +359,29 @@ I read the links built in `src/server/**` (`config().APP_URL` plus a path, and t
 - **in (b), but no launch API behind them:** `/dashboard/monitoring` (the subscription-started, report-ready credit, weekly and alert emails, and Stripe's return), `/dashboard/progress` (the weekly letters), `/dashboard/team` (series) and `/partner` (partner approved). At the switch the frontend must serve these paths. Until their endpoints exist (after launch), either the frontend shows a page built from the launch calls, or these paths stay in (a) and go to the backend.
 - **in neither:** `/fixes/approve#token=` (`src/server/fixes/approvals.ts`). Nothing sends it yet and no page serves it, so it answers 404 today. When the fixers ship, it belongs in (a).
 - **old addresses:** `/med-spas` and `/personal-injury` answer 301 to `/`. The frontend keeps the redirects.
+
+### The three hosts (APP_ORIGIN, ADMIN_ORIGIN)
+The final shape (`C:/visigain-handoff/frontend-api-plan-2026-11.md`, section 9) puts the website on `visigain.com`
+(`APP_URL`), the app on `app.visigain.com` (`APP_ORIGIN`) and the admin on `admin.visigain.com` (`ADMIN_ORIGIN`). The
+paths of each are written once, in `deploy/host-paths.mjs`; `src/server/hosts.ts` builds every link from it, `src/proxy.ts`
+redirects by it, and `deploy/frontend-switch-map.mjs hosts` writes the load balancer's map from it. **While both settings
+are unset nothing moves:** one host, every link on `APP_URL`, no redirect (the one-app launch).
+- **Links** (emails, the magic link, Stripe's return addresses, Google sign-in's and Connect Google's redirect URIs, the
+  PDF links): the dashboard, reports, orders, checkout, account, invoices, sign-in and verify go to `APP_ORIGIN`; the
+  admin's to `ADMIN_ORIGIN`; the free scan, a shared report, legal, unsubscribe and the other (a) token links, and the
+  logos, stay on `APP_URL`. `tests/email/link-hosts.test.ts` lists every email's links and their host.
+- **Old links:** with `APP_ORIGIN` set, a GET or HEAD on another host of `/dashboard/**`, `/account/**`, `/signin`,
+  `/signin/check-email`, `/auth/verify` and `/checkout/**` answers 308 to the same path and query on `APP_ORIGIN`
+  (`APP_REDIRECT_PATHS`). With `ADMIN_ORIGIN` set, a GET of `/admin/**` elsewhere is a 308 there; anything else under
+  `/admin` or `/api/admin` elsewhere is 404. The admin's host serves its own sign-in pages.
+- **Load balancer** (stage `hosts`): `visigain.com` sends list (a), `/_next/**` and the old app paths above (so the
+  backend can 308 them) to `backend-prod`, the rest to `frontend-prod`; `app.visigain.com` sends `/api/v1/**`, the
+  OAuth callbacks and the PDF and image routes (`APP_HOST_BACKEND_PATTERNS` in `deploy/backend-paths.mjs`) to
+  `backend-prod`, the rest to `app-prod`; `admin.visigain.com` sends everything to `backend-prod`.
+- **Cookies:** the session stays host-only. With `APP_ORIGIN` set, sign-in also writes `vg_signed_in=1` on the parent
+  domain (`.visigain.com`; none on run.app, localhost or an IP), cleared at sign-out: no identity, for the website's
+  "Dashboard" link (`src/server/auth/signed-in-hint.ts`). Its Cookie Policy line is pending (`policyPending` in
+  `src/config/cookies.ts`).
 
 ## What the implementation settled (the public part, 7 November 2026)
 Where the spec left a point open, or was wrong, the built API decided as below. Each change to the spec is additive.
@@ -398,10 +512,205 @@ Built on night-api6: every `checkout` and `account` operation, through the pages
 **The spec was wrong, and is fixed:** `POST /account/payment-method/finish` listed no 409; the Idempotency-Key's
 reused-with-another-body answer is 422 (above).
 
-## What the launch list covers
-The spec has 47 operations:
-- the plan's launch table, with one change: there is no Stripe billing portal, so the card is changed through `POST /account/payment-method` instead;
-- 11 operations the pages need that the table didn't list. `tests/api/contract.test.ts` names each one.
+## Business extras (the plan's section 10, group 5; 8 November 2026)
+Built on night-g0 (`src/server/api/v1/businesses.ts`), checked by `tests/api/v1-site-businesses.test.ts`.
+- **Switch business:** `?b=<domain>` on the dashboard reads, as before.
+- **Add a business: `POST /organisations`.** The app has no form that adds a business's website on its own. Its
+  "Add another business or agency" (`dashboard.settings.add_another_business_or_agency`) opens the onboarding form,
+  which makes an **organisation** (a business or an agency), with the caller as owner, and chooses it (`vg_org`). So
+  that is what this call wraps (`createOrg`): the same steps, the free grades of the caller's email claimed into it,
+  a referral code kept (only with `REFERRAL_CREDIT_ENABLED`). A website joins an organisation with a Full Report or
+  Monitoring start, or a claimed free grade, as on the pages. The form's words are
+  `dashboard.onboarding.tell_us_about_your_business`, `dashboard.onboarding.business_or_agency_name`,
+  `dashboard.onboarding.this_account_is_for`, `dashboard.onboarding.my_own_business` and
+  `dashboard.onboarding.an_agency_with_several_businesses`. A name that isn't right is 422 `invalid_business_name`,
+  the page's own sentence (`errors.invalid_business_name`, read from the form's code since the integration); another
+  field that isn't right, `invalid_state`.
+  This is also group 4's "onboarding".
+- **`GET /businesses`:** the session organisation's businesses with their plans, Monitoring first (the switch's list).
+- **`GET /businesses/{id}/scans`:** one business's delivered grades and reports, newest first, paged: the grade
+  history for that business only. Another organisation's id is the same 404 as an unknown one.
 
-The Monitoring sub-pages, fixers, chat, settings, team, sessions, listing, reviews, onboarding, free AI check,
-benchmarks, partner and share all come after launch.
+## What the implementation settled (settings and account extras, group 4, 8 November 2026)
+Built on night-g4: tag `settings`, 26 operations through the pages' own server code (`src/server/api/v1/settings.ts`),
+each answer checked against the spec by `tests/api/v1-settings.test.ts`.
+
+**Settled:**
+- **Which page each wraps:** /dashboard/settings (`GET /settings`, rename, do-not-sell, delete), /account's language
+  (`POST /settings/language`, SPANISH_SITE_ENABLED), /dashboard/team, /dashboard/sessions, the "Connect Google" card
+  (`GET /monitoring/google`, `POST /monitoring/google/start`), /dashboard/progress, /dashboard/share, a Full Report's
+  "Share this report" box (`/reports/{id}/share-links`, `/share-links/{id}/revoke`, SHARE_REPORT_ENABLED),
+  /dashboard/visibility-badge (VISIBILITY_BADGE_ENABLED) and /dashboard/onboarding (its form is `POST /organisations`).
+- **Stays on the backend:** "Download my data" (`exportPath`, /api/account/export), the monthly and report PDFs
+  (`pdfPath`), the invite accept page /invite/{token}, Google's callback and the disconnect.
+- **Switches:** a read behind an off switch answers `{ availability: "hidden", reason: "off" }`; a change answers 404.
+  The badge's opt-out works with the switch off, as the page's (a client can always leave).
+- **Codes:** another organisation's member, invitation, report, link or business is 404; a member on an owner's step
+  403 `owner_only`; the last owner 409 `last_owner`; delete by the last owner of a team 409 `owner_first`; the badge
+  without its box 422 `consent_required`, without Monitoring 409 `needs_monitoring`. Each with the page's own
+  sentence (`x-wordings.errors`, `code@operationId`).
+- **Words:** the pages' alerts and refusals that were drawn from server code now have keys read from that code
+  (scripts/catalogue-code.ts, no new words): `errors.only_an_owner`, `errors.last_owner`,
+  `dashboard.team.invalid_email`, `dashboard.team.ok.invited` and the other three, `dashboard.settings.name_too_short`,
+  `dashboard.settings.error.confirm_delete`, `dashboard.settings.error.owner_first`, `dashboard.share.owner_only`,
+  `dashboard.share.ok.code_created`, `account.language.saved`, and the device line `dashboard.sessions.device.line`
+  with `dashboard.sessions.device.any_browser`, `dashboard.sessions.device.any_system`, `dashboard.sessions.device.unknown`.
+  A session's device is its product names; a task's mark is its state and day (`dashboard.dashboard.verified_by_scan_on`
+  and its two siblings); the weekly slot is numbers.
+- **The invitation** takes an Idempotency-Key, as the checkout starts: a retry sends no second email.
+
+## "Ask about your report" (the chat, group 3, 8 November 2026)
+Six operations under tag `chat`, each `behind-switch` with `x-visigain-switch: AI_CHAT_ENABLED` (and the admin's
+database switches: the global `assist.chat_global` and the business's own, Admin › AI chat). They wrap the panel's own
+server code (`src/server/api/v1/chat.ts` over `src/server/assist`); `tests/api/v1-chat.test.ts` checks every answer.
+
+- **Nothing of the chat moves to the frontend.** Every guard before and after the model, every fixed reply, the masking,
+  the hourly bound (30 a business), one question at a time per business and engine's US$3 cap run in `askChat`, as for
+  the panel; the test asks the same questions through the panel's action and the API and gets the same kind, verdicts
+  and words. What the API returns is the stored, masked row: never a model reply the guards blocked.
+- **Words:** our own sentences by key: the panel's chrome (`GET /chat` `words`, `dashboard.chat.*`), the allowance and
+  the limit (`dashboard.chat.allowance`, `dashboard.chat.limit`, with `percent` and `date` as params), and an answer that
+  is one of the fixed replies (`wording`, a `dashboard.chat_reply.*` key such as `dashboard.chat_reply.advice`; `text`
+  is then null). Any other answer is `text`: the model's words or a fixed answer from the client's own report, after
+  the guards; show `dashboard.chat.ai_label` with it.
+- **Hidden:** `{ availability: "hidden", reason }` (200) wherever the panel is not drawn: `off` (a switch),
+  `not_monitoring`, or `paused` (Raf's rule: no chat while paused; show `dashboard.chat.off`). A send that is hidden asks
+  nothing and keeps nothing for its key. `GET /chat` `off: true` is the admin's switch-off for the subscriber.
+- **The answer, inside its own request.** `POST /chat/messages?b=` (Idempotency-Key) waits for the whole answer, as the
+  panel's action does: no answer is worked on after its request has ended (Cloud Run gives CPU only during requests).
+  The wait is the panel's model deadline (`QUESTION_DEADLINE_MS`, 120 seconds, after which the pipeline answers the
+  fallback) and 5 seconds for the stores; a question still out then is marked `failed` (the panel's error line), and
+  its poll says `failed` too, never `pending` for ever. Note: the request must be allowed to stay open that long (the
+  backend service's 60-second request timeout, and the load balancer's, cap the panel's action in the same way).
+- **A page reloaded mid-answer:** send the same press again (the same Idempotency-Key and body, kept in
+  sessionStorage). It is never asked twice: the replay answers the question's state, or 202 `pending` with its id when
+  another instance is answering it. Then `GET /chat/messages/{id}` every 1 or 2 seconds: 202 `pending`, then 200 `done`
+  (or `refused` / `failed`, with the panel's sentence). It reads the row; nothing is worked on there. Polling works alone.
+- **Server-sent events (optional):** the same `GET /chat/messages/{id}` with `Accept: text/event-stream` streams `event:
+  state` blocks (the poll's JSON) until the state settles or 25 seconds pass, under the load balancer's 30-second
+  backend timeout. It works through the route handlers (`Cache-Control: no-store, no-transform`, so the server's
+  compression does not hold it back; tested in Vitest); it is not yet tried through Cloud Run and the load balancer.
+  **The fallback is polling:** a client that sees no event within a few seconds, or a stream that ends before `done`,
+  polls the same URL.
+- **A question whose process died** (its POST never came back) reads `failed` once the POST's wait has passed.
+- **History** (`GET /chat/messages?b=`): newest first, `limit` up to 40, opaque cursor; only text a client may still
+  read: 90 days, a health or legal question and its answer 30, no deleted text, never a patient's details (not stored),
+  even before the daily retention pass. A done question's `question` is null for the same reason.
+- **Kept for the poll:** table `api_chat_asks` (migration 0112): where a question stands, never its text; deleted after
+  24 hours by the daily `maintenance.history` pass `apiChatAsks`. The Idempotency-Key keeps the id alone.
+- **Thumbs** (`POST /chat/messages/{id}/thumbs`, 1, -1 or 0) and **report a problem** (`.../problem`, 204; masked, 20
+  an hour a person, then 429). A question's id, another organisation's answer and an unknown id are 404 alike.
+
+## What the implementation settled (fixers, 8 November 2026)
+Built on night-g2 (the full-API add-on, group 2): the `fixers` tag, 11 operations, each `behind-switch` with
+`x-visigain-switch: FIXERS_ENABLED` and `x-visigain-module-switch: fixers.module.<module>`
+(`src/server/api/v1/fixers.ts`; `tests/api/v1-fixers.test.ts` checks every answer against the spec).
+
+- **Through the pages' own code.** The steps go through `ownerReviewAction` (Reviews) and `ownerPageAction` (Pages),
+  a draft through `draftPage`: the lint, the state machine, the roles and the month's limit are theirs. Only those
+  two kinds of fix have steps here; any other kind is decided by the emailed link only (409 `fix_refused`, and
+  `steps` all false), except AI Fact Check's below.
+- **AI Fact Check's two buttons** (added at the integration, night-int1): `POST /fixers/facts/updated` ("I've updated
+  it") and `POST /fixers/facts/not-needed` ("Not needed"), `?b=<domain>`, body `{ row }`: the row's key from
+  `GET /monitoring/watch` (`facts.rows[].key`), not a fix id, because the page makes the row's fix at the owner's click.
+  Through `ownerFactAction` (the row read again from engine; owners only). With the Idempotency-Key. 409
+  `module_locked` before day 14 (nothing made: a fix would open the module early), `fix_refused` when the row is gone
+  or already decided, `fixers_hidden` when off; 403 `owner_only` for a member.
+- **Hidden.** FIXERS_ENABLED off (always in production), the module's switch off, a business not on Monitoring or of
+  a category with no fixer: a read answers `{ hidden: true, reason }` (200), a step 409 `fixers_hidden`. The app hides
+  the page.
+- **Steps** need the Idempotency-Key, as the checkout starts (`{}` is the body of reject and the posted step).
+  Editing is open to a member; approving, rejecting, the posted step and a draft need an owner (403 `owner_only`).
+  `steps` in every fix says which the caller may take now.
+- **The re-measure** starts with the posted step (`POST .../published`: the pages' "I posted it" and "I published
+  it"). A pause holds it as built: the step is taken, the state says `paused`, and engine is asked nothing until the
+  pause ends. Approving, and the emailed link `/fixes/approve#token=` (a backend route, list (a)), are not held.
+- **The unlock days:** each module's `unlocked`, `unlockDay` and `early`; a draft asked for in a locked module is 409
+  `module_locked` (`dashboard.monitoring.state_coming`).
+- **Fair use:** `GET /fixers/fair-use`, used and left per limit; the chat's figure is `enforced: false`.
+- **Words:** no new sentence. Errors use the pages' own keys (`dashboard.monitoring.refused`,
+  `dashboard.monitoring.needs_change`, `dashboard.monitoring.cap_flash`, `dashboard.monitoring.draft_failed`); the
+  lint's hints are the modules' approved hints as keys. `business_paused` borrows
+  `account.pause_monitoring.while_it_is_paused_there_are` until the strategist writes the draft's own line.
+- **Not here:** the page builders' offers (the brief ids a draft is asked for) and the review queue's own view are
+  the Monitoring group's read-only views.
+
+## What the implementation settled (Monitoring, group 1 part B, 7 November 2026)
+Built on night-g1b (`src/server/api/v1/monitoring-b.ts`, tests in `tests/api/v1-monitoring-b.test.ts`). Each path is
+its page's address without `/dashboard` (the review card and the two read pages keep it, as the other dashboard reads).
+
+| operation | page | availability |
+|---|---|---|
+| `GET /dashboard/reviews` | /dashboard/reviews | launch |
+| `GET /dashboard/listing` | /dashboard/listing | launch |
+| `GET /dashboard/review-card` | /dashboard/review-card (its QR and PDF routes stay on the backend: links) | launch |
+| `GET /monitoring/ask-for-reviews`, `POST /monitoring/ask-for-reviews/send` | /dashboard/monitoring/ask-for-reviews | behind-switch: FIXERS_ENABLED and `fixers.module.reviews` |
+| `GET /monitoring/reviews` | /dashboard/monitoring/reviews | behind-switch: FIXERS_ENABLED and `fixers.module.reviews` |
+| `GET /monitoring/pages` | /dashboard/monitoring/pages | behind-switch: FIXERS_ENABLED and `fixers.module.pages` (day 30) |
+| `GET /monitoring/watch` | /dashboard/monitoring/watch (AI Fact Check, Profile Guardian, holidays): part A's route (`getMonitoringWatch`, `src/server/api/v1/monitoring.ts`), kept at the merge | behind-switch: FIXERS_ENABLED |
+
+- **Hidden and locked.** Where a fixer page answers "not found" today (a switch off, always in production; no
+  Monitoring; a category not offered the tool), the API answers 200 `{ state: "hidden", modules, reason }`. A module
+  not unlocked yet is `{ state: "locked", module, name, about, coming }`, the page's `ModuleLocked` (never a date). A
+  `b` that is not the organisation's own is 404 first, as every dashboard read.
+- **The send** is the action's `sendReviewRequests`: hidden is 404 (nothing read or written), a member who is not an
+  owner 403 `owner_only`; the form's refusals are 200 `sent: false` with the page's own lines. A CSV file is sent as
+  its text in `list`.
+- **Words.** A sentence from a word table (`src/server/fixes/*/wording.ts`) is its catalogue key, found by its words.
+  New keyed templates from existing approved words (scripts/catalogue-code.ts): `dashboard.ask_for_reviews.email_*`
+  (the email preview and the default paragraph), `dashboard.watch.fix_*` and `dashboard.watch.detail_*` (AI Fact
+  Check's step; its `[detail]` and `[stated]` params are keys), `dashboard.review_card.sheet_<size>.title` and `.note`.
+  The email a client copies from the review card is still a catalogue gap (`dashboard.review_card.email.*`).
+- **Not here (the fixers' API, group 2):** the review reply's Save, Approve, Reject and "I posted it"; a page's "Write
+  a draft", Save, Approve, Reject and "I published it"; AI Fact Check's "I've updated it" and "Not needed"; the flash
+  lines those answer with.
+- **Pay and cancel.** /dashboard/monitoring/pay is `GET /checkout/{id}` and `POST /checkout/{id}/confirm` with the
+  subscription's id; /dashboard/monitoring/cancel (a redirect to /account) is `POST /account/monitoring/cancel`. No new
+  route. The listing builder (F5) is not built (engine's `listing-targets` answers `built: false`): no page, no route.
+
+## What the launch list covers
+The spec has 132 operations:
+- the plan's launch table, with one change: there is no Stripe billing portal, so the card is changed through `POST /account/payment-method` instead;
+- 11 operations the pages need that the table didn't list. `tests/api/contract.test.ts` names each one;
+- the 3 business extras above (section 10, group 5);
+- Monitoring (section 10, group 1): 10 in part A and 7 in part B;
+- the 11 fixers' operations (group 2, with AI Fact Check's two steps);
+- the chat's 6 (group 3);
+- settings and account extras, 26 (group 4);
+- the 22 features built on staging (group 6, below).
+
+Every customer-facing page of section 10 now has its operations.
+
+## The features built on staging (group 6, 8 November 2026)
+Each behind its own switch and refused in production, as its pages are; off, every operation is 404 `not_found` (hide
+the page). Tagged `x-visigain-availability: behind-switch` with `x-visigain-switch`.
+
+- **Free AI check** (FREE_AI_CHECK_ENABLED): `GET /free-ai-check/form`, `POST /free-ai-check`,
+  `GET /free-ai-check/results/{token}`, `POST .../detail`, `POST .../next`, `POST` and `DELETE .../share`,
+  `GET` and `POST /free-ai-check/confirm/{code}`, `GET /free-ai-check/shared/{token}`. No session: the key is the
+  check's. Each refusal is the page's own alert (its code's key in `x-wordings.errors`).
+- **Partner program** (PARTNER_PROGRAM_ENABLED): `GET /partner` (the page, or the application when `state` is `none`),
+  `POST /partner/apply`, `POST /partner/logo` (PNG in base64), `GET /p/{code}`, `GET /p/{code}/start`. Exactly what the
+  pages show: tax forms, rates and payouts stay the admin's.
+- **Pause** (PAUSE_SUBSCRIPTION_ENABLED): `GET` and `POST /account/pause-monitoring` (owners, their own subscription;
+  one pause in 180 days).
+- **Benchmarks** (BENCHMARK_PAGES_ENABLED; `indexable` follows BENCHMARK_INDEXING_ENABLED) and **/how-we-grade**
+  (METHODOLOGY_PAGE_ENABLED): `GET /benchmarks`, `/benchmarks/{slug}`, `/benchmarks/ai-visibility-index`,
+  `/benchmarks/ai-visibility-index/{place}/{month}`, `/how-we-grade`. The card images stay backend routes (`cardPath`).
+- **The grade badge** is night-g4's (`/visibility-badge`); the public `/visibility/{token}` page stays a backend route.
+- The signed-in steps (apply, logo, pause) ask for an `Idempotency-Key`. The free AI check's public steps are bounded
+  by their own rules instead (one check reused, the email capped, one share link per check) and a per-address limit.
+
+**Spanish, endpoint by endpoint.** Sentences are keys: their Spanish is `GET /wordings?locale=es` (the gate: approved,
+and on staging the exempt rows), only while `spanish` is on; `locale=es` elsewhere is 422 `invalid_locale`.
+| endpoint | text it returns | Spanish |
+|---|---|---|
+| `/wordings` | the catalogue | yes (now with the chat's fixed replies and their Spanish) |
+| `/faq`, `/pricing` | approved FAQ text as it is | yes, `locale=es`: each item in Spanish where approved (`locale` per item); the CMS's own FAQ stays English |
+| `/legal/*`, `/legal/lines`, `/checkout/terms` | legal text, word for word | no: legal stays English (recorded as agreed) |
+| `/articles`, `/articles/{slug}` | CMS articles | no: English only, no Spanish page |
+| `/scans/{token}`, `/sample-report`, `/reports/{id}` | keys, engine's text | keys yes; engine's sentences stay English |
+| dashboard, account, checkout, orders, `/about`, `/site` | keys only | yes, through `/wordings` |
+| group 6 (free AI check, partner, pause, benchmarks, how-we-grade) | keys; names, questions and findings as data | keys yes; data as typed or as engine wrote it |
+| chat (group 3) | fixed replies by key, model answers | fixed replies yes (catalogue es); model answers in the client's language |
+| grade badge (night-g4) | keys, the paste code | keys yes; the badge image and its alt stay English, as the page |

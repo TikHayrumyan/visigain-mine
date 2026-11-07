@@ -1,0 +1,99 @@
+{
+  "summary": "AI Fact Check with one row, Guardian with a change of hours, one holiday reminder",
+  "value": {
+    "availability": "shown",
+    "business": {
+      "domain": "sunset-glow-medspa.test"
+    },
+    "factsLocked": false,
+    "facts": {
+      "kind": "ok",
+      "week": "2026-10-19",
+      "rows": [
+        {
+          "key": "fact:2026-10-19:phone:294c5fb48e",
+          "field": "phone",
+          "label": "dashboard.monitoring.fact_phone",
+          "stated": {
+            "kind": "text",
+            "text": "(626) 555-0100"
+          },
+          "ours": {
+            "kind": "text",
+            "text": "(626) 555-0199"
+          },
+          "source": "example-directory.test",
+          "assistant": "dashboard.monitoring.engine_chatgpt",
+          "question": "Who fixes leaks near me?",
+          "seen": {
+            "answers": 1,
+            "stating": 1
+          },
+          "fixState": null,
+          "done": false,
+          "closed": false,
+          "fix": {
+            "text": {
+              "key": "dashboard.watch.fix_update_source",
+              "params": {
+                "source": "example-directory.test",
+                "ours": "(626) 555-0199"
+              }
+            },
+            "detail": "dashboard.watch.detail_phone",
+            "stated": null
+          }
+        }
+      ]
+    },
+    "guardian": {
+      "kind": "ok",
+      "week": "2026-10-19",
+      "alerts": [],
+      "changes": [
+        {
+          "field": "hours",
+          "label": "dashboard.monitoring.field_hours",
+          "before": {
+            "kind": "hours",
+            "days": [
+              {
+                "day": "sunday",
+                "label": "dashboard.monitoring.day_sunday",
+                "closed": false,
+                "spans": [
+                  "10:00-14:00"
+                ]
+              }
+            ]
+          },
+          "now": {
+            "kind": "hours",
+            "days": [
+              {
+                "day": "sunday",
+                "label": "dashboard.monitoring.day_sunday",
+                "closed": true,
+                "spans": []
+              }
+            ]
+          },
+          "seenAt": "2026-11-06T05:18:56.977Z"
+        }
+      ],
+      "duplicates": []
+    },
+    "holidays": {
+      "kind": "ok",
+      "days": 14,
+      "reminders": [
+        {
+          "holiday": "thanksgiving",
+          "name": "dashboard.monitoring.holiday_thanksgiving",
+          "date": "2026-11-26",
+          "hours": "09:00-17:00"
+        }
+      ]
+    }
+  }
+}

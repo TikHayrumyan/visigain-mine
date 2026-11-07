@@ -1,0 +1,22 @@
+{
+  "summary": "Paused for a month",
+  "value": {
+    "subscriptionId": "9ca0a849-f932-41f4-a2bb-b97e26b1ea9c",
+    "months": 1,
+    "resumesAt": "2026-12-07T07:12:28.347Z",
+    "nextChargeAt": "2027-01-07T07:12:28.000Z",
+    "nextChargeCents": 14900,
+    "line": {
+      "key": "account.account.paused_until_nothing_is_charged_while",
+      "params": {
+        "date": "2026-12-07T07:12:28.347Z"
+      }
+    },
+    "message": {
+      "key": "account.account.monitoring_is_paused_until",
+      "params": {
+        "date": "2026-12-07T07:12:28.347Z"
+      }
+    }
+  }
+}

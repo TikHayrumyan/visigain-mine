@@ -1,0 +1,103 @@
+{
+  "summary": "One month of one index page (invented)",
+  "value": {
+    "methodology": true,
+    "indexable": false,
+    "minBusinesses": 20,
+    "cardPath": "/benchmarks/ai-visibility-index/electrician-example-valley-ca/2026-10/card",
+    "title": {
+      "key": "site.benchmarks.in_ai_visibility_index",
+      "params": {
+        "category": "Electrician",
+        "place": "Example Valley",
+        "month": "2026-10"
+      }
+    },
+    "lead": {
+      "key": "site.benchmarks.the_businesses_listed_as_that_we",
+      "params": {
+        "month": "2026-10",
+        "businesses": 84,
+        "category": "Electrician",
+        "place": "Example Valley",
+        "state": "CA"
+      }
+    },
+    "page": {
+      "slug": "electrician-example-valley-ca",
+      "month": "2026-10",
+      "monthName": "October 2026",
+      "level": "area",
+      "category": "Electrician",
+      "place": "Example Valley",
+      "state": "CA",
+      "businesses": 84,
+      "from": "Aug 10, 2026",
+      "to": "Oct 24, 2026",
+      "fromDay": "2026-08-10",
+      "toDay": "2026-10-24",
+      "asOf": "Oct 31, 2026",
+      "windowDays": 90,
+      "version": "1.10",
+      "median": "C (60.4)",
+      "named": {
+        "share": "38.3",
+        "measured": 81,
+        "namedIn": 310,
+        "answers": 2430
+      },
+      "notMeasured": 3,
+      "assistants": [
+        {
+          "label": "ChatGPT",
+          "share": "31.7",
+          "measured": 82
+        },
+        {
+          "label": "Gemini",
+          "share": "22.6",
+          "measured": 84
+        }
+      ],
+      "gaps": [
+        {
+          "area": "Experience",
+          "finding": "Pages load quickly on mobile",
+          "measured": 84,
+          "missed": "77.4",
+          "short": "83.3"
+        }
+      ],
+      "allMissed": [],
+      "top": {
+        "starts": "C (66.8)",
+        "median": "C (60.4)",
+        "above": "6.4",
+        "detail": {
+          "businesses": 21,
+          "median": "B (72.5)",
+          "named": {
+            "top": "52.4",
+            "rest": "33.3"
+          },
+          "items": [
+            {
+              "area": "Credibility",
+              "finding": "Replies to recent reviews",
+              "top": "85.7",
+              "rest": "30.2"
+            }
+          ]
+        }
+      },
+      "otherVersions": false,
+      "beforeTag": null
+    },
+    "otherMonths": [
+      {
+        "month": "2026-09",
+        "path": "/benchmarks/ai-visibility-index/electrician-example-valley-ca/2026-09"
+      }
+    ]
+  }
+}

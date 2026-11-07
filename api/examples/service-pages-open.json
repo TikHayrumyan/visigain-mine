@@ -1,0 +1,57 @@
+{
+  "summary": "Open: one real service offered, the month's limits",
+  "value": {
+    "state": "open",
+    "business": {
+      "domain": "sunset-glow-medspa.test",
+      "name": "Sunset Glow Med Spa (invented)"
+    },
+    "businesses": [
+      {
+        "id": "34bc348f-49a7-4c1a-9912-f88531fca389",
+        "domain": "sunset-glow-medspa.test",
+        "name": "Sunset Glow Med Spa (invented)",
+        "plan": "monitoring"
+      },
+      {
+        "id": "13b7ba82-ce1a-4194-837b-194eac40575b",
+        "domain": "ivory-lane-medspa.test",
+        "name": null,
+        "plan": "free"
+      },
+      {
+        "id": "90446ef3-0a9b-45f1-9065-bbd0d5dc1912",
+        "domain": "harborlight-aesthetics.test",
+        "name": null,
+        "plan": "free"
+      }
+    ],
+    "offers": "ok",
+    "services": [
+      {
+        "briefId": "b_60558f4251",
+        "service": "Facials",
+        "keyword": "facials",
+        "rank": 7,
+        "competitorRank": null,
+        "questions": [
+          "Where can I get a facial near me?"
+        ]
+      }
+    ],
+    "blogs": [],
+    "blogOpen": false,
+    "blogAfterApprovedPages": 3,
+    "items": [],
+    "batch": false,
+    "used": {
+      "service_page": 0,
+      "blog_topic": 0
+    },
+    "caps": {
+      "service_page": 2,
+      "blog_topic": 2
+    },
+    "resetsOn": "2026-12-01"
+  }
+}

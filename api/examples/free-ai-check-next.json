@@ -1,0 +1,6 @@
+{
+  "summary": "The free scan's form, with the website only",
+  "value": {
+    "path": "/scan?domain=example-dental-studio.test"
+  }
+}

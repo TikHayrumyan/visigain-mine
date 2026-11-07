@@ -1,0 +1,143 @@
+{
+  "summary": "Staging, signed in with ?b=: the staging-only features on, and the business's 8 modules on day 35 of Monitoring",
+  "value": {
+    "holding": false,
+    "holdingPages": [
+      "/",
+      "/pricing",
+      "/contact",
+      "/terms",
+      "/privacy",
+      "/refunds",
+      "/cookies",
+      "/accessibility",
+      "/privacy-choices"
+    ],
+    "checkout": true,
+    "checkoutWallets": true,
+    "apiCheckout": true,
+    "aiChat": true,
+    "share": false,
+    "spanish": true,
+    "legalVersion": "v3.17, 5 Nov 2026",
+    "legalVersionNumber": "3.17",
+    "legalPageVersions": {
+      "terms": "3.17",
+      "privacy": "3.17",
+      "refunds": "3.16",
+      "cookies": "3.15"
+    },
+    "switches": {
+      "SITE_HOLDING": false,
+      "CHECKOUT_ENABLED": true,
+      "CHECKOUT_PAY_FIRST": false,
+      "CHECKOUT_WALLETS": true,
+      "API_CHECKOUT_ENABLED": true,
+      "GOOGLE_SIGNIN_ENABLED": false,
+      "AI_CHAT_ENABLED": true,
+      "SHARE_REPORT_ENABLED": false,
+      "SPANISH_SITE_ENABLED": true,
+      "SITE_INDEXABLE": false,
+      "STANDARD_PUBLIC": false,
+      "STANDARD_CHANGE_NOTE": false,
+      "CITY_AVERAGES_ON_DEMAND": false,
+      "ENGINE_SCAN_ANY_CATEGORY": false,
+      "REFERRAL_CREDIT_ENABLED": false,
+      "FIXERS_ENABLED": true,
+      "GOOGLE_CONNECT_ENABLED": false,
+      "QUICK_WINS_ENABLED": true,
+      "RIVALS_EMAIL_ENABLED": false,
+      "PAUSE_SUBSCRIPTION_ENABLED": false,
+      "VISIBILITY_BADGE_ENABLED": true,
+      "FREE_AI_CHECK_ENABLED": true,
+      "PARTNER_PROGRAM_ENABLED": true,
+      "BENCHMARK_PAGES_ENABLED": true,
+      "BENCHMARK_INDEXING_ENABLED": false,
+      "METHODOLOGY_PAGE_ENABLED": false,
+      "EMAIL_NURTURE_ENABLED": false,
+      "EMAIL_CHECKOUT_REMINDER_ENABLED": false,
+      "EMAIL_REPORT_TO_MONITORING_ENABLED": false,
+      "EMAIL_ONBOARDING_ENABLED": false,
+      "EMAIL_FAILED_PAYMENT_ENABLED": false,
+      "EMAIL_WINBACK_ENABLED": false,
+      "TAG_GA4_ENABLED": false,
+      "TAG_CLARITY_ENABLED": false,
+      "TAG_META_ENABLED": false,
+      "TAG_LINKEDIN_ENABLED": false,
+      "TAG_TIKTOK_ENABLED": false,
+      "TAG_GOOGLE_ADS_ENABLED": false
+    },
+    "modules": {
+      "business": {
+        "id": "5f1c2d3e-4a5b-4c6d-8e7f-9a0b1c2d3e4f",
+        "domain": "sunset-glow-medspa.test"
+      },
+      "items": [
+        {
+          "module": "grade",
+          "unlocked": true,
+          "unlockDay": 0,
+          "daysIn": 35,
+          "earlyUnlock": false,
+          "on": true
+        },
+        {
+          "module": "ai_answers",
+          "unlocked": true,
+          "unlockDay": 14,
+          "daysIn": 35,
+          "earlyUnlock": false,
+          "on": true
+        },
+        {
+          "module": "guardian",
+          "unlocked": true,
+          "unlockDay": 0,
+          "daysIn": 35,
+          "earlyUnlock": false,
+          "on": true
+        },
+        {
+          "module": "listings",
+          "unlocked": true,
+          "unlockDay": 60,
+          "daysIn": 35,
+          "earlyUnlock": true,
+          "on": false
+        },
+        {
+          "module": "reviews",
+          "unlocked": true,
+          "unlockDay": 0,
+          "daysIn": 35,
+          "earlyUnlock": false,
+          "on": true
+        },
+        {
+          "module": "pages",
+          "unlocked": true,
+          "unlockDay": 30,
+          "daysIn": 35,
+          "earlyUnlock": false,
+          "on": true
+        },
+        {
+          "module": "rivals",
+          "unlocked": false,
+          "unlockDay": 60,
+          "daysIn": 35,
+          "earlyUnlock": false,
+          "on": true
+        },
+        {
+          "module": "results",
+          "unlocked": false,
+          "unlockDay": 90,
+          "daysIn": 35,
+          "earlyUnlock": false,
+          "on": false
+        }
+      ]
+    }
+  }
+}

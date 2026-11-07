@@ -1,0 +1,25 @@
+{
+  "summary": "A partner's link",
+  "value": {
+    "code": "7JYVTPCD",
+    "partner": {
+      "name": "Agency 2 (invented)"
+    },
+    "title": {
+      "key": "site.p.referred_you_to_visigain",
+      "params": {
+        "partner": "Agency 2 (invented)"
+      }
+    },
+    "disclosure": {
+      "key": "site.p.may_earn_a_commission_if_you",
+      "params": {
+        "partner": "Agency 2 (invented)"
+      }
+    },
+    "links": {
+      "report": "/p/7JYVTPCD/start?to=report",
+      "monitoring": "/p/7JYVTPCD/start?to=monitoring"
+    }
+  }
+}

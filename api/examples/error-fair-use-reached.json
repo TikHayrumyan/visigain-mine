@@ -1,0 +1,9 @@
+{
+  "summary": "This month's drafts are used (nothing counted)",
+  "value": {
+    "error": {
+      "code": "fair_use_reached",
+      "message_key": "dashboard.monitoring.cap_flash"
+    }
+  }
+}

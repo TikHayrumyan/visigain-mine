@@ -1,0 +1,102 @@
+{
+  "summary": "Competitor Watch with four changes; Spam Radar not shown to clients yet",
+  "value": {
+    "availability": "shown",
+    "business": {
+      "domain": "sunset-glow-medspa.test"
+    },
+    "card": {
+      "kind": "ok",
+      "changes": [
+        {
+          "key": "rival:dd247c721b",
+          "kind": "new_entrant",
+          "label": "dashboard.monitoring.kind_new_entrant",
+          "competitor": "Example Newcomer Plumbing",
+          "before": {
+            "kind": "wording",
+            "wording": "dashboard.monitoring.value_none_250f"
+          },
+          "now": {
+            "kind": "wording",
+            "wording": {
+              "key": "dashboard.monitoring.value_rank",
+              "params": {
+                "N": 3
+              }
+            }
+          },
+          "seenAt": "2026-11-06T05:18:56.931Z"
+        },
+        {
+          "key": "rival:c8b9ac3c11",
+          "kind": "rating_jump",
+          "label": "dashboard.monitoring.kind_rating_jump",
+          "competitor": "Example Rival Plumbing",
+          "before": {
+            "kind": "wording",
+            "wording": {
+              "key": "dashboard.monitoring.value_rating",
+              "params": {
+                "N": 4.2
+              }
+            }
+          },
+          "now": {
+            "kind": "wording",
+            "wording": {
+              "key": "dashboard.monitoring.value_rating",
+              "params": {
+                "N": 4.7
+              }
+            }
+          },
+          "seenAt": "2026-11-06T05:18:56.931Z"
+        },
+        {
+          "key": "rival:b30261b5db",
+          "kind": "review_spike",
+          "label": "dashboard.monitoring.kind_review_spike",
+          "competitor": "Example Rival Plumbing",
+          "before": {
+            "kind": "wording",
+            "wording": {
+              "key": "dashboard.monitoring.value_reviews",
+              "params": {
+                "N": 120
+              }
+            }
+          },
+          "now": {
+            "kind": "wording",
+            "wording": {
+              "key": "dashboard.monitoring.value_reviews",
+              "params": {
+                "N": 151
+              }
+            }
+          },
+          "seenAt": "2026-11-06T05:18:56.931Z"
+        },
+        {
+          "key": "rival:2936aab6cc",
+          "kind": "name_change",
+          "label": "dashboard.monitoring.kind_name_change",
+          "competitor": "Example Pipes",
+          "before": {
+            "kind": "text",
+            "text": "Example Pipes"
+          },
+          "now": {
+            "kind": "text",
+            "text": "Example Pipes & Drains"
+          },
+          "seenAt": "2026-11-06T05:18:56.931Z"
+        }
+      ],
+      "candidates": [],
+      "notCompared": false,
+      "spamRadar": false
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "summary": "November in Los Angeles: one service page asked for, 12 review requests this month",
+  "value": {
+    "hidden": false,
+    "month": "2026-11",
+    "resetsAt": "2026-12-01T08:00:00.000Z",
+    "limits": [
+      {
+        "id": "service_pages",
+        "module": "pages",
+        "period": "month",
+        "limit": 2,
+        "used": 1,
+        "left": 1,
+        "enforced": true
+      },
+      {
+        "id": "blog_posts",
+        "module": "pages",
+        "period": "month",
+        "limit": 2,
+        "used": 0,
+        "left": 2,
+        "enforced": true
+      },
+      {
+        "id": "review_requests_day",
+        "module": "reviews",
+        "period": "day",
+        "limit": 50,
+        "used": 3,
+        "left": 47,
+        "enforced": true
+      },
+      {
+        "id": "review_requests_month",
+        "module": "reviews",
+        "period": "month",
+        "limit": 200,
+        "used": 12,
+        "left": 188,
+        "enforced": true
+      },
+      {
+        "id": "chat_messages",
+        "module": null,
+        "period": "month",
+        "limit": 100,
+        "used": 7,
+        "left": 93,
+        "enforced": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "summary": "Monitoring: the listing section and its alerts",
+  "value": {
+    "plan": "monitoring",
+    "business": {
+      "name": "Sunset Glow Med Spa (invented)",
+      "domain": "sunset-glow-medspa.test",
+      "category": "Medical spa"
+    },
+    "businesses": [
+      {
+        "id": "34bc348f-49a7-4c1a-9912-f88531fca389",
+        "domain": "sunset-glow-medspa.test",
+        "name": "Sunset Glow Med Spa (invented)",
+        "plan": "monitoring"
+      },
+      {
+        "id": "13b7ba82-ce1a-4194-837b-194eac40575b",
+        "domain": "ivory-lane-medspa.test",
+        "name": null,
+        "plan": "free"
+      },
+      {
+        "id": "90446ef3-0a9b-45f1-9065-bbd0d5dc1912",
+        "domain": "harborlight-aesthetics.test",
+        "name": null,
+        "plan": "free"
+      }
+    ],
+    "sample": true,
+    "listing": {
+      "feature": "listing_extras",
+      "status": "ready",
+      "view": {
+        "date": "2026-10-05T06:00:00.000Z",
+        "duplicates": {
+          "read": true,
+          "candidates": [
+            {
+              "name": "Sunset Glow Med Spa Pasadena (invented)",
+              "address": "455 Sample St, Suite 2",
+              "phone": "(555) 010-0419",
+              "url": "https://www.google.test/maps?cid=1003963783285",
+              "evidence": [
+                "the same phone number"
+              ],
+              "isNew": false
+            }
+          ],
+          "searched": [
+            "(555) 010-0419",
+            "Sunset Glow Med Spa (invented)"
+          ]
+        },
+        "photos": {
+          "read": true,
+          "count": 56,
+          "move": {
+            "by": 2,
+            "direction": "better"
+          }
+        },
+        "posts": {
+          "read": true,
+          "latestPostDate": "2026-09-18T09:00:00.000Z",
+          "postsRead": 2,
+          "isNew": false
+        },
+        "since": "2026-09-28T06:00:00.000Z",
+        "firstWeek": false,
+        "profile": null
+      },
+      "shows": "dashboard.plan_shows.listing_extras.monitoring",
+      "unlockedBy": "free",
+      "weekly": true
+    },
+    "alerts": []
+  }
+}

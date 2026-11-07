@@ -1,0 +1,83 @@
+{
+  "summary": "A Monitoring business's weekly check and its latest runs",
+  "value": {
+    "business": {
+      "domain": "sunset-glow-medspa.test"
+    },
+    "check": {
+      "slot": {
+        "weekday": 1,
+        "hourLa": 2
+      },
+      "onHoldUntil": null,
+      "lastFullCheck": "2026-10-05T18:30:00.000Z"
+    },
+    "checked": true,
+    "runs": [
+      {
+        "id": "b36e3ba2-8265-40b0-8ab6-e748b2d3cfe1",
+        "date": "2026-10-05T18:30:00.000Z",
+        "event": "monitor.changed",
+        "title": "dashboard.monitoring.run.changed",
+        "clientFacing": true,
+        "score": {
+          "before": "72.9",
+          "after": "74.8",
+          "gradeChanged": false
+        },
+        "reading": null,
+        "found": {
+          "fixed": 0,
+          "newFindings": 0,
+          "reopened": 0
+        },
+        "foundLine": null
+      },
+      {
+        "id": "21d04631-242c-46b4-8e51-7818c260aae6",
+        "date": "2026-09-28T18:30:00.000Z",
+        "event": "monitor.changed",
+        "title": "dashboard.monitoring.run.changed",
+        "clientFacing": true,
+        "score": {
+          "before": "70.4",
+          "after": "72.9",
+          "gradeChanged": false
+        },
+        "reading": null,
+        "found": {
+          "fixed": 0,
+          "newFindings": 0,
+          "reopened": 1
+        },
+        "foundLine": {
+          "key": "dashboard.monitoring.run.found",
+          "params": {
+            "fixed": 0,
+            "reopened": 1,
+            "newFindings": 0
+          }
+        }
+      },
+      {
+        "id": "c4a1a95d-94d6-48b7-93e3-b088f01146ff",
+        "date": "2026-08-17T18:30:00.000Z",
+        "event": "monitor.baseline",
+        "title": "dashboard.monitoring.run.baseline",
+        "clientFacing": true,
+        "score": {
+          "before": null,
+          "after": "59",
+          "gradeChanged": false
+        },
+        "reading": null,
+        "found": {
+          "fixed": 0,
+          "newFindings": 0,
+          "reopened": 0
+        },
+        "foundLine": null
+      }
+    ]
+  }
+}

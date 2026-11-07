@@ -1,0 +1,156 @@
+{
+  "summary": "The eight modules on day 20 of Monitoring: Pages and Rivals not unlocked yet, Listings being built, Results (Calls & Clicks) waiting for Google",
+  "value": {
+    "availability": "shown",
+    "business": {
+      "domain": "sunset-glow-medspa.test"
+    },
+    "modules": [
+      {
+        "module": "grade",
+        "state": "live",
+        "unlocked": true,
+        "name": "common.shared.visibility_grade",
+        "about": "dashboard.monitoring.about_grade",
+        "status": "dashboard.monitoring.grade_none",
+        "tone": "neutral",
+        "links": [
+          {
+            "target": "todo",
+            "text": "dashboard.monitoring.link_open"
+          }
+        ]
+      },
+      {
+        "module": "ai_answers",
+        "state": "live",
+        "unlocked": true,
+        "name": "dashboard.monitoring.module_ai_answers",
+        "about": "dashboard.monitoring.about_ai_answers",
+        "status": "dashboard.monitoring.ai_clear",
+        "tone": "ok",
+        "links": [
+          {
+            "target": "watch",
+            "text": "dashboard.monitoring.link_open"
+          }
+        ]
+      },
+      {
+        "module": "guardian",
+        "state": "live",
+        "unlocked": true,
+        "name": "dashboard.monitoring.module_guardian",
+        "about": "dashboard.monitoring.about_guardian",
+        "status": "dashboard.monitoring.guardian_clear",
+        "tone": "ok",
+        "links": [
+          {
+            "target": "watch",
+            "text": "dashboard.monitoring.link_open"
+          }
+        ]
+      },
+      {
+        "module": "listings",
+        "state": "building",
+        "unlocked": false,
+        "name": "dashboard.monitoring.module_listings",
+        "about": "dashboard.monitoring.about_listings",
+        "status": "dashboard.monitoring.state_building",
+        "tone": "neutral",
+        "links": []
+      },
+      {
+        "module": "reviews",
+        "state": "live",
+        "unlocked": true,
+        "name": "dashboard.shared.reviews",
+        "about": "dashboard.monitoring.about_reviews",
+        "status": "dashboard.monitoring.reviews_clear",
+        "tone": "ok",
+        "links": [
+          {
+            "target": "reviews",
+            "text": "dashboard.monitoring.link_answer"
+          },
+          {
+            "target": "requests",
+            "text": "dashboard.reviews.ask_for_reviews"
+          }
+        ]
+      },
+      {
+        "module": "pages",
+        "state": "coming",
+        "unlocked": false,
+        "name": "dashboard.monitoring.module_pages",
+        "about": "dashboard.monitoring.about_pages",
+        "status": "dashboard.monitoring.state_coming",
+        "tone": "neutral",
+        "links": []
+      },
+      {
+        "module": "rivals",
+        "state": "coming",
+        "unlocked": false,
+        "name": "dashboard.monitoring.module_rivals",
+        "about": "dashboard.monitoring.about_rivals",
+        "status": "dashboard.monitoring.state_coming",
+        "tone": "neutral",
+        "links": []
+      },
+      {
+        "module": "results",
+        "state": "needs_google",
+        "unlocked": false,
+        "name": "site.home.results",
+        "about": "dashboard.monitoring.about_results",
+        "status": "dashboard.monitoring.state_google",
+        "tone": "neutral",
+        "links": []
+      }
+    ],
+    "top": [
+      {
+        "key": "brief:b_9c40222eba",
+        "tier": 2,
+        "text": "dashboard.monitoring.item_brief_listing",
+        "target": "todo"
+      }
+    ],
+    "ledger": {
+      "entries": [],
+      "moved": null,
+      "movedLine": null
+    },
+    "included": {
+      "fairUse": {
+        "locations": 1,
+        "chatMessagesPerMonth": 100,
+        "servicePagesPerMonth": 2,
+        "blogPostsPerMonth": 2,
+        "blogAfterApprovedPages": 3,
+        "reviewRequestsPerDay": 50,
+        "reviewRequestsPerMonth": 200
+      },
+      "line": {
+        "key": "dashboard.monitoring.included_line",
+        "params": {
+          "locations": 1,
+          "chat": 100,
+          "pages": 2,
+          "posts": 2
+        }
+      },
+      "chatMessages": 0,
+      "chat": {
+        "key": "dashboard.monitoring.included_chat",
+        "params": {
+          "N": 0,
+          "M": 100
+        }
+      }
+    }
+  }
+}
