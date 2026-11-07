@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import { apiRewriteTarget } from "./src/api/origin";
+import { ASSET_PREFIX, SERVED_BY } from "./src/site/asset-prefix";
 
 /**
  * The browser only ever calls its own origin: `/api/v1/...`. Where that goes:
@@ -13,6 +14,8 @@ const nextConfig: NextConfig = {
   // The Docker image (Dockerfile) sets NEXT_OUTPUT=standalone: a self-contained server.js with only the files it
   // needs. Everywhere else (`pnpm build && pnpm start`, CI's smoke test) the output stays the default.
   output: process.env.NEXT_OUTPUT === "standalone" ? "standalone" : undefined,
+  // Next's own files at /fe/_next/... (src/site/asset-prefix.ts): the load balancer keeps /_next/** for the backend.
+  assetPrefix: ASSET_PREFIX,
   poweredByHeader: false,
   reactStrictMode: true,
   // No floating dev badge (it lands in screenshots and accessibility runs).
@@ -22,7 +25,8 @@ const nextConfig: NextConfig = {
     return target ? [{ source: "/api/v1/:path*", destination: `${target}/api/v1/:path*` }] : [];
   },
   async headers() {
-    return [{ source: "/:path*", headers: [{ key: "X-Content-Type-Options", value: "nosniff" }] }];
+    // x-served-by: frontend on every answer, the files too: the switch's checks tell the two apps apart by it.
+    return [{ source: "/:path*", headers: [{ key: "X-Content-Type-Options", value: "nosniff" }, SERVED_BY] }];
   },
 };
 

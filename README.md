@@ -91,6 +91,11 @@ browser never gets it. To try the image locally against the mock: `pnpm mock`, t
 `docker build -t visigain-frontend . && docker run --rm -p 127.0.0.1:3080:8080 -e MOCK=1 -e MOCK_ORIGIN=http://host.docker.internal:4010 visigain-frontend`
 and open http://127.0.0.1:3080/example.
 
+**Next's files are at `/fe/_next/...`** (`assetPrefix`, `src/site/asset-prefix.ts`), in `pnpm dev`, `pnpm start` and
+the image alike. At the switch one load balancer serves both apps on visigain.com: `/_next/**` stays with the backend
+(its own pages load their files from there) and `/fe/**` comes here. So no page of this app lives under `/fe`, and
+every answer carries `x-served-by: frontend` (the switch's checks read it; the backend's says `backend`).
+
 Staging sends no email: for a signed-in page, ask Backend for a one-time sign-in link for an invented `.test` client.
 You never get, need or call production.
 
