@@ -66,8 +66,14 @@ Their endpoints are in the spec's `public` tag.
 pages, reports and PDFs, checkout ($99 and $149), account, invoices and cancel, and after launch the Monitoring
 sub-pages, fixers and chat. Its `docs/pages.md` lists them with their calls. This app links to it in two places:
 
-- **The scan result's buttons.** "Get the Full Report" and "Monitoring" on `/scan/[token]` go to
-  `https://app.visigain.com/checkout/...` with the scan token (the entry paths are still to be named in the spec).
+- **The scan result's buttons.** "Get the Full Report" and "Monitoring" on `/scan/[token]` are
+  `ScanResultCheckoutLinks` (`src/components/scan-result-checkout-links.tsx`): drop it in once the grade is ready,
+  with the scan's answer (`GET /scans/{token}`), `GET /pricing` and `t`. The addresses are the backend's own scan
+  result's (`src/site/checkout-links.ts`, `fullReportCheckoutHref(scan)` and `monitoringCheckoutHref(scan)`):
+  `https://app.visigain.com/checkout/report?domain=<lead.domain>` and
+  `https://app.visigain.com/checkout/monitoring?domain=<lead.domain>` (the domain, not the scan token: the pay pages
+  fill their Website field from it). The words are `site.scan.get_the_full_report` (with `{price}` from
+  `GET /pricing`) and `site.offer.start_monitoring`; Monitoring shows only when `monitoring.priceShown` is true.
 - **The "Dashboard" link** in the header shows when the `vg_signed_in=1` hint cookie is present (on `.visigain.com`,
   non-sensitive, readable here) and goes to `https://app.visigain.com/dashboard`. The session cookie is host-only on
   app.visigain.com; this app never sees it and never calls a signed-in endpoint.
@@ -96,6 +102,16 @@ checkout and account paths as the frontend's: they are visigain-app's now.
 - No new script, font, style or image host; no tag or third-party embed on dashboard, order, checkout, account or
   report pages. Stripe's Payment Element is the one payment script, in test mode outside production.
 - No price typed into a page: `GET /pricing`.
+- **Every page's footer carries "Your Privacy Choices" and "Cookie settings"**, by the backend footer's own keys
+  `common.legal_links.your_privacy_choices` and `common.legal_links.cookie_settings`, both to `/privacy-choices` (the
+  backend's `LEGAL_LINKS`). The Cookie Policy (legal v3.18 draft) says one consent choice covers visigain.com,
+  app.visigain.com and admin.visigain.com and can be changed on any of them, so the app links to this site's page and
+  this site must build it. The root layout draws them today (`src/components/privacy-footer.tsx`, held pages too;
+  `e2e/smoke.spec.ts` checks them by key); the designed footer keeps both.
+- **`/privacy-choices` is built here, on the API only**, as the backend's page does today: `GET /site` (the root
+  layout's switches and `legalVersion`), `GET /wordings` (its words, `site.privacy_choices.*`), `GET /legal/lines`
+  (the notice's legal words, shown exactly as given) and `POST /consent?event=agree|opt_out` (the choice: 204, sets
+  `vg_bid`). Nothing else; a call it lacks is a question for Backend.
 
 ## 5. Tokens and themes
 

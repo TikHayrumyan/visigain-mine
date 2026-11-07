@@ -66,6 +66,18 @@ test("the theme switch stores the choice and the page comes back in it", async (
   expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe(rgb(THEME.light.bg));
 });
 
+test("the footer carries Your Privacy Choices and Cookie settings, by their keys, to /privacy-choices", async ({
+  page,
+}) => {
+  await page.goto("/example");
+  const footer = page.getByTestId("privacy-footer");
+  for (const key of ["common.legal_links.your_privacy_choices", "common.legal_links.cookie_settings"]) {
+    const link = footer.locator(`a[data-footer-link="${key}"]`);
+    await expect(link).toHaveText(words[key]!);
+    await expect(link).toHaveAttribute("href", "/privacy-choices");
+  }
+});
+
 test("API calls from the browser stay on the page's own origin", async ({ page }) => {
   await page.goto("/example");
   const answer = await page.evaluate(async () => {
