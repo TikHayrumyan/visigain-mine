@@ -38,6 +38,13 @@ copied in both repositories (no shared package), each synced from the backend an
 - **The "Dashboard" link.** It shows when the `vg_signed_in=1` hint cookie (on `.visigain.com`, not HttpOnly, no
   secret in it) is present, and links to `https://app.visigain.com/dashboard`. The session cookie itself is
   host-only on app.visigain.com: this app never sees it, so never call a signed-in endpoint from here.
+- **Every link to the app is an `AppLink`** (`src/components/app-link.tsx`, a server component). A referral link
+  (`/r/<code>`, the backend's) leaves the code in the `vg_ref` cookie on this host only (HttpOnly), and the app's
+  checkout reads it on its own host. So `AppLink` reads `vg_ref` on the server and, when it is a valid code (the
+  backend's rule, copied in `src/site/referral.ts`: upper case, eight characters of `A-HJKMNP-Z2-9`), adds
+  `?vg_ref=<code>` to the address; the app keeps it as its own cookie. Anything else adds nothing. The app's origin is
+  `APP_ORIGIN`, else `https://app.visigain.com`. `tests/referral.test.tsx` fails when another file writes the app's
+  address.
 - **Old addresses.** `visigain.com/dashboard/...`, `/account`, `/signin`, `/auth/verify` and `/checkout/...` answer
   a 308 to the same path on app.visigain.com (the load balancer's, set up by Backend), so emails keep working.
 
