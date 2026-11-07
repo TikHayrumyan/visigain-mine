@@ -1,0 +1,110 @@
+# visigain-frontend
+
+The Visigain website and client dashboard: Next.js 16 (App Router), React 19, TypeScript (strict), Tailwind 4. It
+talks to the backend **only through its API**, `/api/v1/...`, on the same domain (no CORS). The data, the words, the
+switches and the legal text all come from the backend; this repository draws them.
+
+- The contract: [`api/openapi.yaml`](api/openapi.yaml) (a copy; the backend owns it) and its rules,
+  [`docs/api.md`](docs/api.md) and [`docs/wordings.md`](docs/wordings.md) (the backend's `docs/api/README.md` and `docs/api/wordings.md`, copied
+  by `pnpm api:sync`; paths in them are the backend's).
+- How to work here: [`CONTRIBUTING.md`](CONTRIBUTING.md), then [`docs/frontend-guide.md`](docs/frontend-guide.md),
+  [`docs/design-handoff.md`](docs/design-handoff.md) and [`TOKENS.md`](TOKENS.md).
+- This is **Next.js 16**: `src/proxy.ts`, not `middleware.ts`, and other changes. When an API looks unfamiliar, read
+  the guide in `node_modules/next/dist/docs/` first ([`AGENTS.md`](AGENTS.md)).
+
+## Day 1
+
+You need Git, **Node 22** or newer and **pnpm 8.10.5** (the `packageManager` field of `package.json`; install pnpm
+the way your system prefers, for example from pnpm.io). No key, no secret, no cloud access.
+
+```bash
+git clone https://github.com/visigain/visigain-frontend.git
+cd visigain-frontend
+pnpm i
+pnpm exec playwright install chromium   # once, for the smoke test
+```
+
+Two terminals:
+
+```bash
+pnpm mock            # the Prism mock of the API on http://127.0.0.1:4010 (from api/openapi.yaml and api/examples)
+MOCK=1 pnpm dev      # the app on http://127.0.0.1:3000, with /api/v1/* rewritten to the mock
+```
+
+On Windows PowerShell, the second is `$env:MOCK="1"; pnpm dev`.
+
+Open http://127.0.0.1:3000/example: a few wordings by key and the prices from `GET /api/v1/pricing`. It proves the
+wiring and is not a designed page. A key the mock's catalogue lacks shows as the key itself (for example
+`common.theme_toggle.light`): that is a question for Backend, never a sentence to type (CONTRIBUTING.md).
+
+**The mock.** Every answer is an example from the spec. Pick another with the header `Prefer: example=<name>` (the
+dashboard overview has `monitoring`, `report` and `free`), or another status with `Prefer: code=429`. A session call
+needs a cookie, any value: `curl -H "Cookie: vg_session=mock" http://127.0.0.1:4010/api/v1/session`.
+
+## The checks
+
+```bash
+pnpm typecheck      # tsc, strict
+pnpm lint           # the token check, then ESLint (no literal text in JSX)
+pnpm format:check   # Prettier (pnpm format writes)
+pnpm test           # Vitest: t(), the wordings loader, the client, the keys, the tokens
+pnpm build          # the production build
+pnpm test:e2e       # Playwright smoke: starts the mock and a MOCK=1 build, both themes at 1440 and 375 px
+```
+
+CI (`.github/workflows/ci.yml`, GitHub Actions) runs the same, in that order, on every pull request and on `main`.
+
+## Where calls go
+
+| mode                          | the browser calls                                            | the app's own server calls                                |
+| ----------------------------- | ------------------------------------------------------------ | --------------------------------------------------------- |
+| `MOCK=1`                      | `/api/v1/*` on its own origin, rewritten to the mock         | the mock (`MOCK_ORIGIN`, default `http://127.0.0.1:4010`) |
+| development, `API_ORIGIN` set | `/api/v1/*`, rewritten to `API_ORIGIN`                       | `API_ORIGIN`                                              |
+| production                    | `/api/v1/*`: the load balancer sends `/api/*` to the backend | `API_ORIGIN`                                              |
+
+`src/api/origin.ts` decides this; `next.config.ts` holds the rewrite. Rewrites are read when the dev server starts or
+the app is built, so restart after changing `MOCK` or `API_ORIGIN`. `.env.example` lists every variable, all blank.
+
+## Pointing at staging, later
+
+Staging is private: every request carries a Google identity allowed to call it. Once Raf has granted your Google
+account (`roles/run.invoker` on the staging services) and Backend has said the staging API is up:
+
+1. Install the Google Cloud CLI and `gcloud auth login` with that account.
+2. Run the backend's staging proxy on your laptop. It is `deploy/staging-proxy.mjs` in the backend repository; Backend
+   gives you the staging address and the exact command (for example on port 3200). The proxy adds your identity
+   token to each request and never prints it.
+3. `API_ORIGIN=http://localhost:3200 pnpm dev` (without `MOCK`).
+
+Staging sends no email: for a signed-in page, ask Backend for a one-time sign-in link for an invented `.test` client.
+You never get, need or call production.
+
+## The contract
+
+`src/api/client` and `src/api/generated` are copied from the backend, as they are; `api/openapi.yaml` and
+`api/examples` are the copy the mock serves. Never edit them here. When Backend changes the contract:
+
+```bash
+BACKEND_REPO=../visigain-backend pnpm api:sync      # copy the client, the types, the spec and its examples
+pnpm api:sync --spec path/to/openapi.yaml            # or: copy a spec (and its examples) and regenerate the types
+pnpm typecheck && pnpm test
+```
+
+Commit the result on its own ("API: contract synced from backend <sha>").
+
+## Layout
+
+```
+api/                 the spec and examples the mock serves (copied)
+src/api/             the client and types (copied), plus origin.ts, server.ts, browser.ts
+src/app/             routes (App Router); layout.tsx has the theme and the holding switch
+src/brand/tokens.ts  every design value (TOKENS.md)
+src/components/      components
+src/proxy.ts         Next 16's proxy: hands the path to the layout
+src/site/            GET /site: the switches and the holding page rule
+src/theme/           the theme cookie and its server action
+src/wordings/        t(), the catalogue loader, the keys awaiting Backend
+tests/               Vitest
+e2e/                 Playwright
+docs/                the guides for this repository
+```
