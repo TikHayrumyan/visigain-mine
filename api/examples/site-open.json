@@ -15,6 +15,7 @@
     ],
     "checkout": true,
     "checkoutWallets": false,
+    "apiCheckout": false,
     "aiChat": false,
     "share": false,
     "spanish": false,

@@ -96,10 +96,11 @@
         "key": "site.scan.directory_count",
         "params": {
           "found": 27,
-          "total": 36
+          "total": 36,
+          "date": "2026-11-05T18:12:00Z"
         }
       },
-      "date": "2026-11-05",
+      "date": "2026-11-05T18:12:00Z",
       "hint": null
     },
     "comparison": {
@@ -107,9 +108,9 @@
       "line": {
         "key": "site.comparison.figure",
         "params": {
-          "score": "61.7",
-          "average": "57.9",
-          "city": "Long Beach"
+          "Kind of business": "Med spas",
+          "place": "Long Beach",
+          "N": 58
         }
       },
       "note": null,

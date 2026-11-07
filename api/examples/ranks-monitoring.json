@@ -602,12 +602,7 @@
             }
           },
           "map_pack": "dashboard.ranks.missing_map_pack",
-          "maps": {
-            "key": "dashboard.ranks.missing",
-            "params": {
-              "depth": 20
-            }
-          }
+          "maps": "dashboard.ranks.missing_maps"
         },
         "webDepth": 100,
         "hasPanel": true

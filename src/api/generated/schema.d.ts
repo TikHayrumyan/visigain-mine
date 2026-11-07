@@ -709,7 +709,9 @@ export interface paths {
          * Start (or resume) a US$99 Full Report - creates the order and its PaymentIntent
          * @description Records the refund-terms consent and the legal version. The same buyer, business and price within 60 minutes
          *     gets the same unpaid order back (`reused: true`). 409 `report_covered`: Monitoring already includes the
-         *     report (go to `/dashboard/monitoring`). 503 `checkout_paused` when CHECKOUT_ENABLED is off.
+         *     report (go to `/dashboard/monitoring`). 409 `legal_version_changed`: `legalVersion` was sent and is not the
+         *     one in force (read `GET /checkout/terms` again). 503 `checkout_paused` when CHECKOUT_ENABLED is off, and while
+         *     the API's own switch API_CHECKOUT_ENABLED is off (staging only until `errors.legal_version_changed` is approved).
          */
         post: operations["startFullReportCheckout"];
         delete?: never;
@@ -732,7 +734,7 @@ export interface paths {
          * @description The credit rule: a paid, unrefunded Full Report for the same business within 14 days counts toward
          *     Monitoring once (US$99 against US$149 leaves US$50 due today; `credit` shows it). Records the three consents,
          *     the renewal terms and the legal version. `kind` is `card` only when nothing is due today (a credit of at least
-         *     the price). 409 `already_monitored`. 503 `checkout_paused`.
+         *     the price). 409 `already_monitored`, `legal_version_changed`. 503 `checkout_paused` (as for the Full Report).
          */
         post: operations["startMonitoringCheckout"];
         delete?: never;
@@ -956,10 +958,12 @@ export interface components {
             holding: boolean;
             /** @description HOLDING_PAGES: the only pages served while holding; every other path shows the holding page. */
             holdingPages: string[];
-            /** @description CHECKOUT_ENABLED: off pauses payments (the start calls answer 503 checkout_paused). */
+            /** @description CHECKOUT_ENABLED, effective (also off while holding, when the pay pages are closed): off pauses payments (the start calls answer 503 checkout_paused). */
             checkout: boolean;
-            /** @description CHECKOUT_WALLETS: Apple Pay and Google Pay in the Payment Element. */
+            /** @description CHECKOUT_WALLETS (refused in production): Apple Pay and Google Pay in the Payment Element; off whenever checkout is. */
             checkoutWallets: boolean;
+            /** @description API_CHECKOUT_ENABLED, effective (staging only; always false in production, and off whenever CHECKOUT_ENABLED is off or the site is holding): whether this API's own starts, POST /checkout/full-report and POST /checkout/monitoring, start a payment now; while it is false they answer 503 checkout_paused. `checkout` keeps meaning the pay pages' switch. Added 7 November 2026. */
+            apiCheckout: boolean;
             /** @description AI_CHAT_ENABLED (the global switch; a business may still be off). */
             aiChat: boolean;
             /** @description SHARE_REPORT_ENABLED: share links on Full Reports. */
@@ -1098,6 +1102,8 @@ export interface components {
             seen?: string;
             ref?: string;
             utm?: components["schemas"]["Utm"];
+            /** @description Sent from the Spanish site (only while `spanish` is on): the lead's emails then go in Spanish once approved. */
+            locale?: components["schemas"]["Locale"];
         };
         ScanStarted: {
             viewToken: string;
@@ -1140,7 +1146,7 @@ export interface components {
             slow: boolean;
             /** Format: date-time */
             scannedAt: string | null;
-            /** @description Failed only. Drawn as site.scan.we_couldn_t_grade_it_failure_text, its [failure_text] the code's sentence errors.scan_failed.<code> (catalogue gap). */
+            /** @description Failed only. Drawn as site.scan.we_couldn_t_grade_it_failure_text, its [failure_text] the code's sentence errors.scan_failed.<code>. */
             failure: null | {
                 /** @enum {string} */
                 code: "subject_unreachable" | "integrity_refused" | "collection_failed" | "incomplete" | "provider_failure" | "internal_error" | "bad_request" | "other";
@@ -1313,6 +1319,8 @@ export interface components {
             email: string;
             /** @description Where to go after signing in; anything not a same-site path becomes /dashboard. */
             next?: string;
+            /** @description The Spanish sign-in page's request (the link then opens the Spanish page); `es` is taken only while `spanish` is on in /site. */
+            locale?: components["schemas"]["Locale"];
         };
         VerifyRequest: {
             /** @description The `token` from the link's fragment (#token=). */
@@ -1363,7 +1371,7 @@ export interface components {
         SectionBase: {
             feature: components["schemas"]["FeatureId"];
             status: components["schemas"]["SectionStatus"];
-            /** @description What this plan shows of the feature (header line `<plan label>: <shows>`); null when nothing. Keys dashboard.plan_shows.<feature>.<plan>: catalogue gap (see x-wordings.pending). */
+            /** @description What this plan shows of the feature (header line `<plan label>: <shows>`); null when nothing. Keys dashboard.plan_shows.<feature>.<plan>. */
             shows: null | components["schemas"]["Wording"];
             unlockedBy: components["schemas"]["PlanLevel"];
             /** @description Monitoring: read every week, so the view carries its change. */
@@ -2456,7 +2464,7 @@ export interface components {
         };
     };
     parameters: {
-        /** @description The business's domain, among the session organisation's own; unknown or missing means the first (Monitoring first, then Full Report, then Free). */
+        /** @description The business's domain, among the session organisation's own. Missing or empty means the first (Monitoring first, then Full Report, then Free); any other domain that is not one of the organisation's own (another organisation's included) is 404 `not_found`, the same answer as a domain that does not exist, never the first business's data. */
         BusinessDomain: string;
         /** @description The business's domain, among the session organisation's own. */
         BusinessDomainRequired: string;
@@ -2470,8 +2478,10 @@ export interface components {
         Limit: number;
         /**
          * @description A fresh random key per checkout attempt (16 to 64 of A-Z a-z 0-9 _ -), reused on a retry of the same press.
-         *     The same key with the same body within 24 hours answers the first answer again; with another body, 409
-         *     `idempotency_key_reused`. (The backend also reuses an unpaid order or subscription of the last 60 minutes.)
+         *     The same key with the same body within 24 hours answers the first answer again (with the header
+         *     `Idempotent-Replayed: true`); with another body, 422 `idempotency_key_reused` (the IETF Idempotency-Key draft's
+         *     answer). Only a success is kept: a refusal may be sent again with the same key. A missing or malformed key is 422
+         *     `invalid_state`. (The backend also reuses an unpaid order or subscription of the last 60 minutes.)
          */
         IdempotencyKey: string;
     };
@@ -2479,7 +2489,7 @@ export interface components {
     headers: {
         /**
          * @description The catalogue's version (the body's `version`), quoted; send it back in If-None-Match. The mock always sends this one.
-         * @example "7449d8e501c28102"
+         * @example "5b5f657338c2aa30"
          */
         WordingsETag: string;
         /**
@@ -2720,6 +2730,7 @@ export interface operations {
                 content?: never;
             };
             403: components["responses"]["Forbidden"];
+            413: components["responses"]["TooLarge"];
             422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
         };
@@ -2769,6 +2780,8 @@ export interface operations {
                 };
             };
             403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            413: components["responses"]["TooLarge"];
             422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
             503: components["responses"]["Unavailable"];
@@ -2800,6 +2813,7 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFound"];
+            422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
         };
     };
@@ -2849,6 +2863,7 @@ export interface operations {
                     "application/json": components["schemas"]["ClientReport"];
                 };
             };
+            422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
         };
     };
@@ -3016,6 +3031,7 @@ export interface operations {
                 content?: never;
             };
             403: components["responses"]["Forbidden"];
+            413: components["responses"]["TooLarge"];
             422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
         };
@@ -3045,6 +3061,7 @@ export interface operations {
             };
             401: components["responses"]["Unauthenticated"];
             403: components["responses"]["Forbidden"];
+            413: components["responses"]["TooLarge"];
             422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
         };
@@ -3094,6 +3111,8 @@ export interface operations {
             401: components["responses"]["Unauthenticated"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            413: components["responses"]["TooLarge"];
+            422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
         };
     };
@@ -3121,7 +3140,7 @@ export interface operations {
     getDashboardOverview: {
         parameters: {
             query?: {
-                /** @description The business's domain, among the session organisation's own; unknown or missing means the first (Monitoring first, then Full Report, then Free). */
+                /** @description The business's domain, among the session organisation's own. Missing or empty means the first (Monitoring first, then Full Report, then Free); any other domain that is not one of the organisation's own (another organisation's included) is 404 `not_found`, the same answer as a domain that does not exist, never the first business's data. */
                 b?: components["parameters"]["BusinessDomain"];
             };
             header?: never;
@@ -3141,7 +3160,9 @@ export interface operations {
                 };
             };
             401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
         };
     };
@@ -3202,6 +3223,7 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
+            413: components["responses"]["TooLarge"];
             422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
         };
@@ -3235,6 +3257,7 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
+            413: components["responses"]["TooLarge"];
             422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
         };
@@ -3242,7 +3265,7 @@ export interface operations {
     getDashboardGrid: {
         parameters: {
             query?: {
-                /** @description The business's domain, among the session organisation's own; unknown or missing means the first (Monitoring first, then Full Report, then Free). */
+                /** @description The business's domain, among the session organisation's own. Missing or empty means the first (Monitoring first, then Full Report, then Free); any other domain that is not one of the organisation's own (another organisation's included) is 404 `not_found`, the same answer as a domain that does not exist, never the first business's data. */
                 b?: components["parameters"]["BusinessDomain"];
                 /** @description One of `keywords[].keyword`; an unknown one falls back to the main keyword. */
                 keyword?: string;
@@ -3263,7 +3286,9 @@ export interface operations {
                 };
             };
             401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
         };
     };
@@ -3312,7 +3337,7 @@ export interface operations {
     getDashboardRanks: {
         parameters: {
             query?: {
-                /** @description The business's domain, among the session organisation's own; unknown or missing means the first (Monitoring first, then Full Report, then Free). */
+                /** @description The business's domain, among the session organisation's own. Missing or empty means the first (Monitoring first, then Full Report, then Free); any other domain that is not one of the organisation's own (another organisation's included) is 404 `not_found`, the same answer as a domain that does not exist, never the first business's data. */
                 b?: components["parameters"]["BusinessDomain"];
             };
             header?: never;
@@ -3331,14 +3356,16 @@ export interface operations {
                 };
             };
             401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
         };
     };
     getDashboardCitations: {
         parameters: {
             query?: {
-                /** @description The business's domain, among the session organisation's own; unknown or missing means the first (Monitoring first, then Full Report, then Free). */
+                /** @description The business's domain, among the session organisation's own. Missing or empty means the first (Monitoring first, then Full Report, then Free); any other domain that is not one of the organisation's own (another organisation's included) is 404 `not_found`, the same answer as a domain that does not exist, never the first business's data. */
                 b?: components["parameters"]["BusinessDomain"];
             };
             header?: never;
@@ -3357,7 +3384,9 @@ export interface operations {
                 };
             };
             401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
         };
     };
@@ -3414,6 +3443,7 @@ export interface operations {
             };
             401: components["responses"]["Unauthenticated"];
             404: components["responses"]["NotFound"];
+            422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
         };
     };
@@ -3505,8 +3535,10 @@ export interface operations {
             header: {
                 /**
                  * @description A fresh random key per checkout attempt (16 to 64 of A-Z a-z 0-9 _ -), reused on a retry of the same press.
-                 *     The same key with the same body within 24 hours answers the first answer again; with another body, 409
-                 *     `idempotency_key_reused`. (The backend also reuses an unpaid order or subscription of the last 60 minutes.)
+                 *     The same key with the same body within 24 hours answers the first answer again (with the header
+                 *     `Idempotent-Replayed: true`); with another body, 422 `idempotency_key_reused` (the IETF Idempotency-Key draft's
+                 *     answer). Only a success is kept: a refusal may be sent again with the same key. A missing or malformed key is 422
+                 *     `invalid_state`. (The backend also reuses an unpaid order or subscription of the last 60 minutes.)
                  */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
@@ -3542,8 +3574,10 @@ export interface operations {
             header: {
                 /**
                  * @description A fresh random key per checkout attempt (16 to 64 of A-Z a-z 0-9 _ -), reused on a retry of the same press.
-                 *     The same key with the same body within 24 hours answers the first answer again; with another body, 409
-                 *     `idempotency_key_reused`. (The backend also reuses an unpaid order or subscription of the last 60 minutes.)
+                 *     The same key with the same body within 24 hours answers the first answer again (with the header
+                 *     `Idempotent-Replayed: true`); with another body, 422 `idempotency_key_reused` (the IETF Idempotency-Key draft's
+                 *     answer). Only a success is kept: a refusal may be sent again with the same key. A missing or malformed key is 422
+                 *     `invalid_state`. (The backend also reuses an unpaid order or subscription of the last 60 minutes.)
                  */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
@@ -3762,6 +3796,7 @@ export interface operations {
             401: components["responses"]["Unauthenticated"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
             422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
         };

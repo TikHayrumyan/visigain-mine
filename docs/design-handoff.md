@@ -11,6 +11,11 @@ page and the Figma disagree about the look, the Figma wins. Where the Figma disa
 **data**, the **switches** or the **legal text**, the API wins (section 5, and
 [`frontend-guide.md`](frontend-guide.md), "The one boundary").
 
+**Two repositories (Raf, 7 November 2026).** This file maps the whole design, but this repository builds only the
+public pages. The dashboard, checkout and account screens (most of the Done page) are built in
+[visigain-app](https://github.com/visigain/visigain-app), whose `docs/design-notes.md` keeps those parts of this
+page. The tokens and the kit's look are shared: each repository has its own copy of `src/brand/tokens.ts`.
+
 Read with: [`frontend-guide.md`](frontend-guide.md), [`../TOKENS.md`](../TOKENS.md),
 [`../CONTRIBUTING.md`](../CONTRIBUTING.md). No picture from the file is copied into the repository, and none should
 be: open the Figma itself.
