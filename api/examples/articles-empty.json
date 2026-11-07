@@ -1,0 +1,11 @@
+{
+  "summary": "No articles published",
+  "value": {
+    "items": [],
+    "nextCursor": null,
+    "taxonomy": {
+      "categories": [],
+      "tags": []
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "summary": "Over a limit",
+  "value": {
+    "error": {
+      "code": "rate_limited",
+      "message_key": "errors.too_many_requests.try_again_in_a_little_while"
+    }
+  }
+}

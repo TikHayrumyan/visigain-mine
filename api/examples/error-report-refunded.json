@@ -1,0 +1,9 @@
+{
+  "summary": "Refunded: the PDF is withdrawn",
+  "value": {
+    "error": {
+      "code": "report_refunded",
+      "message_key": "dashboard.reports.this_report_was_refunded_so_it"
+    }
+  }
+}

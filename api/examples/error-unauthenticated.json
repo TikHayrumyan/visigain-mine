@@ -1,0 +1,9 @@
+{
+  "summary": "No session",
+  "value": {
+    "error": {
+      "code": "unauthenticated",
+      "message_key": "auth.auth.sign_in_to_visigain"
+    }
+  }
+}

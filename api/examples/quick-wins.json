@@ -1,0 +1,17 @@
+{
+  "summary": "Quick wins after a tick",
+  "value": {
+    "lines": [
+      {
+        "key": "4f1e2d3c4b5a69788796a5b4c3d2e1f0a1b2c3d4",
+        "title": "Add your opening hours",
+        "action": "Open your Google listing and add this week's hours.",
+        "why": null,
+        "done": true
+      }
+    ],
+    "done": 1,
+    "total": 3,
+    "canTick": true
+  }
+}

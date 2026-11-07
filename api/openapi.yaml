@@ -1,0 +1,3498 @@
+openapi: 3.1.0
+info:
+  title: Visigain API
+  version: 1.0.0
+  summary: The contract between visigain-frontend and visigain-backend, for launch (30 November 2026).
+  description: |
+    Every path is under `/api/v1`, on the same domain as the pages (no CORS). Read `docs/api/README.md` first.
+
+    **Conventions**
+    - Field names are the server's own (camelCase, as in `src/server/**`). The only snake_case names are the fixed
+      ones: `message_key` in the error object, and engine's week object (`starts_at`, `complete_at`).
+    - Money is integer cents with `currency: "usd"`. Ids are UUIDs. Dates are ISO 8601 strings: `format: date-time`
+      for a moment, `format: date` for a day; fields marked "as engine gives it" are passed through unchanged.
+    - **No client sentence is free text the backend writes.** A sentence is a `Wording`: a key into
+      `GET /api/v1/wordings`, or `{ key, params }`. The exceptions are client data (business name, domain, review text,
+      numbers, dates, names of directories and assistants) and `ApprovedText`: legal and article bodies, FAQ answers
+      and engine's report text, which the backend serves already approved.
+    - Lists that grow are paged with `cursor` and `limit`, and answer `{ items, nextCursor }`.
+    - Errors are `{ error: { code, message_key } }`; `message_key` is the key of the page's own sentence for that case (`x-wordings.errors`).
+
+    **Mock:** `pnpm api:mock` serves this file on http://127.0.0.1:4010 with the examples. Pick another example with
+    the header `Prefer: example=<name>` (for instance `Prefer: example=free` on the overview), or another status with
+    `Prefer: code=429`.
+  contact:
+    name: Visigain backend
+    email: admin@visigain.com
+security:
+  - {}
+servers:
+  - url: /
+    description: Same origin as the pages (production https://visigain.com, staging through the staging proxy).
+  - url: http://127.0.0.1:4010
+    description: The Prism mock (pnpm api:mock).
+tags:
+  - name: public
+    description: The public site. No session needed.
+  - name: auth
+    description: Sign-in by magic link, the session and sign out. Google sign-in stays a backend redirect (/auth/google).
+  - name: dashboard
+    description: A member's business. Session needed; the business is chosen with `?b=<domain>` among the session organisation's own.
+  - name: reports
+    description: Reports, orders and the PDF.
+  - name: checkout
+    description: Full Report (US$99) and Monitoring (US$149 a month) through the Stripe Payment Element.
+  - name: account
+    description: Subscriptions, invoices and receipts, the payment method, cancelling Monitoring.
+
+# ---------------------------------------------------------------- wordings
+# Every wording key this contract names. A key in `errors` or an `x-wording-keys` table is a real catalogue key
+# (api/wordings/catalogue.generated.ts) with approved text, except the ones listed under `pending`:
+#  - "catalogue gap": the sentence is live today, but built in server code the catalogue does not read yet. No new words:
+#    the catalogue build must take it from the source named. The key named here is the API-side name to give it.
+#  - "draft needed": no approved sentence exists; it goes through the strategist's draft round first.
+# A name ending in ".*" stands for a family. tests/api/contract.test.ts holds every rule.
+x-wordings:
+  errors:
+    unauthenticated: auth.auth.sign_in_to_visigain
+    cross_site_refused: errors.error.something_went_wrong
+    owner_only: account.account.only_an_owner_of_this_organisation
+    not_found: errors.not_found.we_can_t_find_that_page
+    no_organisation: dashboard.overview.no_businesses_yet_buy_a_full
+    no_business: dashboard.overview.no_businesses_yet_buy_a_full
+    report_covered: dashboard.monitoring.monitoring_includes_the_full_report_we
+    already_monitored: errors.already_monitored
+    legal_version_changed: errors.legal_version_changed
+    idempotency_key_reused: errors.error.something_went_wrong
+    pdf_preparing: dashboard.reports.the_pdf_is_being_prepared
+    report_refunded: dashboard.reports.this_report_was_refunded_so_it
+    too_large: errors.error.something_went_wrong
+    invalid_email: site.free_ai_check.please_enter_a_valid_email_address
+    invalid_domain: site.free_ai_check.that_doesn_t_look_like_a
+    invalid_name: errors.invalid_name
+    invalid_message: errors.invalid_message
+    invalid_category: errors.invalid_category
+    category_unsupported: dashboard.shared.we_can_t_grade_this_type
+    invalid_state: errors.invalid_form
+    consent_required: errors.consent_required
+    disposable_email: site.scan.please_use_an_email_address_you
+    form_expired: site.scan.this_page_was_open_for_a
+    link_invalid: errors.link_invalid
+    rate_limited: errors.too_many_requests.try_again_in_a_little_while
+    rate_limited@postScan: site.scan.we_can_t_start_another_scan
+    checkout_paused: dashboard.shared.payments_are_paused_for_the_moment_2840
+    scans_paused: site.scan.the_free_scan_is_paused_for
+    scan_busy: site.scan.the_free_scan_is_busy_right
+    payments_unavailable: errors.payments_unavailable
+    cancel_failed: errors.cancel_failed
+    unknown: errors.global_error.something_went_wrong_on_our_side
+  pending:
+    errors.legal_version_changed: { status: draft needed, for: "409: the legal version in force changed since the buyer saw the terms (new behaviour)" }
+    errors.already_monitored: { status: catalogue gap, for: "409 already_monitored", source: "src/server/monitoring/index.ts ALREADY_MONITORED_WORDS" }
+    errors.payments_unavailable: { status: catalogue gap, for: "503: card payment not available", source: "src/server/monitoring/index.ts PAYMENT_UNAVAILABLE_WORDS" }
+    errors.cancel_failed: { status: catalogue gap, for: "503: Stripe did not answer a cancel", source: "src/app/account/actions.ts CANCEL_FAILED" }
+    errors.invalid_name: { status: catalogue gap, for: "contact form: name missing", source: "src/app/(site)/contact/page.tsx ERRORS.name" }
+    errors.invalid_message: { status: catalogue gap, for: "contact form: message too short", source: "src/app/(site)/contact/page.tsx ERRORS.message" }
+    errors.contact.*: { status: catalogue gap, for: "the contact form's own email, disposable and rate-limit sentences", source: "src/app/(site)/contact/page.tsx ERRORS" }
+    errors.invalid_category: { status: catalogue gap, for: "free scan and checkout: type of business missing", source: "src/app/(site)/scan/page.tsx error texts; src/app/dashboard/actions.ts" }
+    errors.consent_required: { status: catalogue gap, for: "free scan: the consent box not ticked", source: "src/app/(site)/scan/page.tsx error texts" }
+    errors.invalid_form: { status: catalogue gap, for: "a form field not right (state, term)", source: "FORM_NOT_RIGHT (src/app/dashboard/actions.ts)" }
+    errors.link_invalid: { status: catalogue gap, for: "sign-in link expired or used", source: "src/app/signin/page.tsx ERRORS.link" }
+    errors.scan_failed.*: { status: catalogue gap, for: "why a free scan failed, per failure.code", source: "src/server/freescan/index.ts failureReasonText" }
+    common.plan.free: { status: catalogue gap, for: "the plan label Free scan", source: "src/server/engine/v2/view.ts PLAN_LABEL" }
+    common.move.*: { status: catalogue gap, for: "a Move's words (up [by], down [by], no comparison; shares in points)", source: "src/server/engine/v2/view.ts rankMove, gainMove, pointsMove" }
+    dashboard.section.*: { status: catalogue gap, for: "a section's held, not-measured and weekly-empty sentences", source: "src/components/v2/kit.tsx HELD, NO_DATA_WEEKLY; src/server/engine/v2/view.ts NOT_MEASURED_*" }
+    dashboard.plan_shows.*: { status: catalogue gap, for: "Section.shows, per feature and plan (17)", source: "src/server/engine/v2/view.ts FEATURES" }
+    dashboard.rank_type.*: { status: catalogue gap, for: "the 4 result-type labels", source: "src/server/engine/v2/types.ts RANK_TYPE_LABEL" }
+    dashboard.rank_bucket.*: { status: catalogue gap, for: "the position-range headings", source: "src/components/v2/ranks-page.tsx rankBucketHeading, RANK_BUCKET_LABEL" }
+    dashboard.ranks.*: { status: catalogue gap, for: "Not in the first [depth], and [found] of [of] searches found", source: "src/server/v2/load.ts ranks view" }
+    dashboard.order_status.*: { status: catalogue gap, for: "order status labels (refunded is mapped)", source: "src/app/dashboard/orders/status.ts ORDER_STATUS_LABEL" }
+    account.status.*: { status: catalogue gap, for: "the Cancelled, Not paid (yet) and Being prepared badges", source: "src/app/account/page.tsx, src/app/account/invoices/[id]/page.tsx" }
+    dashboard.alert.*: { status: catalogue gap, for: "AlertNote.sentence, per kind", source: "src/server/v2/alerts (the alert email's sentences)" }
+    dashboard.comparison.*: { status: catalogue gap, for: "Comparison lines on the dashboard and reports", source: "src/server/city-averages/view.ts" }
+    site.comparison.*: { status: catalogue gap, for: "Comparison lines on the free grade", source: "src/server/city-averages/view.ts" }
+    site.grade.average_label: { status: catalogue gap, for: "the grade's category-average label", source: "src/server/reports/client-view.ts categoryAverageLabel" }
+    site.scan.directory_count: { status: catalogue gap, for: "the free grade's directory count line", source: "src/server/freescan/directory-count.ts" }
+    dashboard.citations.count: { status: catalogue gap, for: "CitationCount.text", source: "src/server/v2/load.ts citation count" }
+    dashboard.grid.basis.*: { status: catalogue gap, for: "GridNumbers.basis and changeReason", source: "src/server/v2/load.ts grid numbers" }
+    dashboard.v2.*: { status: catalogue gap, for: "other loader sentences (reviews.notAvailable, standardNote and markers, refund why)", source: "src/server/v2/load.ts, standard-change.ts, src/server/orders/refund-shown.ts" }
+    common.customers.*: { status: catalogue gap, for: "CategoryWords: what a kind of business calls its customers", source: "src/server/v2/category-words/wording.ts" }
+    common.customer.*: { status: catalogue gap, for: "CategoryWords (singular)", source: "src/server/v2/category-words/wording.ts" }
+
+paths:
+  # ---------------------------------------------------------------- public
+  /api/v1/wordings:
+    get:
+      tags: [public]
+      operationId: getWordings
+      summary: The approved wording catalogue, by locale and namespace
+      description: |
+        Only approved entries are ever returned (the wording gate is server-side). A key the frontend needs and does
+        not find here is a question for Backend, never a sentence to type. `version` is the catalogue's content hash,
+        also sent as the `ETag`; send it back in `If-None-Match` for a 304.
+      parameters:
+        - name: locale
+          in: query
+          required: true
+          schema: { $ref: "#/components/schemas/Locale" }
+        - name: ns
+          in: query
+          required: false
+          description: One namespace; all of them when left out.
+          schema: { $ref: "#/components/schemas/WordingNamespace" }
+        - name: If-None-Match
+          in: header
+          required: false
+          schema: { type: string }
+      responses:
+        "200":
+          description: The catalogue (or one namespace of it).
+          headers:
+            ETag: { $ref: "#/components/headers/ETag" }
+            Cache-Control: { $ref: "#/components/headers/CacheControl" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/WordingCatalogue" }
+              examples:
+                en: { $ref: "examples/wordings.en.json" }
+        "304":
+          description: Not modified (the ETag matched).
+          headers:
+            ETag: { $ref: "#/components/headers/ETag" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/site:
+    get:
+      tags: [public]
+      operationId: getSite
+      summary: The switches the frontend must obey, and the legal version
+      responses:
+        "200":
+          description: The switches, read on every request (cache for at most 60 seconds).
+          headers:
+            Cache-Control: { $ref: "#/components/headers/CacheControl" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Site" }
+              examples:
+                open: { $ref: "examples/site-open.json" }
+                holding: { $ref: "examples/site-holding.json" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/legal/{slug}:
+    get:
+      tags: [public]
+      operationId: getLegalPage
+      summary: A legal page in force (Markdown, English only)
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { $ref: "#/components/schemas/LegalSlug" }
+      responses:
+        "200":
+          description: The page in force.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LegalPage" }
+              examples:
+                refunds: { $ref: "examples/legal-refunds.json" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/legal/lines:
+    get:
+      tags: [public]
+      operationId: getLegalLines
+      summary: The legal words shown outside the legal pages (the privacy notice, the grade's opinion line, the free scan's boxes)
+      description: |
+        These are recorded word for word when someone agrees (consent records keep the exact text and version), so
+        the frontend shows them exactly as given and never from the wordings catalogue. English only.
+      responses:
+        "200":
+          description: The lines in force.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LegalLines" }
+              examples:
+                lines: { $ref: "examples/legal-lines.json" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/legal/archive:
+    get:
+      tags: [public]
+      operationId: getLegalArchive
+      summary: Every archived legal version, newest first
+      responses:
+        "200":
+          description: The archive's index.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LegalArchive" }
+              examples:
+                archive: { $ref: "examples/legal-archive.json" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/legal/archive/{version}/{slug}:
+    get:
+      tags: [public]
+      operationId: getArchivedLegalPage
+      summary: One legal page as it stood in an earlier (or the current) version
+      parameters:
+        - name: version
+          in: path
+          required: true
+          schema: { type: string, pattern: "^v\\d+\\.\\d+$", examples: ["v3.16"] }
+        - name: slug
+          in: path
+          required: true
+          schema: { $ref: "#/components/schemas/LegalSlug" }
+      responses:
+        "200":
+          description: The archived page.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ArchivedLegalPage" }
+              examples:
+                terms: { $ref: "examples/legal-archive-terms.json" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/pricing:
+    get:
+      tags: [public]
+      operationId: getPricing
+      summary: Prices from PRICES (never typed), the fair-use lines and the pricing FAQ
+      responses:
+        "200":
+          description: The prices.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Pricing" }
+              examples:
+                pricing: { $ref: "examples/pricing.json" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/contact:
+    post:
+      tags: [public]
+      operationId: postContact
+      summary: Send the contact form
+      description: |
+        `website` is the honeypot: leave it empty (a filled one is answered 204 and nothing is kept). Limits: 5 an
+        hour per visitor address, 3 a day per email. Open while the holding page is on.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ContactRequest" }
+            examples:
+              message: { $ref: "examples/contact-request.json" }
+      responses:
+        "204": { description: Received (or the honeypot was filled). }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/scans/form:
+    get:
+      tags: [public]
+      operationId: getScanForm
+      summary: What the free scan form needs before it is shown (the signed form stamp, the categories, the states)
+      description: |
+        The stamp is the anti-bot check the page renders today (`issueFormStamp`): the form must be open at least
+        3 seconds and at most a day, and one stamp is accepted at most 3 times. Ask for a new one each time the form is drawn.
+      responses:
+        "200":
+          description: The form's data.
+          headers:
+            Cache-Control: { $ref: "#/components/headers/NoStore" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ScanForm" }
+              examples:
+                form: { $ref: "examples/scan-form.json" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/scans:
+    post:
+      tags: [public]
+      operationId: postScan
+      summary: Start a free scan
+      description: |
+        Answers the same way for a reused lead (same email and domain within 24 hours) and a new one. A filled
+        honeypot (`message`) gets a decoy token that always reads `running`. Closed while the holding page is on.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ScanRequest" }
+            examples:
+              scan: { $ref: "examples/scan-request.json" }
+      responses:
+        "201":
+          description: Started (or reused). Show `/scan/{viewToken}`.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ScanStarted" }
+              examples:
+                started: { $ref: "examples/scan-started.json" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+
+  /api/v1/scans/{token}:
+    get:
+      tags: [public]
+      operationId: getScan
+      summary: A free scan's status, then its result
+      description: Poll while `status` is `running` (every 300 seconds when `startsBy` is set, otherwise every 30).
+      parameters:
+        - $ref: "#/components/parameters/ViewToken"
+        - $ref: "#/components/parameters/LocaleQuery"
+      responses:
+        "200":
+          description: The scan.
+          headers:
+            Cache-Control: { $ref: "#/components/headers/NoStore" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FreeScanView" }
+              examples:
+                running: { $ref: "examples/scan-running.json" }
+                ready: { $ref: "examples/scan-ready.json" }
+                failed: { $ref: "examples/scan-failed.json" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/scans/confirm/{code}:
+    post:
+      tags: [public]
+      operationId: confirmScan
+      summary: Confirm the email of a free scan (the code from the emailed link)
+      description: |
+        The emailed link itself (`/scan/confirm/<code>`) stays a backend path, which redirects to `/scan/<token>`.
+        This is for a frontend page that confirms by itself. A code with a bad signature still answers the token it
+        carries, unconfirmed.
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema: { type: string, maxLength: 120, pattern: "^[\\w-]{8,64}\\.[0-9a-f]{32}$" }
+      responses:
+        "200":
+          description: Confirmed (or already confirmed).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ScanConfirmed" }
+              examples:
+                confirmed: { $ref: "examples/scan-confirmed.json" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/sample-report:
+    get:
+      tags: [public]
+      operationId: getSampleReport
+      summary: The public sample report (an invented business), in the client-safe report shape
+      parameters:
+        - $ref: "#/components/parameters/LocaleQuery"
+      responses:
+        "200":
+          description: The sample.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ClientReport" }
+              examples:
+                sample: { $ref: "examples/sample-report.json" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/faq:
+    get:
+      tags: [public]
+      operationId: getFaq
+      summary: The FAQ (the CMS's published entries, else the approved site copy)
+      responses:
+        "200":
+          description: The questions in order.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Faq" }
+              examples:
+                faq: { $ref: "examples/faq.json" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/articles:
+    get:
+      tags: [public]
+      operationId: listArticles
+      summary: Published articles, the canonical definition first
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema: { type: string, maxLength: 80 }
+        - name: tag
+          in: query
+          required: false
+          schema: { type: string, maxLength: 80 }
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: One page of articles.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ArticleList" }
+              examples:
+                articles: { $ref: "examples/articles.json" }
+                empty: { $ref: "examples/articles-empty.json" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/articles/{slug}:
+    get:
+      tags: [public]
+      operationId: getArticle
+      summary: One article (Markdown body, already approved)
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string, pattern: "^[a-z0-9-]{1,120}$" }
+      responses:
+        "200":
+          description: The article.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Article" }
+              examples:
+                article: { $ref: "examples/article.json" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/about:
+    get:
+      tags: [public]
+      operationId: getAbout
+      summary: The About page's paragraphs (as keys) and the company's facts
+      responses:
+        "200":
+          description: The About page.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/About" }
+              examples:
+                about: { $ref: "examples/about.json" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/consent:
+    post:
+      tags: [public]
+      operationId: postConsent
+      summary: Record the privacy notice being shown, agreed to or opted out of
+      description: |
+        No body. Sets the `vg_bid` browser id cookie (HttpOnly, a year) when there is none. `opt_out` is always
+        answered 204, even over the limit (60 a minute per visitor address).
+      parameters:
+        - name: event
+          in: query
+          required: true
+          schema: { type: string, enum: [shown, agree, opt_out] }
+      responses:
+        "204": { description: Recorded. }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/events:
+    post:
+      tags: [public]
+      operationId: postEvent
+      summary: A page view, for analytics (only with the `vg_consent=all` cookie and no GPC or do-not-sell signal)
+      description: Without consent it is answered 204 and nothing is kept. 120 a minute per visitor address; body at most 4,000 bytes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PageViewEvent" }
+            examples:
+              view: { $ref: "examples/event-request.json" }
+      responses:
+        "204": { description: "Recorded, or skipped without consent." }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "413": { $ref: "#/components/responses/TooLarge" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  # ---------------------------------------------------------------- auth
+  /api/v1/auth/magic-link:
+    post:
+      tags: [auth]
+      operationId: requestMagicLink
+      summary: Email a sign-in link
+      description: |
+        Always 202 whether or not the email has an account (no enumeration). Limits: 5 links an hour per email, 20 an
+        hour per visitor address. The link opens `/auth/verify#token=…` (a page the frontend serves; the token is in
+        the fragment, so no server log sees it). It works once and expires in 15 minutes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MagicLinkRequest" }
+            examples:
+              signin: { $ref: "examples/magic-link-request.json" }
+      responses:
+        "202": { description: "If the address can sign in, a link is on its way. Show the check-your-email page." }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/auth/verify:
+    post:
+      tags: [auth]
+      operationId: verifyMagicLink
+      summary: Sign in with the link's token (a POST, so mail scanners that open links can't use them up)
+      description: |
+        Ends any session this browser held, starts a new one and sets the `vg_session` cookie. 100 tries an hour per
+        visitor address. An admin whose link pointed at /admin gets `redirectTo: "/admin"` (a backend path).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VerifyRequest" }
+            examples:
+              verify: { $ref: "examples/verify-request.json" }
+      responses:
+        "200":
+          description: Signed in.
+          headers:
+            Set-Cookie: { $ref: "#/components/headers/SetSessionCookie" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Verified" }
+              examples:
+                verified: { $ref: "examples/verified.json" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/session:
+    get:
+      tags: [auth]
+      operationId: getSession
+      summary: Who is signed in, and their organisations (always 200; `user` is null when signed out)
+      responses:
+        "200":
+          description: The session.
+          headers:
+            Cache-Control: { $ref: "#/components/headers/NoStore" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Session" }
+              examples:
+                signedIn: { $ref: "examples/session-signed-in.json" }
+                signedOut: { $ref: "examples/session-signed-out.json" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/session/organisation:
+    post:
+      tags: [auth]
+      operationId: switchOrganisation
+      summary: Choose the organisation the dashboard shows (sets the `vg_org` cookie; it grants nothing)
+      security: [{ session: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SwitchOrganisationRequest" }
+            examples:
+              switch: { $ref: "examples/switch-organisation-request.json" }
+      responses:
+        "204": { description: Chosen. }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/auth/sign-out:
+    post:
+      tags: [auth]
+      operationId: signOut
+      summary: Sign out (ends the session on the server and clears the cookie)
+      responses:
+        "204":
+          description: Signed out (also when there was no session).
+          headers:
+            Set-Cookie: { $ref: "#/components/headers/ClearSessionCookie" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  # ---------------------------------------------------------------- dashboard
+  /api/v1/dashboard/overview:
+    get:
+      tags: [dashboard]
+      operationId: getDashboardOverview
+      summary: The overview of one business, in its Free, Full Report or Monitoring state
+      description: |
+        Wraps `loadDashboard` (src/server/v2/load.ts) plus the overview's lower half (src/server/dashboard). `plan`
+        decides the state. Each part is a `Section`: draw `view` when `status` is `ready`, otherwise the status's
+        wording (see the README). 409 `no_organisation`: show onboarding; 409 `no_business`: show the no-business page.
+      security: [{ session: [] }]
+      parameters:
+        - $ref: "#/components/parameters/BusinessDomain"
+      responses:
+        "200":
+          description: The overview.
+          headers:
+            Cache-Control: { $ref: "#/components/headers/NoStore" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DashboardOverview" }
+              examples:
+                monitoring: { $ref: "examples/overview-monitoring.json" }
+                report: { $ref: "examples/overview-report.json" }
+                free: { $ref: "examples/overview-free.json" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/dashboard/grade-history:
+    get:
+      tags: [dashboard]
+      operationId: listGradeHistory
+      summary: Every delivered grade and report of the organisation, newest first (the overview's "Grade history")
+      security: [{ session: [] }]
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: One page.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GradeHistoryPage" }
+              examples:
+                history: { $ref: "examples/grade-history.json" }
+                empty: { $ref: "examples/grade-history-empty.json" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/dashboard/tasks/tick:
+    post:
+      tags: [dashboard]
+      operationId: tickTask
+      summary: Tick (or untick) a task of the fix list (Monitoring only, where `tasks.tickable` is true)
+      security: [{ session: [] }]
+      parameters:
+        - $ref: "#/components/parameters/BusinessDomainRequired"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TickTaskRequest" }
+            examples:
+              tick: { $ref: "examples/tick-task-request.json" }
+      responses:
+        "200":
+          description: The task list after the tick.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Tasks" }
+              examples:
+                tasks: { $ref: "examples/tasks.json" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/dashboard/quick-wins/tick:
+    post:
+      tags: [dashboard]
+      operationId: tickQuickWin
+      summary: Tick (or untick) a quick win (behind QUICK_WINS_ENABLED; `quickWins` is null when it is off)
+      security: [{ session: [] }]
+      parameters:
+        - $ref: "#/components/parameters/BusinessDomainRequired"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TickQuickWinRequest" }
+            examples:
+              tick: { $ref: "examples/tick-quick-win-request.json" }
+      responses:
+        "200":
+          description: The quick wins after the tick.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/QuickWins" }
+              examples:
+                quickWins: { $ref: "examples/quick-wins.json" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/dashboard/grid:
+    get:
+      tags: [dashboard]
+      operationId: getDashboardGrid
+      summary: The local rank grid for one keyword (`loadGrid`)
+      security: [{ session: [] }]
+      parameters:
+        - $ref: "#/components/parameters/BusinessDomain"
+        - name: keyword
+          in: query
+          required: false
+          description: One of `keywords[].keyword`; an unknown one falls back to the main keyword.
+          schema: { type: string, maxLength: 200 }
+      responses:
+        "200":
+          description: The grid page.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GridPageData" }
+              examples:
+                monitoring: { $ref: "examples/grid-monitoring.json" }
+                free: { $ref: "examples/grid-free.json" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/dashboard/grid/map:
+    get:
+      tags: [dashboard]
+      operationId: getDashboardGridMap
+      summary: The grid's map picture (PNG); use the URLs in `grid.view.map`, never build one
+      description: Coordinates never come from the request. The business must belong to one of the session's organisations.
+      security: [{ session: [] }]
+      parameters:
+        - $ref: "#/components/parameters/BusinessDomainRequired"
+        - name: keyword
+          in: query
+          required: false
+          schema: { type: string, maxLength: 200 }
+        - name: theme
+          in: query
+          required: true
+          schema: { type: string, enum: [light, dark] }
+        - name: grid
+          in: query
+          required: false
+          description: The grid's side, only to bust the browser cache (the size is engine's).
+          schema: { type: integer, enum: [3, 7] }
+        - name: If-None-Match
+          in: header
+          required: false
+          schema: { type: string }
+      responses:
+        "200":
+          description: The picture.
+          headers:
+            ETag: { $ref: "#/components/headers/ETag" }
+            Cache-Control: { $ref: "#/components/headers/CacheControl" }
+          content:
+            image/png:
+              schema: { type: string, contentMediaType: image/png }
+        "304": { description: Not modified. }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/dashboard/ranks:
+    get:
+      tags: [dashboard]
+      operationId: getDashboardRanks
+      summary: Search ranks by keyword and result type (`loadRanks`)
+      security: [{ session: [] }]
+      parameters:
+        - $ref: "#/components/parameters/BusinessDomain"
+      responses:
+        "200":
+          description: The ranks page.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RanksPageData" }
+              examples:
+                monitoring: { $ref: "examples/ranks-monitoring.json" }
+                free: { $ref: "examples/ranks-free.json" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/dashboard/citations:
+    get:
+      tags: [dashboard]
+      operationId: getDashboardCitations
+      summary: Directory listings (`loadCitations`); on Free only the count
+      security: [{ session: [] }]
+      parameters:
+        - $ref: "#/components/parameters/BusinessDomain"
+      responses:
+        "200":
+          description: The citations page.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CitationsPageData" }
+              examples:
+                monitoring: { $ref: "examples/citations-monitoring.json" }
+                free: { $ref: "examples/citations-free.json" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  # ---------------------------------------------------------------- reports
+  /api/v1/reports:
+    get:
+      tags: [reports]
+      operationId: listReports
+      summary: The "Reports" page - the organisation's orders, newest first (`listOrdersForOrganisation`)
+      security: [{ session: [] }]
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: One page of orders.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ReportListPage" }
+              examples:
+                reports: { $ref: "examples/reports.json" }
+                empty: { $ref: "examples/reports-empty.json" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/reports/{id}:
+    get:
+      tags: [reports]
+      operationId: getReport
+      summary: One report or grade, in the client-safe shape (`clientReport`); never the raw body
+      description: 'A refunded report answers 200 with `state: "refunded"` and the free grade''s id, as the page does.'
+      security: [{ session: [] }]
+      parameters:
+        - $ref: "#/components/parameters/Id"
+        - $ref: "#/components/parameters/LocaleQuery"
+      responses:
+        "200":
+          description: The report.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ReportPage" }
+              examples:
+                ready: { $ref: "examples/report-ready.json" }
+                refunded: { $ref: "examples/report-refunded.json" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/reports/{id}/pdf:
+    get:
+      tags: [reports]
+      operationId: getReportPdf
+      summary: The report's PDF - a 303 to a signed address that works for 5 minutes
+      description: Use it as a plain link (`<a href>`); the browser follows the redirect. Full Reports only.
+      security: [{ session: [] }]
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Development only (no signed store) - the bytes themselves.
+          content:
+            application/pdf:
+              schema: { type: string, contentMediaType: application/pdf }
+        "303":
+          description: Redirect to the signed PDF address.
+          headers:
+            Location: { schema: { type: string, format: uri } }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "410": { $ref: "#/components/responses/Gone" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/orders/{id}:
+    get:
+      tags: [reports]
+      operationId: getOrder
+      summary: One order's page (payment, measuring, ready, refunded) - where checkout and emails land
+      security: [{ session: [] }]
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: The order.
+          headers:
+            Cache-Control: { $ref: "#/components/headers/NoStore" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OrderPage" }
+              examples:
+                delivered: { $ref: "examples/order-delivered.json" }
+                measuring: { $ref: "examples/order-measuring.json" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  # ---------------------------------------------------------------- checkout
+  /api/v1/checkout/terms:
+    get:
+      tags: [checkout]
+      operationId: getCheckoutTerms
+      summary: The exact consent words and renewal terms shown before paying (recorded word for word when ticked)
+      responses:
+        "200":
+          description: The terms in force.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CheckoutTerms" }
+              examples:
+                terms: { $ref: "examples/checkout-terms.json" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/checkout/full-report:
+    post:
+      tags: [checkout]
+      operationId: startFullReportCheckout
+      summary: Start (or resume) a US$99 Full Report - creates the order and its PaymentIntent
+      description: |
+        Records the refund-terms consent and the legal version. The same buyer, business and price within 60 minutes
+        gets the same unpaid order back (`reused: true`). 409 `report_covered`: Monitoring already includes the
+        report (go to `/dashboard/monitoring`). 503 `checkout_paused` when CHECKOUT_ENABLED is off.
+      security: [{ session: [] }]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/FullReportCheckoutRequest" }
+            examples:
+              order: { $ref: "examples/checkout-full-report-request.json" }
+      responses:
+        "201":
+          description: The order to pay with the Payment Element.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CheckoutStarted" }
+              examples:
+                order: { $ref: "examples/checkout-full-report.json" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+
+  /api/v1/checkout/monitoring:
+    post:
+      tags: [checkout]
+      operationId: startMonitoringCheckout
+      summary: Start (or resume) Monitoring at US$149 a month - creates the subscription, places the Full Report credit
+      description: |
+        The credit rule: a paid, unrefunded Full Report for the same business within 14 days counts toward
+        Monitoring once (US$99 against US$149 leaves US$50 due today; `credit` shows it). Records the three consents,
+        the renewal terms and the legal version. `kind` is `card` only when nothing is due today (a credit of at least
+        the price). 409 `already_monitored`. 503 `checkout_paused`.
+      security: [{ session: [] }]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MonitoringCheckoutRequest" }
+            examples:
+              monitoring: { $ref: "examples/checkout-monitoring-request.json" }
+      responses:
+        "201":
+          description: The subscription to pay with the Payment Element.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CheckoutStarted" }
+              examples:
+                withCredit: { $ref: "examples/checkout-monitoring.json" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+
+  /api/v1/checkout/{id}:
+    get:
+      tags: [checkout]
+      operationId: getCheckout
+      summary: A checkout's state (the pay step, then done or pending) - read from Stripe on every call
+      description: "`id` is the `checkoutId` from the start call: an order id or a subscription id."
+      security: [{ session: [] }]
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: The checkout.
+          headers:
+            Cache-Control: { $ref: "#/components/headers/NoStore" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CheckoutState" }
+              examples:
+                open: { $ref: "examples/checkout-state-open.json" }
+                succeeded: { $ref: "examples/checkout-state-succeeded.json" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/checkout/{id}/confirm:
+    post:
+      tags: [checkout]
+      operationId: confirmCheckout
+      summary: After Stripe.js confirmed - ask the backend to settle now rather than wait for Stripe's event
+      description: |
+        For a subscription it reconciles with Stripe (`paymentConfirmed`); for the no-charge card step it saves the
+        card (`saveCard`, with `setupIntentId`). For an order it only reads the state. Safe to repeat.
+      security: [{ session: [] }]
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ConfirmCheckoutRequest" }
+            examples:
+              card: { $ref: "examples/confirm-checkout-request.json" }
+      responses:
+        "200":
+          description: Whether it is settled.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CheckoutConfirmed" }
+              examples:
+                done: { $ref: "examples/checkout-confirmed.json" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  # ---------------------------------------------------------------- account
+  /api/v1/account:
+    get:
+      tags: [account]
+      operationId: getAccount
+      summary: The account page - Monitoring subscriptions with their card, next charge and credit (`accountOverview`)
+      security: [{ session: [] }]
+      responses:
+        "200":
+          description: The account.
+          headers:
+            Cache-Control: { $ref: "#/components/headers/NoStore" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Account" }
+              examples:
+                monitoring: { $ref: "examples/account.json" }
+                empty: { $ref: "examples/account-empty.json" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/account/invoices:
+    get:
+      tags: [account]
+      operationId: listInvoices
+      summary: Invoices and receipts, newest first
+      security: [{ session: [] }]
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: One page of documents.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DocumentListPage" }
+              examples:
+                documents: { $ref: "examples/invoices.json" }
+                empty: { $ref: "examples/invoices-empty.json" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/account/invoices/{id}:
+    get:
+      tags: [account]
+      operationId: getInvoice
+      summary: One invoice (Monitoring) or receipt (Full Report) (`accountDocument`)
+      security: [{ session: [] }]
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: The document.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AccountDocument" }
+              examples:
+                invoice: { $ref: "examples/invoice.json" }
+                receipt: { $ref: "examples/receipt.json" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/account/payment-method:
+    post:
+      tags: [account]
+      operationId: startPaymentMethodUpdate
+      summary: Start replacing a subscription's card (a SetupIntent for the Payment Element) - owners only
+      description: |
+        This takes the place of the "billing portal link": the Stripe-hosted portal is not linked anywhere (the legal
+        build notes say so, and tests/payments/account-cancel.test.ts keeps it that way). Everything is done on /account.
+      security: [{ session: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SubscriptionRef" }
+            examples:
+              sub: { $ref: "examples/subscription-ref.json" }
+      responses:
+        "201":
+          description: The card form to draw.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaymentMethodUpdate" }
+              examples:
+                setup: { $ref: "examples/payment-method-update.json" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+
+  /api/v1/account/payment-method/finish:
+    post:
+      tags: [account]
+      operationId: finishPaymentMethodUpdate
+      summary: After Stripe.js confirmed the SetupIntent - make the new card the subscription's own
+      security: [{ session: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/FinishPaymentMethodRequest" }
+            examples:
+              finish: { $ref: "examples/finish-payment-method-request.json" }
+      responses:
+        "200":
+          description: The card now on file (null while Stripe has not finished).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaymentMethodFinished" }
+              examples:
+                card: { $ref: "examples/payment-method-finished.json" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  /api/v1/account/monitoring/cancel:
+    post:
+      tags: [account]
+      operationId: cancelMonitoring
+      summary: Cancel Monitoring at the end of the paid period (owners only; one click plus one confirmation)
+      description: |
+        A never-paid subscription ends at once (`cancelled_unpaid`). Pressing twice is safe (`already`). 503
+        `cancel_failed`: Stripe did not answer and nothing was changed.
+      security: [{ session: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CancelRequest" }
+            examples:
+              cancel: { $ref: "examples/cancel-request.json" }
+      responses:
+        "200":
+          description: The outcome.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CancelOutcome" }
+              examples:
+                cancelled: { $ref: "examples/cancel-outcome.json" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+
+components:
+  securitySchemes:
+    session:
+      type: apiKey
+      in: cookie
+      name: vg_session
+      description: |
+        The session cookie: HttpOnly, SameSite=Lax, Secure in production, 30 days (renewed when under 15 days left).
+        Set by POST /api/v1/auth/verify (and by Google's backend redirect). The frontend never reads it.
+        CSRF: every non-GET request must carry an `Origin` header equal to the host, or it is refused 403
+        `cross_site_refused` before routing. Browsers send it themselves on same-origin fetches.
+
+  headers:
+    ETag:
+      description: An opaque version; send it back in If-None-Match.
+      schema: { type: string }
+    CacheControl:
+      description: How long the answer may be kept.
+      schema: { type: string }
+    NoStore:
+      description: Always `no-store`.
+      schema: { type: string, const: no-store }
+    RetryAfter:
+      description: Seconds until the limit's window ends.
+      schema: { type: integer, minimum: 1 }
+    SetSessionCookie:
+      description: "`vg_session=<token>; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=2592000`"
+      schema: { type: string }
+    ClearSessionCookie:
+      description: "`vg_session=; Path=/; Max-Age=0`"
+      schema: { type: string }
+
+  parameters:
+    BusinessDomain:
+      name: b
+      in: query
+      required: false
+      description: The business's domain, among the session organisation's own; unknown or missing means the first (Monitoring first, then Full Report, then Free).
+      schema: { type: string, maxLength: 200, examples: ["sunset-glow-medspa.test"] }
+    BusinessDomainRequired:
+      name: b
+      in: query
+      required: true
+      description: The business's domain, among the session organisation's own.
+      schema: { type: string, maxLength: 200, examples: ["sunset-glow-medspa.test"] }
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: { $ref: "#/components/schemas/Uuid" }
+    ViewToken:
+      name: token
+      in: path
+      required: true
+      description: The free scan's view token.
+      schema: { type: string, pattern: "^[\\w.-]{8,200}$" }
+    LocaleQuery:
+      name: locale
+      in: query
+      required: false
+      description: "`es` only while `spanish` is on in /site; engine's own sentences stay English."
+      schema: { $ref: "#/components/schemas/Locale" }
+    Cursor:
+      name: cursor
+      in: query
+      required: false
+      description: The `nextCursor` of the page before; leave out for the first page. Opaque.
+      schema: { type: string, maxLength: 200 }
+    Limit:
+      name: limit
+      in: query
+      required: false
+      schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: |
+        A fresh random key per checkout attempt (16 to 64 of A-Z a-z 0-9 _ -), reused on a retry of the same press.
+        The same key with the same body within 24 hours answers the first answer again; with another body, 409
+        `idempotency_key_reused`. (The backend also reuses an unpaid order or subscription of the last 60 minutes.)
+      schema: { type: string, pattern: "^[A-Za-z0-9_-]{16,64}$" }
+
+  responses:
+    Unauthenticated:
+      description: No session, or it ended. Send the visitor to /signin?next=<this page>.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          examples:
+            unauthenticated: { $ref: "examples/error-unauthenticated.json" }
+    Forbidden:
+      description: Refused (no matching Origin on a non-GET, or the role is not allowed).
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          examples:
+            crossSite: { $ref: "examples/error-cross-site.json" }
+            ownerOnly: { $ref: "examples/error-owner-only.json" }
+    NotFound:
+      description: Unknown, or not this organisation's (the two are never told apart).
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          examples:
+            notFound: { $ref: "examples/error-not-found.json" }
+    Conflict:
+      description: The request clashes with the current state (see the endpoint's description for its codes).
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          examples:
+            noBusiness: { $ref: "examples/error-no-business.json" }
+            reportCovered: { $ref: "examples/error-report-covered.json" }
+            pdfPreparing: { $ref: "examples/error-pdf-preparing.json" }
+    Gone:
+      description: Withdrawn for good (a refunded report's PDF).
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          examples:
+            refunded: { $ref: "examples/error-report-refunded.json" }
+    TooLarge:
+      description: The body is over the limit.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          examples:
+            tooLarge: { $ref: "examples/error-too-large.json" }
+    Unprocessable:
+      description: The input is not valid. `code` names what is wrong (for a form, the field).
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          examples:
+            email: { $ref: "examples/error-invalid-email.json" }
+            domain: { $ref: "examples/error-invalid-domain.json" }
+    RateLimited:
+      description: Over a limit. Retry after `Retry-After` seconds.
+      headers:
+        Retry-After: { $ref: "#/components/headers/RetryAfter" }
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          examples:
+            rateLimited: { $ref: "examples/error-rate-limited.json" }
+    Unavailable:
+      description: Paused by a switch, or a provider did not answer. Nothing was changed or charged.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          examples:
+            checkoutPaused: { $ref: "examples/error-checkout-paused.json" }
+            scansPaused: { $ref: "examples/error-scans-paused.json" }
+
+  schemas:
+    # ------------------------------------------------------------ primitives
+    Uuid: { type: string, format: uuid, pattern: "^[0-9a-f-]{36}$" }
+    Cents: { type: integer, minimum: 0, description: "US cents (9900 = US$99.00)." }
+    Currency: { type: string, const: usd }
+    Locale: { type: string, enum: [en, es] }
+    Domain: { type: string, minLength: 3, maxLength: 253, examples: ["sunset-glow-medspa.test"] }
+    StateCode: { type: string, pattern: "^[A-Z]{2}$", description: A two-letter US state code. }
+    EngineDate: { type: string, description: "A date or date-time as engine gives it (ISO 8601)." }
+    WordingNamespace: { type: string, enum: [site, dashboard, checkout, account, auth, common, errors] }
+    WordingKey:
+      type: string
+      pattern: "^[a-z0-9_.-]+$"
+      maxLength: 200
+      description: A key into GET /api/v1/wordings, `<namespace>.<rest>`.
+      examples: ["dashboard.dashboard.no_data_yet"]
+    WordingParams:
+      type: object
+      description: The values for the sentence's [name] placeholders. Numbers and dates are formatted by the frontend for its locale.
+      additionalProperties: { type: [string, number] }
+    WordingRef:
+      type: object
+      required: [key]
+      additionalProperties: false
+      properties:
+        key: { $ref: "#/components/schemas/WordingKey" }
+        params: { $ref: "#/components/schemas/WordingParams" }
+    Wording:
+      description: A sentence, as a key alone or a key with its params. Never free text.
+      oneOf:
+        - $ref: "#/components/schemas/WordingKey"
+        - $ref: "#/components/schemas/WordingRef"
+    ApprovedText:
+      type: string
+      description: |
+        Text the backend serves already approved and the frontend shows as it is: legal, article and FAQ bodies
+        (Markdown where named so), and engine's report text (findings, fixes and their effort words such as "an hour",
+        questions). English only.
+    Error:
+      type: object
+      required: [error]
+      additionalProperties: false
+      properties:
+        error:
+          type: object
+          required: [code, message_key]
+          additionalProperties: false
+          properties:
+            code: { type: string, pattern: "^[a-z0-9_]+$" }
+            message_key:
+              allOf: [{ $ref: "#/components/schemas/WordingKey" }]
+              description: The key of the sentence the page shows for this case today (the table in the spec's x-wordings.errors).
+    NextCursor: { type: [string, "null"], description: "The cursor for the next page; null on the last." }
+
+    # ------------------------------------------------------------ public
+    WordingCatalogue:
+      type: object
+      required: [locale, version, entries]
+      additionalProperties: false
+      properties:
+        locale: { $ref: "#/components/schemas/Locale" }
+        version: { type: string, description: The catalogue's content hash (also the ETag). }
+        entries:
+          type: object
+          description: "Every approved entry: `<namespace>.<rest>` to its sentence, with [name] placeholders."
+          propertyNames: { $ref: "#/components/schemas/WordingKey" }
+          additionalProperties: { type: string }
+    Site:
+      type: object
+      required: [holding, holdingPages, checkout, checkoutWallets, aiChat, share, spanish, legalVersion, legalVersionNumber, legalPageVersions]
+      additionalProperties: false
+      properties:
+        holding: { type: boolean, description: "SITE_HOLDING, effective (also on while production holds for an unapproved wording)." }
+        holdingPages: { type: array, items: { type: string }, description: "HOLDING_PAGES: the only pages served while holding; every other path shows the holding page." }
+        checkout: { type: boolean, description: "CHECKOUT_ENABLED: off pauses payments (the start calls answer 503 checkout_paused)." }
+        checkoutWallets: { type: boolean, description: "CHECKOUT_WALLETS: Apple Pay and Google Pay in the Payment Element." }
+        aiChat: { type: boolean, description: "AI_CHAT_ENABLED (the global switch; a business may still be off)." }
+        share: { type: boolean, description: "SHARE_REPORT_ENABLED: share links on Full Reports." }
+        spanish: { type: boolean, description: "SPANISH_SITE_ENABLED, effective (always off in production while Spanish is not all approved)." }
+        legalVersion: { type: string, examples: ["v3.17, 5 Nov 2026"] }
+        legalVersionNumber: { type: string, examples: ["3.17"] }
+        legalPageVersions:
+          type: object
+          required: [terms, privacy, refunds, cookies]
+          additionalProperties: false
+          properties:
+            terms: { type: string }
+            privacy: { type: string }
+            refunds: { type: string }
+            cookies: { type: string }
+    LegalSlug: { type: string, enum: [terms, privacy, refunds, cookies, accessibility] }
+    LegalPage:
+      type: object
+      required: [slug, title, version, effectiveDate, legalVersion, path, bodyMarkdown]
+      additionalProperties: false
+      properties:
+        slug: { $ref: "#/components/schemas/LegalSlug" }
+        title: { $ref: "#/components/schemas/Wording" }
+        version: { type: [string, "null"], description: "The page's own version (null for accessibility)." }
+        effectiveDate: { type: [string, "null"], format: date }
+        legalVersion: { type: string }
+        path: { type: string, description: "The page's own address (/terms, /privacy, /refunds, /cookies, /accessibility)." }
+        bodyMarkdown:
+          allOf: [{ $ref: "#/components/schemas/ApprovedText" }]
+          description: Markdown without the title line; render with links as written. Always English (lang="en").
+    LegalLines:
+      type: object
+      required: [noticeVersion, notice, noticeButtons, gradeOpinionLine, freeScanConsent, marketingConsent]
+      additionalProperties: false
+      properties:
+        noticeVersion: { type: string, description: The Cookie Policy version the notice belongs to (recorded with each notice event). }
+        notice:
+          type: object
+          required: [standardMarkdown, gpcMarkdown]
+          additionalProperties: false
+          description: The first-visit privacy notice; `gpcMarkdown` where the browser sends Global Privacy Control.
+          properties:
+            standardMarkdown: { $ref: "#/components/schemas/ApprovedText" }
+            gpcMarkdown: { $ref: "#/components/schemas/ApprovedText" }
+        noticeButtons:
+          type: object
+          required: [agree, optOut, optedOut]
+          additionalProperties: false
+          properties:
+            agree: { $ref: "#/components/schemas/ApprovedText" }
+            optOut: { $ref: "#/components/schemas/ApprovedText" }
+            optedOut: { $ref: "#/components/schemas/ApprovedText" }
+        gradeOpinionLine: { $ref: "#/components/schemas/ApprovedText" }
+        freeScanConsent: { $ref: "#/components/schemas/ApprovedText" }
+        marketingConsent: { $ref: "#/components/schemas/ApprovedText" }
+    LegalArchive:
+      type: object
+      required: [current, versions]
+      additionalProperties: false
+      properties:
+        current: { type: string, examples: ["v3.17"] }
+        versions:
+          type: array
+          items:
+            type: object
+            required: [version, slugs]
+            additionalProperties: false
+            properties:
+              version: { type: string, pattern: "^v\\d+\\.\\d+$" }
+              slugs: { type: array, items: { $ref: "#/components/schemas/LegalSlug" } }
+    ArchivedLegalPage:
+      type: object
+      required: [version, slug, title, inForce, bodyMarkdown]
+      additionalProperties: false
+      properties:
+        version: { type: string }
+        slug: { $ref: "#/components/schemas/LegalSlug" }
+        title: { $ref: "#/components/schemas/Wording" }
+        inForce: { type: boolean, description: 'True for the version in force (else "An earlier version").' }
+        bodyMarkdown: { $ref: "#/components/schemas/ApprovedText" }
+    Pricing:
+      type: object
+      required: [currency, free, fullReport, monitoring, fairUse, faq]
+      additionalProperties: false
+      properties:
+        currency: { $ref: "#/components/schemas/Currency" }
+        free:
+          type: object
+          required: [amountCents]
+          additionalProperties: false
+          properties: { amountCents: { type: integer, const: 0 } }
+        fullReport:
+          type: object
+          required: [amountCents]
+          additionalProperties: false
+          properties: { amountCents: { $ref: "#/components/schemas/Cents" } }
+        monitoring:
+          type: object
+          required: [amountCents, interval, intervalCount, priceShown]
+          additionalProperties: false
+          properties:
+            amountCents: { $ref: "#/components/schemas/Cents" }
+            interval: { type: string, const: month }
+            intervalCount: { type: integer, const: 1 }
+            priceShown: { type: boolean, description: "The setting pricing.monitoring_public; false shows \"price set later\"." }
+        fairUse:
+          description: The fair-use block (null when not shown).
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [title, lines]
+              additionalProperties: false
+              properties:
+                title: { $ref: "#/components/schemas/Wording" }
+                lines: { type: array, items: { $ref: "#/components/schemas/Wording" } }
+        faq: { type: array, items: { $ref: "#/components/schemas/FaqItem" } }
+    ContactRequest:
+      type: object
+      required: [name, email, message]
+      additionalProperties: false
+      properties:
+        name: { type: string, minLength: 1, maxLength: 120 }
+        email: { type: string, format: email, maxLength: 200 }
+        message: { type: string, minLength: 10, maxLength: 4000 }
+        website: { type: string, maxLength: 200, description: The honeypot. Never shown to people; leave empty. }
+        ref: { type: string, maxLength: 500, description: The referrer the visitor came from. }
+        utm: { $ref: "#/components/schemas/Utm" }
+    Utm:
+      type: object
+      additionalProperties: false
+      properties:
+        source: { type: string, maxLength: 200 }
+        medium: { type: string, maxLength: 200 }
+        campaign: { type: string, maxLength: 200 }
+        term: { type: string, maxLength: 200 }
+        content: { type: string, maxLength: 200 }
+    ScanForm:
+      type: object
+      required: [stamp, categories, states, defaultState]
+      additionalProperties: false
+      properties:
+        stamp: { type: string, pattern: "^[0-9a-z]{6,12}\\.[\\w-]{4,16}\\.[0-9a-f]{32}$", description: Send back as `started`. }
+        categories: { type: array, items: { type: string }, description: "Engine's categories, for the datalist (any text is accepted)." }
+        states: { type: array, items: { $ref: "#/components/schemas/StateCode" } }
+        defaultState: { $ref: "#/components/schemas/StateCode" }
+    ScanRequest:
+      type: object
+      required: [domain, category, email, consent, started]
+      additionalProperties: false
+      properties:
+        domain: { $ref: "#/components/schemas/Domain" }
+        city: { type: string, maxLength: 80 }
+        state: { $ref: "#/components/schemas/StateCode" }
+        category: { type: string, minLength: 1, maxLength: 80 }
+        email: { type: string, format: email, maxLength: 254 }
+        consent: { type: boolean, const: true, description: "\"I agree to the Terms of Service and Privacy Policy\"; never pre-ticked." }
+        marketing: { type: boolean, default: false }
+        started: { type: string, description: The stamp from GET /api/v1/scans/form. }
+        message: { type: string, maxLength: 500, description: The honeypot. Leave empty. }
+        landing: { type: string, maxLength: 200, pattern: "^/" }
+        seen: { type: string, maxLength: 40 }
+        ref: { type: string, maxLength: 500 }
+        utm: { $ref: "#/components/schemas/Utm" }
+    ScanStarted:
+      type: object
+      required: [viewToken]
+      additionalProperties: false
+      properties:
+        viewToken: { type: string }
+    ScanConfirmed:
+      type: object
+      required: [viewToken, first]
+      additionalProperties: false
+      properties:
+        viewToken: { type: string }
+        first: { type: boolean, description: True the first time this email is confirmed. }
+    FreeScanStatus: { type: string, enum: [unknown, running, ready, held, delayed, failed] }
+    FreeScanView:
+      type: object
+      required: [status, lead, phase, queue, startsBy, busy, slow, scannedAt, failure, grade, competitor, directoryCount, comparison]
+      additionalProperties: false
+      properties:
+        status: { $ref: "#/components/schemas/FreeScanStatus" }
+        lead:
+          type: object
+          required: [domain, category, createdAt]
+          additionalProperties: false
+          properties:
+            domain: { type: string }
+            category: { type: [string, "null"] }
+            createdAt: { type: string, format: date-time }
+        phase: { type: [string, "null"], enum: [collect, evaluate, score, null], description: "Running only: the measuring step (null while waiting for a slot)." }
+        queue:
+          description: The place in engine's line, while waiting.
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [position, estimatedStartAt]
+              additionalProperties: false
+              properties:
+                position: { type: [integer, "null"] }
+                estimatedStartAt: { type: [string, "null"], format: date-time }
+        startsBy: { type: [string, "null"], format: date-time, description: "Set when engine's daily cap holds the scan: poll every 300 seconds." }
+        busy:
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [gradeWithinHours]
+              additionalProperties: false
+              properties: { gradeWithinHours: { type: integer } }
+        slow: { type: boolean, description: More than 20 minutes since the scan was asked for. }
+        scannedAt: { type: [string, "null"], format: date-time }
+        failure:
+          description: "Failed only. Drawn as site.scan.we_couldn_t_grade_it_failure_text, its [failure_text] the code's sentence errors.scan_failed.<code> (catalogue gap)."
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [code]
+              additionalProperties: false
+              properties:
+                code: { type: string, enum: [subject_unreachable, integrity_refused, collection_failed, incomplete, provider_failure, internal_error, bad_request, other] }
+        grade:
+          description: Ready only.
+          oneOf: [{ type: "null" }, { $ref: "#/components/schemas/ClientReport" }]
+        competitor:
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [name, grade, score]
+              additionalProperties: false
+              properties:
+                name: { type: string }
+                grade: { type: string }
+                score: { type: number }
+        directoryCount:
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [ready, text, date, hint]
+              additionalProperties: false
+              properties:
+                ready: { type: boolean }
+                text: { $ref: "#/components/schemas/Wording" }
+                date: { type: [string, "null"] }
+                hint: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Wording" }] }
+        comparison: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Comparison" }] }
+    GradeArea:
+      type: object
+      required: [name, score]
+      additionalProperties: false
+      properties:
+        name: { $ref: "#/components/schemas/ApprovedText" }
+        score: { type: [number, "null"] }
+    ClientFix:
+      type: object
+      required: [rank, text, effort, diy]
+      additionalProperties: false
+      properties:
+        rank: { type: integer, minimum: 1 }
+        text: { $ref: "#/components/schemas/ApprovedText" }
+        effort: { $ref: "#/components/schemas/ApprovedText" }
+        diy: { type: boolean }
+    ClientFinding:
+      type: object
+      required: [title, area, evidence, items, fix, why, notes]
+      additionalProperties: false
+      properties:
+        title: { $ref: "#/components/schemas/ApprovedText" }
+        area: { type: [string, "null"] }
+        evidence: { type: [string, "null"] }
+        items: { type: array, items: { type: string } }
+        fix: { type: [string, "null"] }
+        why: { type: [string, "null"] }
+        notes: { type: array, items: { type: string } }
+    ClientReport:
+      type: object
+      description: The client-safe projection of a report or grade (src/server/reports/client-view.ts). No check id, points, weight, band or check count is ever in it.
+      required: [teaser, standard, measuredAt, business, grade, areas, fixes, findings, summary, method]
+      additionalProperties: false
+      properties:
+        teaser: { type: boolean, description: True for a free grade (the free part of the standard only). }
+        standard: { type: [string, "null"], examples: ["1.9.0"] }
+        measuredAt: { type: [string, "null"], format: date-time }
+        business:
+          type: object
+          required: [name, domain]
+          additionalProperties: false
+          properties:
+            name: { type: [string, "null"] }
+            domain: { type: [string, "null"] }
+        grade:
+          type: object
+          required: [letter, score, display, heldNote, test, average]
+          additionalProperties: false
+          properties:
+            letter: { type: [string, "null"] }
+            score: { type: [number, "null"] }
+            display: { type: [string, "null"], examples: ["C (58.4)"] }
+            heldNote: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/ApprovedText" }], description: "Engine's sentence for why the grade is held." }
+            test: { type: boolean, description: Graded from test data (staff see a marker). }
+            average:
+              oneOf:
+                - type: "null"
+                - type: object
+                  required: [label, value, below]
+                  additionalProperties: false
+                  properties:
+                    label: { $ref: "#/components/schemas/Wording" }
+                    value: { type: string, examples: ["56.3"] }
+                    below: { type: boolean }
+        areas: { type: array, items: { $ref: "#/components/schemas/GradeArea" } }
+        fixes: { type: array, items: { $ref: "#/components/schemas/ClientFix" } }
+        findings: { type: array, items: { $ref: "#/components/schemas/ClientFinding" } }
+        summary:
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [easyWin, more]
+              additionalProperties: false
+              properties:
+                easyWin:
+                  oneOf:
+                    - type: "null"
+                    - type: object
+                      required: [title, summary, fix]
+                      additionalProperties: false
+                      properties:
+                        title: { type: string }
+                        summary: { type: [string, "null"] }
+                        fix: { type: [string, "null"] }
+                more:
+                  type: array
+                  items:
+                    type: object
+                    required: [title, effort, diy]
+                    additionalProperties: false
+                    properties:
+                      title: { type: string }
+                      effort: { type: string }
+                      diy: { type: boolean }
+                biggest:
+                  oneOf:
+                    - type: "null"
+                    - type: object
+                      required: [title, summary]
+                      additionalProperties: false
+                      properties:
+                        title: { type: string }
+                        summary: { type: [string, "null"] }
+        method: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/ApprovedText" }] }
+    FaqItem:
+      type: object
+      required: [id, q, a]
+      additionalProperties: false
+      properties:
+        id: { type: string, description: The anchor id. }
+        q: { $ref: "#/components/schemas/ApprovedText" }
+        a:
+          allOf: [{ $ref: "#/components/schemas/ApprovedText" }]
+          description: Markdown.
+    Faq:
+      type: object
+      required: [items]
+      additionalProperties: false
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/FaqItem" } }
+    ArticleSummary:
+      type: object
+      required: [slug, title, summary, category, tags, postType, isCanonicalDefinition, isSample, publishedAt, updatedAt, readingMinutes]
+      properties:
+        slug: { type: string }
+        title: { $ref: "#/components/schemas/ApprovedText" }
+        summary: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/ApprovedText" }] }
+        category: { type: [string, "null"] }
+        tags: { type: array, items: { type: string } }
+        postType: { type: string, enum: [article, definition] }
+        isCanonicalDefinition: { type: boolean }
+        isSample: { type: boolean }
+        publishedAt: { type: [string, "null"], format: date-time }
+        updatedAt: { type: string, format: date-time }
+        readingMinutes: { type: integer, minimum: 1 }
+    ArticleList:
+      type: object
+      required: [items, nextCursor, taxonomy]
+      additionalProperties: false
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/ArticleSummary" } }
+        nextCursor: { $ref: "#/components/schemas/NextCursor" }
+        taxonomy:
+          type: object
+          required: [categories, tags]
+          additionalProperties: false
+          properties:
+            categories: { type: array, items: { $ref: "#/components/schemas/TaxonomyCount" } }
+            tags: { type: array, items: { $ref: "#/components/schemas/TaxonomyCount" } }
+    TaxonomyCount:
+      type: object
+      required: [name, count]
+      additionalProperties: false
+      properties:
+        name: { type: string }
+        count: { type: integer }
+    Article:
+      allOf:
+        - $ref: "#/components/schemas/ArticleSummary"
+        - type: object
+          required: [bodyMarkdown, toc, author, related, seo]
+          properties:
+            bodyMarkdown: { $ref: "#/components/schemas/ApprovedText" }
+            toc:
+              type: array
+              description: Shown only with 3 or more items.
+              items:
+                type: object
+                required: [level, text, id]
+                additionalProperties: false
+                properties:
+                  level: { type: integer, enum: [2, 3] }
+                  text: { type: string }
+                  id: { type: string }
+            author:
+              type: object
+              required: [name, url]
+              additionalProperties: false
+              properties:
+                name: { type: string }
+                url: { type: string }
+            related: { type: array, maxItems: 3, items: { $ref: "#/components/schemas/ArticleSummary" } }
+            seo:
+              type: object
+              required: [title, description, canonicalUrl, noindex]
+              additionalProperties: false
+              properties:
+                title: { type: [string, "null"] }
+                description: { type: [string, "null"] }
+                canonicalUrl: { type: [string, "null"] }
+                noindex: { type: boolean }
+    About:
+      type: object
+      required: [paragraphs, company]
+      additionalProperties: false
+      properties:
+        paragraphs:
+          type: array
+          description: The page's sentences in order, each with the heading it sits under. Draft sentences are left out until approved.
+          items:
+            type: object
+            required: [section, text]
+            additionalProperties: false
+            properties:
+              section: { type: string, enum: [intro, who, values, monitoring, measure, contact] }
+              text: { $ref: "#/components/schemas/Wording" }
+        company: { $ref: "#/components/schemas/CompanyFacts" }
+    CompanyFacts:
+      type: object
+      required: [legalName, publicEmail, postalAddress]
+      additionalProperties: false
+      properties:
+        legalName: { type: string }
+        publicEmail: { type: string, format: email }
+        postalAddress: { type: string }
+    PageViewEvent:
+      type: object
+      required: [name, path, anonymousId]
+      additionalProperties: false
+      properties:
+        name: { type: string, const: page_view }
+        path: { type: string, maxLength: 500 }
+        anonymousId: { type: string, pattern: "^[A-Za-z0-9_-]{16,64}$" }
+
+    # ------------------------------------------------------------ auth
+    MagicLinkRequest:
+      type: object
+      required: [email]
+      additionalProperties: false
+      properties:
+        email: { type: string, format: email, maxLength: 254 }
+        next: { type: string, maxLength: 500, pattern: "^/", description: "Where to go after signing in; anything not a same-site path becomes /dashboard." }
+    VerifyRequest:
+      type: object
+      required: [token]
+      additionalProperties: false
+      properties:
+        token: { type: string, minLength: 1, maxLength: 100, description: "The `token` from the link's fragment (#token=)." }
+    Verified:
+      type: object
+      required: [redirectTo]
+      additionalProperties: false
+      properties:
+        redirectTo: { type: string, pattern: "^/", description: "A same-site path (with the /es prefix where Spanish applies)." }
+    MemberRole: { type: string, enum: [owner, member] }
+    Session:
+      type: object
+      required: [user, organisations, currentOrganisationId]
+      additionalProperties: false
+      properties:
+        user:
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [id, email, name, language, isAdmin]
+              additionalProperties: false
+              properties:
+                id: { $ref: "#/components/schemas/Uuid" }
+                email: { type: string, format: email }
+                name: { type: [string, "null"] }
+                language: { $ref: "#/components/schemas/Locale" }
+                isAdmin: { type: boolean, description: Staff; the admin lives on the backend at /admin. }
+        organisations:
+          type: array
+          items:
+            type: object
+            required: [id, name, role]
+            additionalProperties: false
+            properties:
+              id: { $ref: "#/components/schemas/Uuid" }
+              name: { type: string }
+              role: { $ref: "#/components/schemas/MemberRole" }
+        currentOrganisationId: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Uuid" }] }
+    SwitchOrganisationRequest:
+      type: object
+      required: [organisationId]
+      additionalProperties: false
+      properties:
+        organisationId: { $ref: "#/components/schemas/Uuid" }
+
+    # ------------------------------------------------------------ dashboard
+    PlanLevel:
+      type: string
+      enum: [free, report, monitoring]
+      x-wording-keys: { free: common.plan.free, report: common.shared.full_report, monitoring: common.shared.monitoring }
+    FeatureId: { type: string, enum: [ai_visibility, grid, citations, ranks, reviews, listing_extras, review_link] }
+    SectionStatus:
+      type: string
+      enum: [ready, empty, locked, in_grade, error, held, unavailable, not_in_area]
+      description: "What a section says when it has no view. locked: the report key when unlockedBy is report (Full Report and Monitoring), the monitoring key with [plan] when monitoring. in_grade: the feature's own sentence."
+      x-wording-keys:
+        empty: dashboard.dashboard.no_data_yet
+        empty@weekly: dashboard.section.empty_weekly
+        locked@report: common.shared.this_is_part_of_the_full
+        locked@monitoring: dashboard.kit.this_is_part_of
+        in_grade@ai_visibility: common.shared.how_often_ai_assistants_name_your
+        in_grade@reviews: common.shared.your_google_reviews_are_already_part
+        in_grade@listing_extras: common.shared.where_we_check_them_duplicate_listings
+        error: dashboard.dashboard.we_couldn_t_load_this_right
+        held: dashboard.section.held
+        unavailable: dashboard.section.unavailable
+        not_in_area: dashboard.section.not_in_area
+    Direction:
+      type: string
+      enum: [better, worse, same, unknown]
+      x-wording-keys: { better: common.move.better, worse: common.move.worse, same: dashboard.citations.no_change, unknown: common.move.unknown }
+    Move:
+      type: object
+      description: "A change. Its words are the Direction's key (x-wording-keys), with [by]."
+      required: [by, direction]
+      additionalProperties: false
+      properties:
+        by: { type: [number, "null"], minimum: 0 }
+        direction: { $ref: "#/components/schemas/Direction" }
+    SectionBase:
+      type: object
+      required: [feature, status, view, shows, unlockedBy, weekly]
+      properties:
+        feature: { $ref: "#/components/schemas/FeatureId" }
+        status: { $ref: "#/components/schemas/SectionStatus" }
+        shows:
+          description: "What this plan shows of the feature (header line `<plan label>: <shows>`); null when nothing. Keys dashboard.plan_shows.<feature>.<plan>: catalogue gap (see x-wordings.pending)."
+          oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Wording" }]
+        unlockedBy: { $ref: "#/components/schemas/PlanLevel" }
+        weekly: { type: boolean, description: "Monitoring: read every week, so the view carries its change." }
+    BusinessHeader:
+      type: object
+      required: [name, domain, category]
+      additionalProperties: false
+      properties:
+        name: { type: string }
+        domain: { type: string }
+        category: { type: [string, "null"], description: The category as Google spells it on the listing. }
+    MemberBusiness:
+      type: object
+      required: [id, domain, name, plan]
+      additionalProperties: false
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        domain: { type: string }
+        name: { type: [string, "null"] }
+        plan: { $ref: "#/components/schemas/PlanLevel" }
+    CategoryWords:
+      type: object
+      description: How this kind of business names its customers, for the sentences that differ.
+      required: [customers, customer, storefront, held, audience]
+      additionalProperties: false
+      properties:
+        customers: { $ref: "#/components/schemas/WordingKey" }
+        customer: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/WordingKey" }] }
+        storefront: { type: boolean }
+        held: { type: boolean }
+        audience: { type: string }
+    Common:
+      type: object
+      required: [plan, business, businesses, sample]
+      properties:
+        plan: { $ref: "#/components/schemas/PlanLevel" }
+        business: { $ref: "#/components/schemas/BusinessHeader" }
+        businesses: { type: array, description: "The organisation's businesses, for the switch (shown with 2 or more).", items: { $ref: "#/components/schemas/MemberBusiness" } }
+        sample: { type: boolean, description: Engine answered from fixtures (invented data); staff see a marker. }
+        words: { $ref: "#/components/schemas/CategoryWords" }
+    EngineWeek:
+      type: object
+      required: [week, starts_at, complete_at, timezone]
+      additionalProperties: false
+      properties:
+        week: { type: string, pattern: "^\\d{4}-W\\d{2}$" }
+        starts_at: { type: string }
+        complete_at: { type: string }
+        timezone: { type: string }
+    AlertNote:
+      type: object
+      required: [kind, sentence, date, part]
+      additionalProperties: false
+      properties:
+        kind: { type: string, enum: [low_review, overtaken, ai_dropped, duplicate, listing_changed] }
+        sentence: { $ref: "#/components/schemas/Wording" }
+        date: { $ref: "#/components/schemas/EngineDate" }
+        part: { type: string, enum: [reviews, grid, ai, listing] }
+    GradeAt:
+      type: object
+      required: [date, letter, score]
+      additionalProperties: false
+      properties:
+        date: { $ref: "#/components/schemas/EngineDate" }
+        letter: { type: string }
+        score: { type: number }
+        basis: { type: string, enum: [full_scan, free_scan] }
+        standard: { type: [string, "null"] }
+        marker: { $ref: "#/components/schemas/Wording" }
+    Comparison:
+      type: object
+      oneOf:
+        - $ref: "#/components/schemas/ComparisonFigure"
+        - $ref: "#/components/schemas/ComparisonPreparing"
+        - $ref: "#/components/schemas/ComparisonNeutral"
+      discriminator:
+        propertyName: kind
+        mapping:
+          figure: "#/components/schemas/ComparisonFigure"
+          preparing: "#/components/schemas/ComparisonPreparing"
+          neutral: "#/components/schemas/ComparisonNeutral"
+    ComparisonFigure:
+      type: object
+      required: [kind, line, note, widerThanCity]
+      additionalProperties: false
+      properties:
+        kind: { type: string, const: figure }
+        line: { $ref: "#/components/schemas/Wording" }
+        note: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Wording" }] }
+        widerThanCity: { type: boolean }
+    ComparisonPreparing:
+      type: object
+      required: [kind, line, figure]
+      additionalProperties: false
+      properties:
+        kind: { type: string, const: preparing }
+        line: { $ref: "#/components/schemas/Wording" }
+        figure: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Wording" }] }
+    ComparisonNeutral:
+      type: object
+      required: [kind, line]
+      additionalProperties: false
+      properties:
+        kind: { type: string, const: neutral }
+        line: { $ref: "#/components/schemas/Wording" }
+    AssistantQuestion:
+      type: object
+      required: [question, assistant]
+      additionalProperties: false
+      properties:
+        question: { $ref: "#/components/schemas/ApprovedText" }
+        assistant: { type: string }
+    AiView:
+      type: object
+      required: [week, date, city, shareText, mentioned, pairs, notRead, change, newThisWeek, lostThisWeek, byAssistant, competitors, assistants, questions, trend]
+      additionalProperties: false
+      properties:
+        week: { type: string }
+        date: { $ref: "#/components/schemas/EngineDate" }
+        city: { type: string }
+        shareText: { type: string, description: 'A formatted percentage such as "43%" (a number, not a sentence).' }
+        mentioned: { type: integer }
+        pairs: { type: integer }
+        notRead: { type: integer }
+        change:
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [previousWeek, share]
+              additionalProperties: false
+              properties:
+                previousWeek: { type: string }
+                share: { $ref: "#/components/schemas/Move" }
+        newThisWeek: { type: array, items: { $ref: "#/components/schemas/AssistantQuestion" } }
+        lostThisWeek: { type: array, items: { $ref: "#/components/schemas/AssistantQuestion" } }
+        byAssistant:
+          type: array
+          items:
+            type: object
+            required: [label, mentioned, pairs, shareText, share]
+            additionalProperties: false
+            properties:
+              label: { type: string, description: The assistant's name. }
+              mentioned: { type: integer }
+              pairs: { type: integer }
+              shareText: { type: string, description: 'A formatted percentage such as "43%" (a number, not a sentence).' }
+              share: { type: [number, "null"] }
+        competitors:
+          type: array
+          maxItems: 5
+          items:
+            type: object
+            required: [name, answers]
+            additionalProperties: false
+            properties:
+              name: { type: string }
+              answers: { type: integer }
+        assistants: { type: array, items: { type: string } }
+        questions:
+          type: array
+          items:
+            type: object
+            required: [question, cells]
+            additionalProperties: false
+            properties:
+              question: { $ref: "#/components/schemas/ApprovedText" }
+              cells:
+                type: array
+                items:
+                  type: object
+                  required: [assistant, mentioned, askedAt]
+                  additionalProperties: false
+                  properties:
+                    assistant: { type: string }
+                    mentioned: { type: [boolean, "null"] }
+                    askedAt: { type: [string, "null"] }
+        trend:
+          type: array
+          items:
+            type: object
+            required: [week, date, share, shareText, mentioned, pairs]
+            additionalProperties: false
+            properties:
+              week: { type: string }
+              date: { type: string }
+              share: { type: [number, "null"] }
+              shareText: { type: string, description: 'A formatted percentage such as "43%" (a number, not a sentence).' }
+              mentioned: { type: integer }
+              pairs: { type: integer }
+    AiSection:
+      allOf:
+        - $ref: "#/components/schemas/SectionBase"
+        - properties:
+            view: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/AiView" }] }
+    TopThreeRow:
+      type: object
+      required: [name, you, mapRank, mapLocations, reviews, rating, aiAnswers, aiBelowList]
+      additionalProperties: false
+      properties:
+        name: { type: string }
+        you: { type: boolean }
+        mapRank: { type: [number, "null"] }
+        mapLocations: { type: [integer, "null"] }
+        reviews: { type: [integer, "null"] }
+        rating: { type: [number, "null"] }
+        aiAnswers: { type: [integer, "null"] }
+        aiBelowList: { type: boolean }
+    TopThree:
+      type: object
+      required: [rows, keyword, dates, aiAnswersOf, move]
+      additionalProperties: false
+      properties:
+        rows: { type: array, items: { $ref: "#/components/schemas/TopThreeRow" } }
+        keyword: { type: [string, "null"] }
+        dates:
+          type: object
+          required: [grid, reviews, ai]
+          additionalProperties: false
+          properties:
+            grid: { type: [string, "null"] }
+            reviews: { type: [string, "null"] }
+            ai: { type: [string, "null"] }
+        aiAnswersOf: { type: [integer, "null"] }
+        move:
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [name, gained, now, since, date]
+              additionalProperties: false
+              properties:
+                name: { type: string }
+                gained: { type: number }
+                now: { type: number }
+                since: { type: string }
+                date: { type: string }
+    TaskState: { type: string, enum: [open, done, verified, reopened] }
+    Tasks:
+      type: object
+      required: [reportDate, lastScan, total, left, items, tickable]
+      additionalProperties: false
+      properties:
+        reportDate: { $ref: "#/components/schemas/EngineDate" }
+        lastScan: { type: [string, "null"] }
+        total: { type: integer }
+        left: { type: integer }
+        items:
+          type: array
+          items:
+            type: object
+            required: [rank, title, effort, state, stateDate, thisWeek]
+            additionalProperties: false
+            properties:
+              rank: { type: integer }
+              title: { $ref: "#/components/schemas/ApprovedText" }
+              effort: { $ref: "#/components/schemas/ApprovedText" }
+              state: { $ref: "#/components/schemas/TaskState" }
+              stateDate: { type: [string, "null"] }
+              thisWeek: { type: boolean }
+        tickable: { type: boolean, description: "Monitoring: a tick is saved and the next scan checks it." }
+    ReviewsBrief:
+      type: object
+      required: [date, google, yelp, change, notAvailable, sinceStart]
+      additionalProperties: false
+      properties:
+        date: { $ref: "#/components/schemas/EngineDate" }
+        google:
+          type: object
+          required: [read, rating, count, stars, perMonth, replied, repliedOf, replyShareText, last30Days, last30AtLeast, newest]
+          additionalProperties: false
+          properties:
+            read: { type: boolean }
+            rating: { type: [number, "null"] }
+            count: { type: [integer, "null"] }
+            stars:
+              type: array
+              items:
+                type: object
+                required: [stars, reviews]
+                additionalProperties: false
+                properties: { stars: { type: integer }, reviews: { type: integer } }
+            perMonth:
+              type: array
+              items:
+                type: object
+                required: [month, reviews]
+                additionalProperties: false
+                properties: { month: { type: string }, reviews: { type: integer } }
+            replied: { type: integer }
+            repliedOf: { type: integer }
+            replyShareText: { type: string, description: 'A formatted percentage such as "43%" (a number, not a sentence).' }
+            last30Days: { type: [integer, "null"] }
+            last30AtLeast: { type: boolean }
+            newest:
+              type: array
+              maxItems: 10
+              items:
+                type: object
+                required: [date, stars, replied]
+                additionalProperties: false
+                properties:
+                  date: { type: [string, "null"] }
+                  stars: { type: [integer, "null"] }
+                  replied: { type: boolean }
+        yelp:
+          type: object
+          required: [found, absent, read, rating, count, url]
+          additionalProperties: false
+          properties:
+            found: { type: boolean }
+            absent: { type: boolean }
+            read: { type: boolean }
+            rating: { type: [number, "null"] }
+            count: { type: [integer, "null"] }
+            url: { type: [string, "null"] }
+        change:
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [since, googleCount, yelpCount]
+              additionalProperties: false
+              properties:
+                since: { type: string }
+                googleCount: { $ref: "#/components/schemas/Move" }
+                yelpCount: { $ref: "#/components/schemas/Move" }
+        notAvailable: { type: array, items: { $ref: "#/components/schemas/Wording" } }
+        sinceStart:
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [start, from, then, now, collected, firstDay]
+              additionalProperties: false
+              properties:
+                start: { type: string }
+                from: { type: string }
+                then: { type: integer }
+                now: { type: integer }
+                collected: { type: integer }
+                firstDay: { type: boolean }
+    ReviewsSection:
+      allOf:
+        - $ref: "#/components/schemas/SectionBase"
+        - properties:
+            view: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/ReviewsBrief" }] }
+    ListingView:
+      type: object
+      required: [date, duplicates, photos, posts, since, firstWeek, profile]
+      additionalProperties: false
+      properties:
+        date: { $ref: "#/components/schemas/EngineDate" }
+        duplicates:
+          type: object
+          required: [read, candidates, searched]
+          additionalProperties: false
+          properties:
+            read: { type: boolean }
+            candidates:
+              type: array
+              items:
+                type: object
+                required: [name, address, phone, url, evidence, isNew]
+                additionalProperties: false
+                properties:
+                  name: { type: [string, "null"] }
+                  address: { type: [string, "null"] }
+                  phone: { type: [string, "null"] }
+                  url: { type: [string, "null"] }
+                  evidence: { type: array, items: { $ref: "#/components/schemas/ApprovedText" } }
+                  isNew: { type: boolean }
+            searched: { type: array, items: { type: string } }
+        photos:
+          type: object
+          required: [read, count, move]
+          additionalProperties: false
+          properties:
+            read: { type: boolean }
+            count: { type: [integer, "null"] }
+            move: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Move" }] }
+        posts:
+          type: object
+          required: [read, latestPostDate, postsRead, isNew]
+          additionalProperties: false
+          properties:
+            read: { type: boolean }
+            latestPostDate: { type: [string, "null"] }
+            postsRead: { type: integer }
+            isNew: { type: boolean }
+        since: { type: [string, "null"] }
+        firstWeek: { type: boolean }
+        profile:
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [date, read, phone, website, hours, changed, since]
+              additionalProperties: false
+              properties:
+                date: { type: string }
+                read: { type: boolean }
+                phone: { type: [string, "null"] }
+                website: { type: [string, "null"] }
+                hours: { type: array, items: { type: string }, description: "One line per day, as the Google listing gives it." }
+                changed:
+                  oneOf:
+                    - type: "null"
+                    - type: array
+                      items: { type: string, enum: [phone, website, hours] }
+                since: { type: [string, "null"] }
+    ListingSection:
+      allOf:
+        - $ref: "#/components/schemas/SectionBase"
+        - properties:
+            view: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/ListingView" }] }
+    RankGroup: { type: string, enum: [top, mid, low, none, unread] }
+    GridNumbers:
+      type: object
+      required: [keyword, date, averageRank, shareTop3Text, locations, groups, best, spacingMiles, change, changeReason, size, basis]
+      additionalProperties: false
+      properties:
+        keyword: { type: string }
+        date: { $ref: "#/components/schemas/EngineDate" }
+        averageRank: { type: [number, "null"] }
+        shareTop3Text: { type: string, description: 'A formatted percentage such as "43%" (a number, not a sentence).' }
+        locations:
+          type: object
+          required: [total, checked, found]
+          additionalProperties: false
+          properties:
+            total: { type: integer }
+            checked: { type: integer }
+            found: { type: integer }
+        groups:
+          type: object
+          required: [top, mid, low, none, unread]
+          additionalProperties: false
+          properties:
+            top: { type: integer }
+            mid: { type: integer }
+            low: { type: integer }
+            none: { type: integer }
+            unread: { type: integer }
+        best: { type: [number, "null"] }
+        spacingMiles: { type: number }
+        change:
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [since, averageRank, shareTop3, locationsBetter, locationsWorse]
+              additionalProperties: false
+              properties:
+                since: { type: string }
+                averageRank: { $ref: "#/components/schemas/Move" }
+                shareTop3: { $ref: "#/components/schemas/Move" }
+                locationsBetter: { type: [integer, "null"] }
+                locationsWorse: { type: [integer, "null"] }
+        changeReason: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Wording" }] }
+        size: { type: integer, enum: [3, 7], description: "The grid's side: 7, or 3 on engine's light weekly grid." }
+        basis: { $ref: "#/components/schemas/Wording" }
+    GridPicture:
+      type: object
+      required: [size, cells, water, centre]
+      additionalProperties: false
+      properties:
+        size: { type: integer }
+        cells:
+          type: array
+          maxItems: 49
+          items:
+            type: object
+            required: [row, col, rank, group, x, y]
+            additionalProperties: false
+            properties:
+              row: { type: integer }
+              col: { type: integer }
+              rank: { type: [integer, "null"] }
+              group: { $ref: "#/components/schemas/RankGroup" }
+              x: { type: number, description: percent }
+              y: { type: number, description: percent }
+        water:
+          type: array
+          items: { $ref: "#/components/schemas/GridCell" }
+        centre: { $ref: "#/components/schemas/GridCell" }
+    GridCell:
+      type: object
+      required: [row, col]
+      additionalProperties: false
+      properties:
+        row: { type: integer }
+        col: { type: integer }
+    GridBrief:
+      type: object
+      required: [numbers, picture]
+      properties:
+        numbers: { $ref: "#/components/schemas/GridNumbers" }
+        picture: { $ref: "#/components/schemas/GridPicture" }
+    GridSection:
+      allOf:
+        - $ref: "#/components/schemas/SectionBase"
+        - properties:
+            view: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/GridBrief" }] }
+    RankType:
+      type: string
+      enum: [organic_desktop, organic_mobile, map_pack, maps]
+      x-wording-keys: { organic_desktop: dashboard.rank_type.organic_desktop, organic_mobile: dashboard.rank_type.organic_mobile, map_pack: dashboard.rank_type.map_pack, maps: dashboard.rank_type.maps }
+    RankBucket: { type: string, enum: ["1", "2_5", "6_10", "11_20", "21_50", "51_plus", not_ranked, panel] }
+    RankTypeSummary:
+      type: object
+      required: [type, label, date, keywords, ranked, averagePosition, panels, buckets, beyond, change, trend]
+      additionalProperties: false
+      properties:
+        type: { $ref: "#/components/schemas/RankType" }
+        label: { $ref: "#/components/schemas/Wording" }
+        date: { type: string }
+        keywords: { type: integer }
+        ranked: { type: integer }
+        averagePosition: { type: [number, "null"] }
+        panels: { type: integer }
+        buckets:
+          type: array
+          items:
+            type: object
+            required: [id, label, count]
+            additionalProperties: false
+            properties:
+              id: { $ref: "#/components/schemas/RankBucket" }
+              label: { $ref: "#/components/schemas/Wording" }
+              count: { type: integer }
+        beyond:
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [from51, notRanked]
+              additionalProperties: false
+              properties:
+                from51: { type: integer }
+                notRanked: { type: integer }
+        change:
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [since, improved, declined, averagePosition, rankedBefore, found]
+              additionalProperties: false
+              properties:
+                since: { type: string }
+                improved: { type: integer }
+                declined: { type: integer }
+                averagePosition: { $ref: "#/components/schemas/Move" }
+                rankedBefore: { type: [integer, "null"] }
+                found: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Wording" }] }
+        trend:
+          type: array
+          maxItems: 4
+          items:
+            type: object
+            required: [date, averagePosition, ranked]
+            additionalProperties: false
+            properties:
+              date: { type: string }
+              averagePosition: { type: [number, "null"] }
+              ranked: { type: integer }
+    RankCell:
+      type: object
+      required: [rank, checked, panel, previous, previousPanel, move, trend]
+      additionalProperties: false
+      properties:
+        rank: { type: [integer, "null"] }
+        checked: { type: boolean }
+        panel: { type: boolean }
+        previous: { type: [integer, "null"] }
+        previousPanel: { type: boolean }
+        move: { $ref: "#/components/schemas/Move" }
+        trend:
+          type: array
+          items:
+            type: object
+            required: [date, rank, panel]
+            additionalProperties: false
+            properties:
+              date: { type: string }
+              rank: { type: [integer, "null"] }
+              panel: { type: boolean }
+    RanksView:
+      type: object
+      required: [date, types, rows, missing, webDepth, hasPanel]
+      additionalProperties: false
+      properties:
+        date: { type: string }
+        types: { type: array, items: { $ref: "#/components/schemas/RankTypeSummary" } }
+        rows:
+          type: array
+          items:
+            type: object
+            required: [keyword, isBusinessName, types]
+            additionalProperties: false
+            properties:
+              keyword: { type: string }
+              isBusinessName: { type: boolean }
+              types:
+                type: object
+                required: [organic_desktop, organic_mobile, map_pack, maps]
+                additionalProperties: false
+                properties:
+                  organic_desktop: { $ref: "#/components/schemas/RankCell" }
+                  organic_mobile: { $ref: "#/components/schemas/RankCell" }
+                  map_pack: { $ref: "#/components/schemas/RankCell" }
+                  maps: { $ref: "#/components/schemas/RankCell" }
+        missing:
+          type: object
+          description: What a cell without a rank says, per type ("Not in the first 100").
+          required: [organic_desktop, organic_mobile, map_pack, maps]
+          additionalProperties: false
+          properties:
+            organic_desktop: { $ref: "#/components/schemas/Wording" }
+            organic_mobile: { $ref: "#/components/schemas/Wording" }
+            map_pack: { $ref: "#/components/schemas/Wording" }
+            maps: { $ref: "#/components/schemas/Wording" }
+        webDepth: { type: integer, examples: [100] }
+        hasPanel: { type: boolean }
+    RanksSection:
+      allOf:
+        - $ref: "#/components/schemas/SectionBase"
+        - properties:
+            view: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/RanksView" }] }
+    CitationCount:
+      type: object
+      required: [ready, text, found, total, date]
+      additionalProperties: false
+      properties:
+        ready: { type: boolean }
+        notInArea: { type: boolean }
+        text: { $ref: "#/components/schemas/Wording" }
+        found: { type: [integer, "null"] }
+        total: { type: [integer, "null"] }
+        date: { type: [string, "null"] }
+    CitationsBrief:
+      type: object
+      required: [count, short, missing, notChecked, differing, compared, change, date]
+      properties:
+        count: { $ref: "#/components/schemas/CitationCount" }
+        short: { $ref: "#/components/schemas/Wording" }
+        missing: { type: integer }
+        notChecked: { type: integer }
+        differing: { type: integer }
+        compared: { type: integer }
+        change:
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [since, found]
+              additionalProperties: false
+              properties:
+                since: { type: string }
+                found: { $ref: "#/components/schemas/Move" }
+        date: { type: string }
+    CitationsBriefSection:
+      allOf:
+        - $ref: "#/components/schemas/SectionBase"
+        - properties:
+            view: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/CitationsBrief" }] }
+    NapField: { type: string, enum: [name, address, phone] }
+    DirectoryStatus: { type: string, enum: [found, not_found, not_checked] }
+    CitationsView:
+      allOf:
+        - $ref: "#/components/schemas/CitationsBrief"
+        - type: object
+          required: [countNote, alsoFound, directories, reference, listings, gap, sentences, trend]
+          properties:
+            countNote: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Wording" }] }
+            alsoFound: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Wording" }] }
+            directories:
+              type: array
+              items:
+                type: object
+                required: [name, status, url, change, competitorsListed, competitorsChecked]
+                additionalProperties: false
+                properties:
+                  name: { type: string }
+                  status: { $ref: "#/components/schemas/DirectoryStatus" }
+                  url: { type: [string, "null"] }
+                  change: { type: [string, "null"], enum: [new, lost, null] }
+                  competitorsListed: { type: [integer, "null"] }
+                  competitorsChecked: { type: [integer, "null"] }
+            reference:
+              oneOf:
+                - type: "null"
+                - type: object
+                  required: [name, address, phone]
+                  additionalProperties: false
+                  properties:
+                    name: { type: [string, "null"] }
+                    address: { type: [string, "null"] }
+                    phone: { type: [string, "null"] }
+            listings:
+              type: array
+              items:
+                type: object
+                required: [source, status, detailsRead, url, name, address, phone, compared, differs, isNew, wasFixed]
+                additionalProperties: false
+                properties:
+                  source: { type: string }
+                  status: { $ref: "#/components/schemas/DirectoryStatus" }
+                  detailsRead: { type: boolean }
+                  url: { type: [string, "null"] }
+                  name: { type: [string, "null"] }
+                  address: { type: [string, "null"] }
+                  phone: { type: [string, "null"] }
+                  compared: { type: array, items: { $ref: "#/components/schemas/NapField" } }
+                  differs: { type: array, items: { $ref: "#/components/schemas/NapField" } }
+                  isNew: { type: boolean }
+                  wasFixed: { type: boolean }
+            gap:
+              oneOf:
+                - type: "null"
+                - type: object
+                  required: [competitors, directories]
+                  additionalProperties: false
+                  properties:
+                    competitors:
+                      type: array
+                      items:
+                        type: object
+                        required: [name, found, checked, date]
+                        additionalProperties: false
+                        properties:
+                          name: { type: string }
+                          found: { type: integer }
+                          checked: { type: integer }
+                          date: { type: string }
+                    directories:
+                      type: array
+                      items:
+                        type: object
+                        required: [directory, listed, of, competitors]
+                        additionalProperties: false
+                        properties:
+                          directory: { type: string }
+                          listed: { type: integer }
+                          of: { type: integer }
+                          competitors: { type: array, items: { type: string } }
+            sentences: { type: array, items: { $ref: "#/components/schemas/ApprovedText" } }
+            trend:
+              type: array
+              items:
+                type: object
+                required: [date, found, total]
+                additionalProperties: false
+                properties:
+                  date: { type: string }
+                  found: { type: integer }
+                  total: { type: integer }
+    CitationsSection:
+      allOf:
+        - $ref: "#/components/schemas/SectionBase"
+        - properties:
+            view: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/CitationsView" }] }
+    ReviewLinkView:
+      type: object
+      required: [state, googleUrl, yelpUrl]
+      additionalProperties: false
+      properties:
+        state: { type: string, enum: [ready, preparing, no_listing] }
+        googleUrl: { type: [string, "null"] }
+        yelpUrl: { type: [string, "null"] }
+    ReviewLinkSection:
+      allOf:
+        - $ref: "#/components/schemas/SectionBase"
+        - properties:
+            view: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/ReviewLinkView" }] }
+    QuickWins:
+      type: object
+      required: [lines, done, total, canTick]
+      additionalProperties: false
+      properties:
+        lines:
+          type: array
+          maxItems: 3
+          items:
+            type: object
+            required: [key, title, action, why, done]
+            additionalProperties: false
+            properties:
+              key: { type: string, pattern: "^[0-9a-f]{40}$" }
+              title: { $ref: "#/components/schemas/ApprovedText" }
+              action: { $ref: "#/components/schemas/ApprovedText" }
+              why: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/ApprovedText" }] }
+              done: { type: boolean }
+        done: { type: integer }
+        total: { type: integer }
+        canTick: { type: boolean }
+    GradeSummary:
+      type: object
+      required: [display, letter, score]
+      additionalProperties: false
+      properties:
+        display: { type: [string, "null"] }
+        letter: { type: [string, "null"] }
+        score: { type: [number, "null"] }
+    GradeHistoryItem:
+      type: object
+      required: [reportId, kind, scanType, domain, deliveredAt, grade]
+      additionalProperties: false
+      properties:
+        reportId: { $ref: "#/components/schemas/Uuid" }
+        kind: { type: string, enum: [report, grade] }
+        scanType: { type: string, enum: [full, free_only] }
+        domain: { type: string }
+        deliveredAt: { type: [string, "null"], format: date-time }
+        grade: { $ref: "#/components/schemas/GradeSummary" }
+        marker: { $ref: "#/components/schemas/Wording" }
+    GradeHistoryPage:
+      type: object
+      required: [items, nextCursor]
+      additionalProperties: false
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/GradeHistoryItem" } }
+        nextCursor: { $ref: "#/components/schemas/NextCursor" }
+    DashboardOverview:
+      allOf:
+        - $ref: "#/components/schemas/Common"
+        - type: object
+          required: [organisation, hasData, week, checkedAt, alerts, ai, topThree, grades, tasks, reviews, listing, grid, ranks, citations, count, reviewLink, monitoring, quickWins, businessGrades, creditCents, pastDue]
+          properties:
+            organisation:
+              type: object
+              required: [id, name]
+              additionalProperties: false
+              properties:
+                id: { $ref: "#/components/schemas/Uuid" }
+                name: { type: string }
+            hasData: { type: boolean }
+            week: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/EngineWeek" }] }
+            checkedAt: { type: [string, "null"], description: The newest date any part was read. }
+            alerts: { type: array, maxItems: 5, items: { $ref: "#/components/schemas/AlertNote" } }
+            ai: { $ref: "#/components/schemas/AiSection" }
+            topThree: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/TopThree" }], description: Null on Free. }
+            grades: { type: array, description: "The grade over time, oldest first (show the first and the last 5).", items: { $ref: "#/components/schemas/GradeAt" } }
+            standardNote: { type: array, items: { $ref: "#/components/schemas/Wording" } }
+            comparison: { $ref: "#/components/schemas/Comparison" }
+            tasks: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Tasks" }], description: Null on Free and without a Full Report. }
+            reviews: { $ref: "#/components/schemas/ReviewsSection" }
+            listing: { $ref: "#/components/schemas/ListingSection" }
+            grid: { $ref: "#/components/schemas/GridSection" }
+            ranks: { $ref: "#/components/schemas/RanksSection" }
+            citations: { $ref: "#/components/schemas/CitationsBriefSection" }
+            count: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/CitationCount" }], description: "Free: the directory count alone." }
+            reviewLink: { $ref: "#/components/schemas/ReviewLinkSection" }
+            monitoring:
+              description: A business with Monitoring - since when, the weekly slot and the last check.
+              oneOf:
+                - type: "null"
+                - type: object
+                  required: [since, slot, lastCheck]
+                  additionalProperties: false
+                  properties:
+                    since: { type: [string, "null"] }
+                    slot:
+                      description: "The weekly check's day and hour (Los Angeles time); null when not scheduled."
+                      oneOf:
+                        - type: "null"
+                        - type: object
+                          required: [weekday, hourLa]
+                          additionalProperties: false
+                          properties:
+                            weekday: { type: integer, minimum: 0, maximum: 6, description: 0 is Sunday. }
+                            hourLa: { type: integer, minimum: 0, maximum: 23 }
+                    lastCheck: { type: [string, "null"] }
+            quickWins: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/QuickWins" }], description: "QUICK_WINS_ENABLED, Monitoring, first 7 days only." }
+            businessGrades:
+              type: array
+              description: '"Your businesses": each business of the organisation with its latest grade.'
+              items:
+                type: object
+                required: [business, latest]
+                additionalProperties: false
+                properties:
+                  business: { $ref: "#/components/schemas/MemberBusiness" }
+                  latest: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/GradeHistoryItem" }] }
+            creditCents: { $ref: "#/components/schemas/Cents" }
+            pastDue:
+              type: array
+              description: Monitoring subscriptions whose last payment failed (link to /account).
+              items:
+                type: object
+                required: [subscriptionId, domain]
+                additionalProperties: false
+                properties:
+                  subscriptionId: { $ref: "#/components/schemas/Uuid" }
+                  domain: { type: string }
+    TickTaskRequest:
+      type: object
+      required: [task, done]
+      additionalProperties: false
+      properties:
+        task: { type: string, maxLength: 500, description: "The task's `title`, as given in `tasks.items`." }
+        done: { type: boolean }
+    TickQuickWinRequest:
+      type: object
+      required: [key, done]
+      additionalProperties: false
+      properties:
+        key: { type: string, pattern: "^[0-9a-f]{40}$" }
+        done: { type: boolean }
+    GridPageView:
+      allOf:
+        - $ref: "#/components/schemas/GridBrief"
+        - type: object
+          required: [map, competitors, you, trend, trendChangedOn, trendAcrossBases]
+          properties:
+            map:
+              oneOf:
+                - type: "null"
+                - type: object
+                  required: [light, dark, credit]
+                  additionalProperties: false
+                  properties:
+                    light: { type: string, description: "/api/v1/dashboard/grid/map?b=…&keyword=…&theme=light" }
+                    dark: { type: string }
+                    credit:
+                      type: object
+                      required: [text, href]
+                      additionalProperties: false
+                      description: The map data's attribution (a licence notice, shown as given).
+                      properties:
+                        text: { type: string }
+                        href: { type: string }
+            competitors:
+              type: array
+              items:
+                type: object
+                required: [name, averageRank, locations, reviews, rating, category]
+                additionalProperties: false
+                properties:
+                  name: { type: string }
+                  averageRank: { type: number }
+                  locations: { type: integer }
+                  reviews: { type: [integer, "null"] }
+                  rating: { type: [number, "null"] }
+                  category: { type: [string, "null"] }
+            you:
+              type: object
+              required: [reviews, rating, category]
+              additionalProperties: false
+              properties:
+                reviews: { type: [integer, "null"] }
+                rating: { type: [number, "null"] }
+                category: { type: [string, "null"] }
+            trend:
+              type: array
+              items:
+                type: object
+                required: [date, averageRank, shareTop3Text]
+                additionalProperties: false
+                properties:
+                  date: { type: string }
+                  averageRank: { type: [number, "null"] }
+                  shareTop3Text: { type: string, description: 'A formatted percentage such as "43%" (a number, not a sentence).' }
+            trendChangedOn: { type: [string, "null"] }
+            trendAcrossBases: { type: boolean }
+    GridPageData:
+      allOf:
+        - $ref: "#/components/schemas/Common"
+        - type: object
+          required: [keywords, grid]
+          properties:
+            keywords:
+              type: array
+              maxItems: 5
+              items:
+                type: object
+                required: [keyword, selected]
+                additionalProperties: false
+                properties:
+                  keyword: { type: string }
+                  selected: { type: boolean }
+            grid:
+              allOf:
+                - $ref: "#/components/schemas/SectionBase"
+                - properties:
+                    view: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/GridPageView" }] }
+    RanksPageData:
+      allOf:
+        - $ref: "#/components/schemas/Common"
+        - type: object
+          required: [ranks]
+          properties:
+            ranks: { $ref: "#/components/schemas/RanksSection" }
+    CitationsPageData:
+      allOf:
+        - $ref: "#/components/schemas/Common"
+        - type: object
+          required: [count, citations]
+          properties:
+            count: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/CitationCount" }], description: "Free: the count alone." }
+            citations: { $ref: "#/components/schemas/CitationsSection" }
+
+    # ------------------------------------------------------------ reports and orders
+    OrderStatus:
+      type: string
+      enum: [pending_payment, abandoned, paid, scan_running, report_held, delivered, failed, refunded]
+      x-wording-keys:
+        pending_payment: dashboard.order_status.pending_payment
+        abandoned: account.status.not_paid
+        paid: dashboard.order_status.paid
+        scan_running: dashboard.order_status.scan_running
+        report_held: dashboard.order_status.report_held
+        delivered: dashboard.order_status.delivered
+        failed: dashboard.order_status.failed
+        refunded: common.shared.refunded
+    OrderSummary:
+      type: object
+      required: [id, kind, status, amountCents, currency, comp, createdAt]
+      additionalProperties: false
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        kind: { type: string, enum: [full_report, monitoring_included] }
+        status: { $ref: "#/components/schemas/OrderStatus" }
+        amountCents: { $ref: "#/components/schemas/Cents" }
+        currency: { $ref: "#/components/schemas/Currency" }
+        comp: { type: boolean, description: Given free by staff (no payment shown). }
+        createdAt: { type: string, format: date-time }
+    BusinessRef:
+      type: object
+      required: [id, domain, name]
+      additionalProperties: false
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        domain: { type: string }
+        name: { type: [string, "null"] }
+    ReportListPage:
+      type: object
+      required: [items, nextCursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [order, business]
+            additionalProperties: false
+            properties:
+              order: { $ref: "#/components/schemas/OrderSummary" }
+              business: { $ref: "#/components/schemas/BusinessRef" }
+        nextCursor: { $ref: "#/components/schemas/NextCursor" }
+    ReportPage:
+      type: object
+      oneOf:
+        - $ref: "#/components/schemas/ReportReady"
+        - $ref: "#/components/schemas/ReportRefunded"
+      discriminator:
+        propertyName: state
+        mapping:
+          ready: "#/components/schemas/ReportReady"
+          refunded: "#/components/schemas/ReportRefunded"
+    ReportReady:
+      type: object
+      required: [state, report, business, view, pdf, credit, comparison]
+      additionalProperties: false
+      properties:
+        state: { type: string, const: ready }
+        report:
+          type: object
+          required: [id, kind, scanType, deliveredAt]
+          additionalProperties: false
+          properties:
+            id: { $ref: "#/components/schemas/Uuid" }
+            kind: { type: string, enum: [report, grade] }
+            scanType: { type: string, enum: [full, free_only] }
+            deliveredAt: { type: [string, "null"], format: date-time }
+        business:
+          type: object
+          required: [domain, name]
+          additionalProperties: false
+          properties:
+            domain: { type: string }
+            name: { type: [string, "null"] }
+        view: { $ref: "#/components/schemas/ClientReport" }
+        pdf:
+          description: Full Reports only (null for a grade).
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [state, href]
+              additionalProperties: false
+              properties:
+                state: { type: string, enum: [ready, pending, not_ready, withdrawn] }
+                href: { type: [string, "null"], description: "/api/v1/reports/{id}/pdf when ready." }
+        credit:
+          description: The live Full Report credit toward Monitoring (14 days), else null.
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [until, amountCents]
+              additionalProperties: false
+              properties:
+                until: { type: string, format: date-time }
+                amountCents: { $ref: "#/components/schemas/Cents" }
+        comparison: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Comparison" }] }
+    ReportRefunded:
+      type: object
+      required: [state, freeGradeId]
+      additionalProperties: false
+      properties:
+        state: { type: string, const: refunded }
+        freeGradeId: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Uuid" }] }
+    OrderPage:
+      type: object
+      required: [order, business, reportId, paidAt, deliveredAt, refund, creditAmountCents, creditExpiresAt, unpaidNotice, lateNotice, refundRequestedAt]
+      additionalProperties: false
+      properties:
+        order: { $ref: "#/components/schemas/OrderSummary" }
+        business: { $ref: "#/components/schemas/BusinessRef" }
+        reportId: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Uuid" }], description: The Full Report once delivered. }
+        paidAt: { type: [string, "null"], format: date-time }
+        deliveredAt: { type: [string, "null"], format: date-time }
+        refund:
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [refundedCents, usedCents, refundedAt, why]
+              additionalProperties: false
+              properties:
+                refundedCents: { $ref: "#/components/schemas/Cents" }
+                usedCents: { $ref: "#/components/schemas/Cents" }
+                refundedAt: { type: [string, "null"], format: date-time }
+                why: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Wording" }] }
+        creditAmountCents: { $ref: "#/components/schemas/Cents" }
+        creditExpiresAt: { type: [string, "null"], format: date-time }
+        unpaidNotice: { type: [string, "null"], enum: [confirming, failed, not_paid, checking, null] }
+        lateNotice: { type: boolean, description: The late-report notice was sent and the report is not delivered yet. }
+        refundRequestedAt: { type: [string, "null"], format: date-time }
+
+    # ------------------------------------------------------------ checkout
+    CheckoutTerms:
+      type: object
+      required: [legalVersion, refundConsentText, refundSectionMarkdown, monitoringBoxes, renewalTerms]
+      additionalProperties: false
+      properties:
+        legalVersion: { type: string }
+        refundConsentText: { $ref: "#/components/schemas/ApprovedText" }
+        refundSectionMarkdown: { $ref: "#/components/schemas/ApprovedText" }
+        monitoringBoxes:
+          type: object
+          required: [terms, business, renewal]
+          additionalProperties: false
+          properties:
+            terms: { $ref: "#/components/schemas/ApprovedText" }
+            business: { $ref: "#/components/schemas/ApprovedText" }
+            renewal: { $ref: "#/components/schemas/ApprovedText" }
+        renewalTerms: { $ref: "#/components/schemas/ApprovedText" }
+    FullReportCheckoutRequest:
+      type: object
+      required: [domain, category, refundConsent]
+      additionalProperties: false
+      properties:
+        domain: { $ref: "#/components/schemas/Domain" }
+        category: { type: string, minLength: 1, maxLength: 80 }
+        businessName: { type: string, maxLength: 200 }
+        city: { type: string, maxLength: 80 }
+        state: { $ref: "#/components/schemas/StateCode" }
+        refundConsent: { type: boolean, const: true, description: The refund-terms box (refundConsentText). }
+        legalVersion: { type: string, description: "The legalVersion the buyer saw; a different one in force answers 409 legal_version_changed." }
+        partner: { type: string, maxLength: 40 }
+    MonitoringCheckoutRequest:
+      type: object
+      required: [domain, category, term, termsConsent, businessConsent, renewalConsent]
+      additionalProperties: false
+      properties:
+        domain: { $ref: "#/components/schemas/Domain" }
+        category: { type: string, minLength: 1, maxLength: 80 }
+        state: { $ref: "#/components/schemas/StateCode" }
+        term: { type: string, const: monthly }
+        termsConsent: { type: boolean, const: true }
+        businessConsent: { type: boolean, const: true }
+        renewalConsent: { type: boolean, const: true }
+        legalVersion: { type: string }
+        partner: { type: string, maxLength: 40 }
+    CheckoutClient:
+      type: object
+      description: The only key the browser receives. `fake` is the test gateway (local and CI only).
+      oneOf:
+        - $ref: "#/components/schemas/CheckoutClientStripe"
+        - $ref: "#/components/schemas/CheckoutClientFake"
+      discriminator:
+        propertyName: mode
+        mapping:
+          stripe: "#/components/schemas/CheckoutClientStripe"
+          fake: "#/components/schemas/CheckoutClientFake"
+    CheckoutClientStripe:
+      type: object
+      required: [mode, publishableKey]
+      additionalProperties: false
+      properties:
+        mode: { type: string, const: stripe }
+        publishableKey: { type: string, pattern: "^pk_(test|live)_" }
+        testModeNotice: { type: boolean }
+    CheckoutClientFake:
+      type: object
+      required: [mode]
+      additionalProperties: false
+      properties:
+        mode: { type: string, const: fake }
+    PaymentElementSetup:
+      type: object
+      required: [client, clientSecret, wallets, returnPath]
+      additionalProperties: false
+      properties:
+        client: { $ref: "#/components/schemas/CheckoutClient" }
+        clientSecret: { type: [string, "null"], description: "For stripe.elements({ clientSecret }); confirmPayment, or confirmSetup when kind is card." }
+        setupIntentId: { type: string }
+        wallets: { type: boolean }
+        returnPath: { type: string, pattern: "^/", description: "The same-site page Stripe returns to (confirmParams.return_url = origin + returnPath)." }
+    CreditPreview:
+      type: object
+      required: [priceCents, dueTodayCents, usedNowCents, leftCents]
+      additionalProperties: false
+      properties:
+        priceCents: { $ref: "#/components/schemas/Cents" }
+        dueTodayCents: { $ref: "#/components/schemas/Cents" }
+        usedNowCents: { $ref: "#/components/schemas/Cents" }
+        leftCents: { $ref: "#/components/schemas/Cents" }
+    CheckoutStarted:
+      type: object
+      required: [checkoutId, kind, reused, amountCents, currency, credit, payment]
+      additionalProperties: false
+      properties:
+        checkoutId: { $ref: "#/components/schemas/Uuid" }
+        kind: { type: string, enum: [order, subscription, card] }
+        reused: { type: boolean }
+        amountCents: { $ref: "#/components/schemas/Cents" }
+        currency: { $ref: "#/components/schemas/Currency" }
+        credit: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/CreditPreview" }] }
+        payment: { $ref: "#/components/schemas/PaymentElementSetup" }
+    CheckoutState:
+      type: object
+      required: [checkoutId, kind, status, lastError, landingPath, payment]
+      additionalProperties: false
+      properties:
+        checkoutId: { $ref: "#/components/schemas/Uuid" }
+        kind: { type: string, enum: [order, subscription, card] }
+        status: { type: string, enum: [open, processing, succeeded, canceled] }
+        lastError: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Wording" }], description: "The last refused try, e.g. common.shared.the_payment_did_not_go_through." }
+        landingPath: { type: string, pattern: "^/", description: "Where to go once paid: /dashboard/orders/{id} or /dashboard/monitoring." }
+        payment:
+          description: To draw the pay step again while `open`; null otherwise.
+          oneOf: [{ type: "null" }, { $ref: "#/components/schemas/PaymentElementSetup" }]
+    ConfirmCheckoutRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        setupIntentId: { type: string, pattern: "^seti_[A-Za-z0-9_]+$" }
+    CheckoutConfirmed:
+      type: object
+      required: [done, status]
+      additionalProperties: false
+      properties:
+        done: { type: boolean }
+        status: { type: string, enum: [open, processing, succeeded, canceled] }
+
+    # ------------------------------------------------------------ account
+    CardSummary:
+      type: object
+      required: [brand, last4, expMonth, expYear]
+      additionalProperties: false
+      properties:
+        brand: { type: string }
+        last4: { type: string, pattern: "^\\d{4}$" }
+        expMonth: { type: [integer, "null"] }
+        expYear: { type: [integer, "null"] }
+    AccountSubscription:
+      type: object
+      required: [id, domain, state, live, term, paidUntil, nextChargeAt, nextPriceCents, nextChargeCents, creditLeftCents, creditAppliedCents, updating, card, cardUnknown, cancelRequestedAt, endedAt, chargeSeen, canCancel]
+      additionalProperties: false
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        domain: { type: string }
+        state:
+          type: string
+          enum: [on, cancelled, payment_failed, unpaid, ended]
+          x-wording-keys: { on: dashboard.monitoring.active, cancelled: account.status.cancelled, payment_failed: dashboard.monitoring.payment_failed, unpaid: account.status.not_paid_yet, ended: dashboard.monitoring.ended }
+        live: { type: boolean }
+        term: { type: string, const: monthly }
+        paidUntil: { type: [string, "null"], format: date-time }
+        nextChargeAt: { type: [string, "null"], format: date-time }
+        nextPriceCents: { $ref: "#/components/schemas/Cents" }
+        nextChargeCents: { $ref: "#/components/schemas/Cents" }
+        creditLeftCents: { $ref: "#/components/schemas/Cents" }
+        creditAppliedCents: { $ref: "#/components/schemas/Cents" }
+        updating: { type: boolean, description: 'A payment is settling: show "Updating your account" and read again.' }
+        card: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/CardSummary" }] }
+        cardUnknown: { type: boolean }
+        cancelRequestedAt: { type: [string, "null"], format: date-time }
+        endedAt: { type: [string, "null"], format: date-time }
+        chargeSeen: { type: [string, "null"], enum: [charged, not_charged, unknown, null] }
+        canCancel: { type: boolean }
+    Account:
+      type: object
+      required: [role, subscriptions]
+      additionalProperties: false
+      properties:
+        role: { $ref: "#/components/schemas/MemberRole" }
+        subscriptions: { type: array, items: { $ref: "#/components/schemas/AccountSubscription" } }
+    DocumentSummary:
+      type: object
+      required: [id, kind, at, what, number, amountCents, creditCents, refundedCents, status]
+      additionalProperties: false
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        kind: { type: string, enum: [invoice, receipt] }
+        at: { type: string, format: date-time }
+        what: { $ref: "#/components/schemas/Wording" }
+        number: { type: [string, "null"] }
+        amountCents: { $ref: "#/components/schemas/Cents" }
+        creditCents: { $ref: "#/components/schemas/Cents" }
+        refundedCents: { type: [integer, "null"] }
+        status:
+          type: string
+          enum: [paid, not_paid, cancelled, refunded]
+          x-wording-keys: { paid: common.shared.paid, not_paid: account.status.not_paid, cancelled: account.status.cancelled, refunded: common.shared.refunded }
+    DocumentListPage:
+      type: object
+      required: [items, nextCursor]
+      additionalProperties: false
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/DocumentSummary" } }
+        nextCursor: { $ref: "#/components/schemas/NextCursor" }
+    Seller:
+      type: object
+      required: [legalName, postalAddress, email]
+      additionalProperties: false
+      properties:
+        legalName: { type: string }
+        postalAddress: { type: string }
+        email: { type: string, format: email }
+    AccountDocument:
+      type: object
+      oneOf:
+        - $ref: "#/components/schemas/InvoiceDocument"
+        - $ref: "#/components/schemas/ReceiptDocument"
+      discriminator:
+        propertyName: kind
+        mapping:
+          invoice: "#/components/schemas/InvoiceDocument"
+          receipt: "#/components/schemas/ReceiptDocument"
+    InvoiceDocument:
+      type: object
+      required: [kind, organisation, domain, seller, invoice]
+      additionalProperties: false
+      properties:
+        kind: { type: string, const: invoice }
+        organisation: { type: string }
+        domain: { type: [string, "null"] }
+        seller: { $ref: "#/components/schemas/Seller" }
+        invoice:
+          type: object
+          required: [id, number, status, date, periodStart, periodEnd, lines, subtotalCents, taxCents, totalCents, creditAppliedCents, amountPaidCents, amountDueCents, currency, paidAt]
+          additionalProperties: false
+          properties:
+            id: { $ref: "#/components/schemas/Uuid" }
+            number: { type: [string, "null"] }
+            status:
+              type: string
+              enum: [draft, open, paid, void, uncollectible]
+              x-wording-keys: { draft: account.status.being_prepared, open: account.status.not_paid, paid: common.shared.paid, void: account.status.cancelled, uncollectible: account.status.not_paid }
+            date: { type: string, format: date-time }
+            periodStart: { type: [string, "null"], format: date-time }
+            periodEnd: { type: [string, "null"], format: date-time }
+            lines:
+              type: array
+              items:
+                type: object
+                required: [description, amountCents, periodStart, periodEnd]
+                additionalProperties: false
+                properties:
+                  description: { type: string, description: "The product line as invoiced (e.g. \"Visibility Grade Monitoring, monthly (domain)\")." }
+                  amountCents: { type: integer }
+                  periodStart: { type: [string, "null"] }
+                  periodEnd: { type: [string, "null"] }
+            subtotalCents: { type: integer }
+            taxCents: { type: integer }
+            totalCents: { type: integer }
+            creditAppliedCents: { type: integer }
+            amountPaidCents: { type: integer }
+            amountDueCents: { type: integer }
+            currency: { $ref: "#/components/schemas/Currency" }
+            paidAt: { type: [string, "null"], format: date-time }
+    ReceiptDocument:
+      type: object
+      required: [kind, organisation, domain, seller, order]
+      additionalProperties: false
+      properties:
+        kind: { type: string, const: receipt }
+        organisation: { type: string }
+        domain: { type: string }
+        seller: { $ref: "#/components/schemas/Seller" }
+        order:
+          type: object
+          required: [id, status, amountCents, currency, paidAt, refund]
+          additionalProperties: false
+          properties:
+            id: { $ref: "#/components/schemas/Uuid" }
+            status: { type: string, enum: [paid, refunded] }
+            amountCents: { $ref: "#/components/schemas/Cents" }
+            currency: { $ref: "#/components/schemas/Currency" }
+            paidAt: { type: [string, "null"], format: date-time }
+            refund:
+              oneOf:
+                - type: "null"
+                - type: object
+                  required: [refundedCents, refundedAt, why]
+                  additionalProperties: false
+                  properties:
+                    refundedCents: { $ref: "#/components/schemas/Cents" }
+                    refundedAt: { type: [string, "null"], format: date-time }
+                    why: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Wording" }] }
+    SubscriptionRef:
+      type: object
+      required: [subscriptionId]
+      additionalProperties: false
+      properties:
+        subscriptionId: { $ref: "#/components/schemas/Uuid" }
+    PaymentMethodUpdate:
+      type: object
+      required: [setupIntentId, payment]
+      additionalProperties: false
+      properties:
+        setupIntentId: { type: string, pattern: "^seti_[A-Za-z0-9_]+$" }
+        payment: { $ref: "#/components/schemas/PaymentElementSetup" }
+    FinishPaymentMethodRequest:
+      type: object
+      required: [subscriptionId, setupIntentId]
+      additionalProperties: false
+      properties:
+        subscriptionId: { $ref: "#/components/schemas/Uuid" }
+        setupIntentId: { type: string, pattern: "^seti_[A-Za-z0-9_]+$" }
+    PaymentMethodFinished:
+      type: object
+      required: [card]
+      additionalProperties: false
+      properties:
+        card: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/CardSummary" }] }
+    CancelRequest:
+      type: object
+      required: [subscriptionId]
+      additionalProperties: false
+      properties:
+        subscriptionId: { $ref: "#/components/schemas/Uuid" }
+        reason: { type: string, enum: [too_expensive, not_useful, fixed_myself, switching, other] }
+        detail: { type: string, maxLength: 1000 }
+    CancelOutcome:
+      type: object
+      required: [state, accessUntil]
+      additionalProperties: false
+      properties:
+        state: { type: string, enum: [cancelled, already, cancelled_unpaid, payment_being_confirmed, ended] }
+        accessUntil: { type: [string, "null"], format: date-time, description: Monitoring keeps working until then. }

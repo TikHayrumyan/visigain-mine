@@ -1,0 +1,16 @@
+{
+  "summary": "The card form",
+  "value": {
+    "setupIntentId": "seti_invented0000000000000000",
+    "payment": {
+      "client": {
+        "mode": "stripe",
+        "publishableKey": "pk_test_invented0000000000000000"
+      },
+      "clientSecret": "seti_invented0000000000000000_secret_invented",
+      "setupIntentId": "seti_invented0000000000000000",
+      "wallets": false,
+      "returnPath": "/account?card=b8c9d0e1-f2a3-4b4c-9d6e-7f8a9b0c1d28&si=seti_invented0000000000000000"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "summary": "The site open, checkout on, the staging-only features off",
+  "value": {
+    "holding": false,
+    "holdingPages": [
+      "/",
+      "/pricing",
+      "/contact",
+      "/terms",
+      "/privacy",
+      "/refunds",
+      "/cookies",
+      "/accessibility",
+      "/privacy-choices"
+    ],
+    "checkout": true,
+    "checkoutWallets": false,
+    "aiChat": false,
+    "share": false,
+    "spanish": false,
+    "legalVersion": "v3.17, 5 Nov 2026",
+    "legalVersionNumber": "3.17",
+    "legalPageVersions": {
+      "terms": "3.17",
+      "privacy": "3.17",
+      "refunds": "3.16",
+      "cookies": "3.15"
+    }
+  }
+}

@@ -1,0 +1,620 @@
+{
+  "summary": "Monitoring: weekly, with a 4-week trend",
+  "value": {
+    "plan": "monitoring",
+    "business": {
+      "name": "Sunset Glow Med Spa (invented)",
+      "domain": "sunset-glow-medspa.test",
+      "category": "Medical spa"
+    },
+    "businesses": [
+      {
+        "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c51",
+        "domain": "sunset-glow-medspa.test",
+        "name": "Sunset Glow Med Spa (invented)",
+        "plan": "monitoring"
+      },
+      {
+        "id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d62",
+        "domain": "ivory-lane-medspa.test",
+        "name": "Ivory Lane Med Spa (invented)",
+        "plan": "report"
+      },
+      {
+        "id": "c3d4e5f6-a7b8-4c9d-8e1f-2a3b4c5d6e73",
+        "domain": "harborlight-aesthetics.test",
+        "name": null,
+        "plan": "free"
+      }
+    ],
+    "sample": false,
+    "words": {
+      "customers": "common.customers.clients",
+      "customer": "common.customer.client",
+      "storefront": true,
+      "held": false,
+      "audience": "local_service"
+    },
+    "ranks": {
+      "feature": "ranks",
+      "status": "ready",
+      "view": {
+        "date": "2026-11-02",
+        "types": [
+          {
+            "type": "organic_desktop",
+            "label": "dashboard.rank_type.organic_desktop",
+            "date": "2026-11-02",
+            "keywords": 16,
+            "ranked": 12,
+            "averagePosition": 6.4,
+            "panels": 0,
+            "buckets": [
+              {
+                "id": "1",
+                "label": "dashboard.rank_bucket.1",
+                "count": 3
+              },
+              {
+                "id": "2_5",
+                "label": "dashboard.rank_bucket.2_5",
+                "count": 5
+              },
+              {
+                "id": "6_10",
+                "label": "dashboard.rank_bucket.6_10",
+                "count": 2
+              },
+              {
+                "id": "11_20",
+                "label": "dashboard.rank_bucket.11_20",
+                "count": 1
+              },
+              {
+                "id": "21_50",
+                "label": "dashboard.rank_bucket.21_50",
+                "count": 1
+              },
+              {
+                "id": "51_plus",
+                "label": "dashboard.rank_bucket.51_plus",
+                "count": 0
+              },
+              {
+                "id": "not_ranked",
+                "label": "dashboard.rank_bucket.not_ranked",
+                "count": 4
+              }
+            ],
+            "beyond": null,
+            "change": {
+              "since": "2026-10-26",
+              "improved": 4,
+              "declined": 1,
+              "averagePosition": {
+                "by": 0.8,
+                "direction": "better"
+              },
+              "rankedBefore": 11,
+              "found": {
+                "key": "dashboard.ranks.found",
+                "params": {
+                  "found": 12,
+                  "of": 16,
+                  "before": 11
+                }
+              }
+            },
+            "trend": [
+              {
+                "date": "2026-10-12",
+                "averagePosition": 8.1,
+                "ranked": 10
+              },
+              {
+                "date": "2026-10-19",
+                "averagePosition": 7.6,
+                "ranked": 11
+              },
+              {
+                "date": "2026-10-26",
+                "averagePosition": 7.2,
+                "ranked": 11
+              },
+              {
+                "date": "2026-11-02",
+                "averagePosition": 6.4,
+                "ranked": 12
+              }
+            ]
+          },
+          {
+            "type": "organic_mobile",
+            "label": "dashboard.rank_type.organic_mobile",
+            "date": "2026-11-02",
+            "keywords": 16,
+            "ranked": 11,
+            "averagePosition": 7.4,
+            "panels": 1,
+            "buckets": [
+              {
+                "id": "1",
+                "label": "dashboard.rank_bucket.1",
+                "count": 3
+              },
+              {
+                "id": "2_5",
+                "label": "dashboard.rank_bucket.2_5",
+                "count": 5
+              },
+              {
+                "id": "6_10",
+                "label": "dashboard.rank_bucket.6_10",
+                "count": 2
+              },
+              {
+                "id": "11_20",
+                "label": "dashboard.rank_bucket.11_20",
+                "count": 1
+              },
+              {
+                "id": "21_50",
+                "label": "dashboard.rank_bucket.21_50",
+                "count": 1
+              },
+              {
+                "id": "51_plus",
+                "label": "dashboard.rank_bucket.51_plus",
+                "count": 0
+              },
+              {
+                "id": "not_ranked",
+                "label": "dashboard.rank_bucket.not_ranked",
+                "count": 3
+              }
+            ],
+            "beyond": null,
+            "change": {
+              "since": "2026-10-26",
+              "improved": 4,
+              "declined": 1,
+              "averagePosition": {
+                "by": 0.8,
+                "direction": "better"
+              },
+              "rankedBefore": 10,
+              "found": {
+                "key": "dashboard.ranks.found",
+                "params": {
+                  "found": 11,
+                  "of": 16,
+                  "before": 10
+                }
+              }
+            },
+            "trend": [
+              {
+                "date": "2026-10-12",
+                "averagePosition": 8.1,
+                "ranked": 10
+              },
+              {
+                "date": "2026-10-19",
+                "averagePosition": 7.6,
+                "ranked": 11
+              },
+              {
+                "date": "2026-10-26",
+                "averagePosition": 7.2,
+                "ranked": 11
+              },
+              {
+                "date": "2026-11-02",
+                "averagePosition": 7.4,
+                "ranked": 11
+              }
+            ]
+          },
+          {
+            "type": "map_pack",
+            "label": "dashboard.rank_type.map_pack",
+            "date": "2026-11-02",
+            "keywords": 16,
+            "ranked": 10,
+            "averagePosition": 8.4,
+            "panels": 0,
+            "buckets": [
+              {
+                "id": "1",
+                "label": "dashboard.rank_bucket.1",
+                "count": 3
+              },
+              {
+                "id": "2_5",
+                "label": "dashboard.rank_bucket.2_5",
+                "count": 5
+              },
+              {
+                "id": "6_10",
+                "label": "dashboard.rank_bucket.6_10",
+                "count": 2
+              },
+              {
+                "id": "11_20",
+                "label": "dashboard.rank_bucket.11_20",
+                "count": 1
+              },
+              {
+                "id": "21_50",
+                "label": "dashboard.rank_bucket.21_50",
+                "count": 1
+              },
+              {
+                "id": "51_plus",
+                "label": "dashboard.rank_bucket.51_plus",
+                "count": 0
+              },
+              {
+                "id": "not_ranked",
+                "label": "dashboard.rank_bucket.not_ranked",
+                "count": 2
+              }
+            ],
+            "beyond": null,
+            "change": {
+              "since": "2026-10-26",
+              "improved": 4,
+              "declined": 1,
+              "averagePosition": {
+                "by": 0.8,
+                "direction": "better"
+              },
+              "rankedBefore": 9,
+              "found": {
+                "key": "dashboard.ranks.found",
+                "params": {
+                  "found": 10,
+                  "of": 16,
+                  "before": 9
+                }
+              }
+            },
+            "trend": [
+              {
+                "date": "2026-10-12",
+                "averagePosition": 8.1,
+                "ranked": 10
+              },
+              {
+                "date": "2026-10-19",
+                "averagePosition": 7.6,
+                "ranked": 11
+              },
+              {
+                "date": "2026-10-26",
+                "averagePosition": 7.2,
+                "ranked": 11
+              },
+              {
+                "date": "2026-11-02",
+                "averagePosition": 8.4,
+                "ranked": 10
+              }
+            ]
+          },
+          {
+            "type": "maps",
+            "label": "dashboard.rank_type.maps",
+            "date": "2026-11-02",
+            "keywords": 16,
+            "ranked": 9,
+            "averagePosition": 9.4,
+            "panels": 0,
+            "buckets": [
+              {
+                "id": "1",
+                "label": "dashboard.rank_bucket.1",
+                "count": 3
+              },
+              {
+                "id": "2_5",
+                "label": "dashboard.rank_bucket.2_5",
+                "count": 5
+              },
+              {
+                "id": "6_10",
+                "label": "dashboard.rank_bucket.6_10",
+                "count": 2
+              },
+              {
+                "id": "11_20",
+                "label": "dashboard.rank_bucket.11_20",
+                "count": 1
+              },
+              {
+                "id": "21_50",
+                "label": "dashboard.rank_bucket.21_50",
+                "count": 1
+              },
+              {
+                "id": "51_plus",
+                "label": "dashboard.rank_bucket.51_plus",
+                "count": 0
+              },
+              {
+                "id": "not_ranked",
+                "label": "dashboard.rank_bucket.not_ranked",
+                "count": 1
+              }
+            ],
+            "beyond": null,
+            "change": {
+              "since": "2026-10-26",
+              "improved": 4,
+              "declined": 1,
+              "averagePosition": {
+                "by": 0.8,
+                "direction": "better"
+              },
+              "rankedBefore": 8,
+              "found": {
+                "key": "dashboard.ranks.found",
+                "params": {
+                  "found": 9,
+                  "of": 16,
+                  "before": 8
+                }
+              }
+            },
+            "trend": [
+              {
+                "date": "2026-10-12",
+                "averagePosition": 8.1,
+                "ranked": 10
+              },
+              {
+                "date": "2026-10-19",
+                "averagePosition": 7.6,
+                "ranked": 11
+              },
+              {
+                "date": "2026-10-26",
+                "averagePosition": 7.2,
+                "ranked": 11
+              },
+              {
+                "date": "2026-11-02",
+                "averagePosition": 9.4,
+                "ranked": 9
+              }
+            ]
+          }
+        ],
+        "rows": [
+          {
+            "keyword": "sunset glow med spa",
+            "isBusinessName": true,
+            "types": {
+              "organic_desktop": {
+                "rank": 1,
+                "checked": true,
+                "panel": false,
+                "previous": 1,
+                "previousPanel": false,
+                "move": {
+                  "by": 0,
+                  "direction": "same"
+                },
+                "trend": [
+                  {
+                    "date": "2026-10-26",
+                    "rank": 1,
+                    "panel": false
+                  },
+                  {
+                    "date": "2026-11-02",
+                    "rank": 1,
+                    "panel": false
+                  }
+                ]
+              },
+              "organic_mobile": {
+                "rank": null,
+                "checked": true,
+                "panel": true,
+                "previous": null,
+                "previousPanel": true,
+                "move": {
+                  "by": null,
+                  "direction": "unknown"
+                },
+                "trend": [
+                  {
+                    "date": "2026-10-26",
+                    "rank": null,
+                    "panel": false
+                  },
+                  {
+                    "date": "2026-11-02",
+                    "rank": null,
+                    "panel": false
+                  }
+                ]
+              },
+              "map_pack": {
+                "rank": 1,
+                "checked": true,
+                "panel": false,
+                "previous": 1,
+                "previousPanel": false,
+                "move": {
+                  "by": 0,
+                  "direction": "same"
+                },
+                "trend": [
+                  {
+                    "date": "2026-10-26",
+                    "rank": 1,
+                    "panel": false
+                  },
+                  {
+                    "date": "2026-11-02",
+                    "rank": 1,
+                    "panel": false
+                  }
+                ]
+              },
+              "maps": {
+                "rank": 1,
+                "checked": true,
+                "panel": false,
+                "previous": 1,
+                "previousPanel": false,
+                "move": {
+                  "by": 0,
+                  "direction": "same"
+                },
+                "trend": [
+                  {
+                    "date": "2026-10-26",
+                    "rank": 1,
+                    "panel": false
+                  },
+                  {
+                    "date": "2026-11-02",
+                    "rank": 1,
+                    "panel": false
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "keyword": "botox pasadena",
+            "isBusinessName": false,
+            "types": {
+              "organic_desktop": {
+                "rank": 7,
+                "checked": true,
+                "panel": false,
+                "previous": 9,
+                "previousPanel": false,
+                "move": {
+                  "by": 2,
+                  "direction": "better"
+                },
+                "trend": [
+                  {
+                    "date": "2026-10-26",
+                    "rank": 9,
+                    "panel": false
+                  },
+                  {
+                    "date": "2026-11-02",
+                    "rank": 7,
+                    "panel": false
+                  }
+                ]
+              },
+              "organic_mobile": {
+                "rank": 6,
+                "checked": true,
+                "panel": false,
+                "previous": 8,
+                "previousPanel": false,
+                "move": {
+                  "by": 2,
+                  "direction": "better"
+                },
+                "trend": [
+                  {
+                    "date": "2026-10-26",
+                    "rank": 8,
+                    "panel": false
+                  },
+                  {
+                    "date": "2026-11-02",
+                    "rank": 6,
+                    "panel": false
+                  }
+                ]
+              },
+              "map_pack": {
+                "rank": 3,
+                "checked": true,
+                "panel": false,
+                "previous": 3,
+                "previousPanel": false,
+                "move": {
+                  "by": 0,
+                  "direction": "same"
+                },
+                "trend": [
+                  {
+                    "date": "2026-10-26",
+                    "rank": 3,
+                    "panel": false
+                  },
+                  {
+                    "date": "2026-11-02",
+                    "rank": 3,
+                    "panel": false
+                  }
+                ]
+              },
+              "maps": {
+                "rank": 4,
+                "checked": true,
+                "panel": false,
+                "previous": 5,
+                "previousPanel": false,
+                "move": {
+                  "by": 1,
+                  "direction": "better"
+                },
+                "trend": [
+                  {
+                    "date": "2026-10-26",
+                    "rank": 5,
+                    "panel": false
+                  },
+                  {
+                    "date": "2026-11-02",
+                    "rank": 4,
+                    "panel": false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "missing": {
+          "organic_desktop": {
+            "key": "dashboard.ranks.missing",
+            "params": {
+              "depth": 100
+            }
+          },
+          "organic_mobile": {
+            "key": "dashboard.ranks.missing",
+            "params": {
+              "depth": 100
+            }
+          },
+          "map_pack": "dashboard.ranks.missing_map_pack",
+          "maps": {
+            "key": "dashboard.ranks.missing",
+            "params": {
+              "depth": 20
+            }
+          }
+        },
+        "webDepth": 100,
+        "hasPanel": true
+      },
+      "shows": "dashboard.plan_shows.ranks.monitoring",
+      "unlockedBy": "report",
+      "weekly": true
+    }
+  }
+}

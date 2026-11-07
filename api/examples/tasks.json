@@ -1,0 +1,52 @@
+{
+  "summary": "The task list after ticking task 5",
+  "value": {
+    "reportDate": "2026-09-09",
+    "lastScan": "2026-11-02",
+    "total": 9,
+    "left": 5,
+    "tickable": true,
+    "items": [
+      {
+        "rank": 1,
+        "title": "Add Service structured data to each service page.",
+        "effort": "medium",
+        "state": "verified",
+        "stateDate": "2026-10-12",
+        "thisWeek": false
+      },
+      {
+        "rank": 2,
+        "title": "Reply to every Google review from the last 90 days.",
+        "effort": "medium",
+        "state": "verified",
+        "stateDate": "2026-10-19",
+        "thisWeek": false
+      },
+      {
+        "rank": 3,
+        "title": "Add your before-and-after photos to your Google listing.",
+        "effort": "low",
+        "state": "reopened",
+        "stateDate": "2026-10-27",
+        "thisWeek": false
+      },
+      {
+        "rank": 4,
+        "title": "Correct the phone number on your Yelp page so it matches your Google listing.",
+        "effort": "low",
+        "state": "verified",
+        "stateDate": "2026-10-26",
+        "thisWeek": false
+      },
+      {
+        "rank": 5,
+        "title": "Post an update on your Google listing every week.",
+        "effort": "low",
+        "state": "done",
+        "stateDate": "2026-11-05",
+        "thisWeek": true
+      }
+    ]
+  }
+}

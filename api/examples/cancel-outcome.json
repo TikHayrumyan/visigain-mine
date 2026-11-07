@@ -1,0 +1,7 @@
+{
+  "summary": "Cancelled at the end of the paid period",
+  "value": {
+    "state": "cancelled",
+    "accessUntil": "2026-12-11T08:00:00Z"
+  }
+}

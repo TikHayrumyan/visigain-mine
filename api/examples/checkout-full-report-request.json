@@ -1,0 +1,12 @@
+{
+  "summary": "Buy a Full Report",
+  "value": {
+    "domain": "ivory-lane-medspa.test",
+    "category": "Medical spa",
+    "businessName": "Ivory Lane Med Spa",
+    "city": "Irvine",
+    "state": "CA",
+    "refundConsent": true,
+    "legalVersion": "v3.17, 5 Nov 2026"
+  }
+}

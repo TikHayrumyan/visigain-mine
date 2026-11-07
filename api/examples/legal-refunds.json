@@ -1,0 +1,12 @@
+{
+  "summary": "The Refund Policy in force (body abridged)",
+  "value": {
+    "slug": "refunds",
+    "title": "common.legal_links.refund_policy",
+    "version": "3.16",
+    "effectiveDate": "2026-11-02",
+    "legalVersion": "v3.17, 5 Nov 2026",
+    "path": "/refunds",
+    "bodyMarkdown": "**Version 3.16 · Effective date:** 2 November 2026 · **Last updated:** 30 October 2026\n\n## 1. Who this covers\n\n…"
+  }
+}

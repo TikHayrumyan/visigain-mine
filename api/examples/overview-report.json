@@ -1,0 +1,1315 @@
+{
+  "summary": "Full Report (a snapshot, no weekly change)",
+  "value": {
+    "plan": "report",
+    "business": {
+      "name": "Ivory Lane Med Spa (invented)",
+      "domain": "ivory-lane-medspa.test",
+      "category": "Medical spa"
+    },
+    "businesses": [
+      {
+        "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c51",
+        "domain": "sunset-glow-medspa.test",
+        "name": "Sunset Glow Med Spa (invented)",
+        "plan": "monitoring"
+      },
+      {
+        "id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d62",
+        "domain": "ivory-lane-medspa.test",
+        "name": "Ivory Lane Med Spa (invented)",
+        "plan": "report"
+      },
+      {
+        "id": "c3d4e5f6-a7b8-4c9d-8e1f-2a3b4c5d6e73",
+        "domain": "harborlight-aesthetics.test",
+        "name": null,
+        "plan": "free"
+      }
+    ],
+    "sample": false,
+    "words": {
+      "customers": "common.customers.clients",
+      "customer": "common.customer.client",
+      "storefront": true,
+      "held": false,
+      "audience": "local_service"
+    },
+    "organisation": {
+      "id": "6f1c2a9e-3b4d-4e5f-8a7b-1c2d3e4f5a60",
+      "name": "Sunset Glow Med Spa (invented)"
+    },
+    "hasData": true,
+    "week": null,
+    "checkedAt": "2026-10-21",
+    "alerts": [],
+    "ai": {
+      "feature": "ai_visibility",
+      "status": "ready",
+      "view": {
+        "week": "2026-W45",
+        "date": "2026-11-02",
+        "city": "Pasadena",
+        "shareText": "44%",
+        "mentioned": 7,
+        "pairs": 16,
+        "notRead": 0,
+        "change": null,
+        "newThisWeek": [],
+        "lostThisWeek": [],
+        "byAssistant": [
+          {
+            "label": "ChatGPT",
+            "mentioned": 3,
+            "pairs": 4,
+            "shareText": "75%",
+            "share": 75
+          },
+          {
+            "label": "Gemini",
+            "mentioned": 2,
+            "pairs": 4,
+            "shareText": "50%",
+            "share": 50
+          }
+        ],
+        "competitors": [
+          {
+            "name": "Opal Aesthetics (invented)",
+            "answers": 9
+          },
+          {
+            "name": "Rose Bowl Skin Bar (invented)",
+            "answers": 4
+          }
+        ],
+        "assistants": [
+          "ChatGPT",
+          "Gemini",
+          "Perplexity",
+          "Claude"
+        ],
+        "questions": [
+          {
+            "question": "What is the best med spa in Pasadena?",
+            "cells": [
+              {
+                "assistant": "ChatGPT",
+                "mentioned": true,
+                "askedAt": "2026-11-02T10:04:00Z"
+              },
+              {
+                "assistant": "Gemini",
+                "mentioned": true,
+                "askedAt": "2026-11-02T10:05:00Z"
+              },
+              {
+                "assistant": "Perplexity",
+                "mentioned": false,
+                "askedAt": "2026-11-02T10:06:00Z"
+              },
+              {
+                "assistant": "Claude",
+                "mentioned": null,
+                "askedAt": null
+              }
+            ]
+          }
+        ],
+        "trend": []
+      },
+      "shows": "dashboard.plan_shows.ai_visibility.report",
+      "unlockedBy": "free",
+      "weekly": false
+    },
+    "topThree": {
+      "rows": [
+        {
+          "name": "Ivory Lane Med Spa (invented)",
+          "you": true,
+          "mapRank": 3.1,
+          "mapLocations": 49,
+          "reviews": 96,
+          "rating": 4.9,
+          "aiAnswers": 5,
+          "aiBelowList": false
+        }
+      ],
+      "keyword": "med spa irvine",
+      "dates": {
+        "grid": "2026-10-21",
+        "reviews": "2026-10-21",
+        "ai": "2026-10-21"
+      },
+      "aiAnswersOf": 16,
+      "move": null
+    },
+    "grades": [
+      {
+        "date": "2026-10-21",
+        "letter": "B",
+        "score": 71.3,
+        "basis": "full_scan"
+      }
+    ],
+    "comparison": {
+      "kind": "neutral",
+      "line": "dashboard.comparison.neutral"
+    },
+    "tasks": {
+      "reportDate": "2026-10-21",
+      "lastScan": null,
+      "total": 9,
+      "left": 9,
+      "tickable": false,
+      "items": [
+        {
+          "rank": 1,
+          "title": "Add Service structured data to each service page.",
+          "effort": "medium",
+          "state": "open",
+          "stateDate": null,
+          "thisWeek": false
+        },
+        {
+          "rank": 2,
+          "title": "Reply to every Google review from the last 90 days.",
+          "effort": "medium",
+          "state": "open",
+          "stateDate": null,
+          "thisWeek": false
+        },
+        {
+          "rank": 3,
+          "title": "Add your before-and-after photos to your Google listing.",
+          "effort": "low",
+          "state": "open",
+          "stateDate": null,
+          "thisWeek": false
+        },
+        {
+          "rank": 4,
+          "title": "Correct the phone number on your Yelp page so it matches your Google listing.",
+          "effort": "low",
+          "state": "open",
+          "stateDate": null,
+          "thisWeek": false
+        },
+        {
+          "rank": 5,
+          "title": "Post an update on your Google listing every week.",
+          "effort": "low",
+          "state": "open",
+          "stateDate": null,
+          "thisWeek": false
+        }
+      ]
+    },
+    "reviews": {
+      "feature": "reviews",
+      "status": "ready",
+      "view": {
+        "date": "2026-11-02",
+        "google": {
+          "read": true,
+          "rating": 4.7,
+          "count": 212,
+          "stars": [
+            {
+              "stars": 5,
+              "reviews": 181
+            },
+            {
+              "stars": 4,
+              "reviews": 18
+            },
+            {
+              "stars": 3,
+              "reviews": 6
+            },
+            {
+              "stars": 2,
+              "reviews": 3
+            },
+            {
+              "stars": 1,
+              "reviews": 4
+            }
+          ],
+          "perMonth": [
+            {
+              "month": "2026-09",
+              "reviews": 9
+            },
+            {
+              "month": "2026-10",
+              "reviews": 14
+            }
+          ],
+          "replied": 168,
+          "repliedOf": 212,
+          "replyShareText": "79%",
+          "last30Days": 14,
+          "last30AtLeast": false,
+          "newest": [
+            {
+              "date": "2026-11-01",
+              "stars": 5,
+              "replied": true
+            },
+            {
+              "date": "2026-10-29",
+              "stars": 4,
+              "replied": false
+            }
+          ]
+        },
+        "yelp": {
+          "found": true,
+          "absent": false,
+          "read": true,
+          "rating": 4.5,
+          "count": 64,
+          "url": "https://www.yelp.test/biz/sunset-glow-med-spa-pasadena"
+        },
+        "change": null,
+        "notAvailable": [],
+        "sinceStart": null
+      },
+      "shows": "dashboard.plan_shows.reviews.report",
+      "unlockedBy": "free",
+      "weekly": false
+    },
+    "listing": {
+      "feature": "listing_extras",
+      "status": "ready",
+      "view": {
+        "date": "2026-11-02",
+        "duplicates": {
+          "read": true,
+          "candidates": [
+            {
+              "name": "Sunset Glow Medspa (invented)",
+              "address": "410 E Colorado Blvd, Pasadena, CA 91101",
+              "phone": "(626) 555-0142",
+              "url": null,
+              "evidence": [
+                "Same phone number as your listing."
+              ],
+              "isNew": true
+            }
+          ],
+          "searched": [
+            "Google Maps"
+          ]
+        },
+        "photos": {
+          "read": true,
+          "count": 31,
+          "move": null
+        },
+        "posts": {
+          "read": true,
+          "latestPostDate": "2026-10-30",
+          "postsRead": 6,
+          "isNew": false
+        },
+        "since": "2026-09-11",
+        "firstWeek": false,
+        "profile": {
+          "date": "2026-11-02",
+          "read": true,
+          "phone": "(626) 555-0140",
+          "website": "https://sunset-glow-medspa.test",
+          "hours": [
+            "Monday: 10 AM to 7 PM",
+            "Tuesday: 10 AM to 7 PM"
+          ],
+          "changed": null,
+          "since": "2026-09-11"
+        }
+      },
+      "shows": "dashboard.plan_shows.listing_extras.report",
+      "unlockedBy": "free",
+      "weekly": false
+    },
+    "grid": {
+      "feature": "grid",
+      "status": "ready",
+      "view": {
+        "numbers": {
+          "keyword": "med spa irvine",
+          "date": "2026-10-21",
+          "averageRank": 4.2,
+          "shareTop3Text": "43%",
+          "locations": {
+            "total": 49,
+            "checked": 49,
+            "found": 46
+          },
+          "groups": {
+            "top": 21,
+            "mid": 17,
+            "low": 8,
+            "none": 3,
+            "unread": 0
+          },
+          "best": 1,
+          "spacingMiles": 0.5,
+          "change": null,
+          "changeReason": null,
+          "size": 7,
+          "basis": "dashboard.grid.basis.locations"
+        },
+        "picture": {
+          "size": 7,
+          "cells": [
+            {
+              "row": 0,
+              "col": 0,
+              "rank": null,
+              "group": "none",
+              "x": 7.1,
+              "y": 7.1
+            },
+            {
+              "row": 0,
+              "col": 1,
+              "rank": null,
+              "group": "none",
+              "x": 21.4,
+              "y": 7.1
+            },
+            {
+              "row": 0,
+              "col": 2,
+              "rank": 10,
+              "group": "mid",
+              "x": 35.7,
+              "y": 7.1
+            },
+            {
+              "row": 0,
+              "col": 3,
+              "rank": 9,
+              "group": "mid",
+              "x": 50.00000000000001,
+              "y": 7.1
+            },
+            {
+              "row": 0,
+              "col": 4,
+              "rank": 10,
+              "group": "mid",
+              "x": 64.3,
+              "y": 7.1
+            },
+            {
+              "row": 0,
+              "col": 5,
+              "rank": null,
+              "group": "none",
+              "x": 78.6,
+              "y": 7.1
+            },
+            {
+              "row": 0,
+              "col": 6,
+              "rank": null,
+              "group": "none",
+              "x": 92.9,
+              "y": 7.1
+            },
+            {
+              "row": 1,
+              "col": 0,
+              "rank": null,
+              "group": "none",
+              "x": 7.1,
+              "y": 21.4
+            },
+            {
+              "row": 1,
+              "col": 1,
+              "rank": 10,
+              "group": "mid",
+              "x": 21.4,
+              "y": 21.4
+            },
+            {
+              "row": 1,
+              "col": 2,
+              "rank": 9,
+              "group": "mid",
+              "x": 35.7,
+              "y": 21.4
+            },
+            {
+              "row": 1,
+              "col": 3,
+              "rank": 4,
+              "group": "mid",
+              "x": 50.00000000000001,
+              "y": 21.4
+            },
+            {
+              "row": 1,
+              "col": 4,
+              "rank": 9,
+              "group": "mid",
+              "x": 64.3,
+              "y": 21.4
+            },
+            {
+              "row": 1,
+              "col": 5,
+              "rank": 10,
+              "group": "mid",
+              "x": 78.6,
+              "y": 21.4
+            },
+            {
+              "row": 1,
+              "col": 6,
+              "rank": null,
+              "group": "none",
+              "x": 92.9,
+              "y": 21.4
+            },
+            {
+              "row": 2,
+              "col": 0,
+              "rank": 10,
+              "group": "mid",
+              "x": 7.1,
+              "y": 35.7
+            },
+            {
+              "row": 2,
+              "col": 1,
+              "rank": 9,
+              "group": "mid",
+              "x": 21.4,
+              "y": 35.7
+            },
+            {
+              "row": 2,
+              "col": 2,
+              "rank": 4,
+              "group": "mid",
+              "x": 35.7,
+              "y": 35.7
+            },
+            {
+              "row": 2,
+              "col": 3,
+              "rank": 3,
+              "group": "top",
+              "x": 50.00000000000001,
+              "y": 35.7
+            },
+            {
+              "row": 2,
+              "col": 4,
+              "rank": 4,
+              "group": "mid",
+              "x": 64.3,
+              "y": 35.7
+            },
+            {
+              "row": 2,
+              "col": 5,
+              "rank": 9,
+              "group": "mid",
+              "x": 78.6,
+              "y": 35.7
+            },
+            {
+              "row": 2,
+              "col": 6,
+              "rank": 10,
+              "group": "mid",
+              "x": 92.9,
+              "y": 35.7
+            },
+            {
+              "row": 3,
+              "col": 0,
+              "rank": 9,
+              "group": "mid",
+              "x": 7.1,
+              "y": 50.00000000000001
+            },
+            {
+              "row": 3,
+              "col": 1,
+              "rank": 4,
+              "group": "mid",
+              "x": 21.4,
+              "y": 50.00000000000001
+            },
+            {
+              "row": 3,
+              "col": 2,
+              "rank": 3,
+              "group": "top",
+              "x": 35.7,
+              "y": 50.00000000000001
+            },
+            {
+              "row": 3,
+              "col": 3,
+              "rank": 1,
+              "group": "top",
+              "x": 50.00000000000001,
+              "y": 50.00000000000001
+            },
+            {
+              "row": 3,
+              "col": 4,
+              "rank": 3,
+              "group": "top",
+              "x": 64.3,
+              "y": 50.00000000000001
+            },
+            {
+              "row": 3,
+              "col": 5,
+              "rank": 4,
+              "group": "mid",
+              "x": 78.6,
+              "y": 50.00000000000001
+            },
+            {
+              "row": 3,
+              "col": 6,
+              "rank": 9,
+              "group": "mid",
+              "x": 92.9,
+              "y": 50.00000000000001
+            },
+            {
+              "row": 4,
+              "col": 0,
+              "rank": 10,
+              "group": "mid",
+              "x": 7.1,
+              "y": 64.3
+            },
+            {
+              "row": 4,
+              "col": 1,
+              "rank": 9,
+              "group": "mid",
+              "x": 21.4,
+              "y": 64.3
+            },
+            {
+              "row": 4,
+              "col": 2,
+              "rank": 4,
+              "group": "mid",
+              "x": 35.7,
+              "y": 64.3
+            },
+            {
+              "row": 4,
+              "col": 3,
+              "rank": 3,
+              "group": "top",
+              "x": 50.00000000000001,
+              "y": 64.3
+            },
+            {
+              "row": 4,
+              "col": 4,
+              "rank": 4,
+              "group": "mid",
+              "x": 64.3,
+              "y": 64.3
+            },
+            {
+              "row": 4,
+              "col": 5,
+              "rank": 9,
+              "group": "mid",
+              "x": 78.6,
+              "y": 64.3
+            },
+            {
+              "row": 4,
+              "col": 6,
+              "rank": 10,
+              "group": "mid",
+              "x": 92.9,
+              "y": 64.3
+            },
+            {
+              "row": 5,
+              "col": 0,
+              "rank": null,
+              "group": "none",
+              "x": 7.1,
+              "y": 78.6
+            },
+            {
+              "row": 5,
+              "col": 1,
+              "rank": 10,
+              "group": "mid",
+              "x": 21.4,
+              "y": 78.6
+            },
+            {
+              "row": 5,
+              "col": 2,
+              "rank": 9,
+              "group": "mid",
+              "x": 35.7,
+              "y": 78.6
+            },
+            {
+              "row": 5,
+              "col": 3,
+              "rank": 4,
+              "group": "mid",
+              "x": 50.00000000000001,
+              "y": 78.6
+            },
+            {
+              "row": 5,
+              "col": 4,
+              "rank": 9,
+              "group": "mid",
+              "x": 64.3,
+              "y": 78.6
+            },
+            {
+              "row": 5,
+              "col": 5,
+              "rank": 10,
+              "group": "mid",
+              "x": 78.6,
+              "y": 78.6
+            },
+            {
+              "row": 5,
+              "col": 6,
+              "rank": null,
+              "group": "none",
+              "x": 92.9,
+              "y": 78.6
+            },
+            {
+              "row": 6,
+              "col": 0,
+              "rank": null,
+              "group": "none",
+              "x": 7.1,
+              "y": 92.9
+            },
+            {
+              "row": 6,
+              "col": 1,
+              "rank": null,
+              "group": "none",
+              "x": 21.4,
+              "y": 92.9
+            },
+            {
+              "row": 6,
+              "col": 2,
+              "rank": 10,
+              "group": "mid",
+              "x": 35.7,
+              "y": 92.9
+            },
+            {
+              "row": 6,
+              "col": 3,
+              "rank": 9,
+              "group": "mid",
+              "x": 50.00000000000001,
+              "y": 92.9
+            },
+            {
+              "row": 6,
+              "col": 4,
+              "rank": 10,
+              "group": "mid",
+              "x": 64.3,
+              "y": 92.9
+            },
+            {
+              "row": 6,
+              "col": 5,
+              "rank": null,
+              "group": "none",
+              "x": 78.6,
+              "y": 92.9
+            },
+            {
+              "row": 6,
+              "col": 6,
+              "rank": null,
+              "group": "none",
+              "x": 92.9,
+              "y": 92.9
+            }
+          ],
+          "water": [],
+          "centre": {
+            "row": 3,
+            "col": 3
+          }
+        }
+      },
+      "shows": "dashboard.plan_shows.grid.report",
+      "unlockedBy": "report",
+      "weekly": false
+    },
+    "ranks": {
+      "feature": "ranks",
+      "status": "ready",
+      "view": {
+        "date": "2026-11-02",
+        "types": [
+          {
+            "type": "organic_desktop",
+            "label": "dashboard.rank_type.organic_desktop",
+            "date": "2026-11-02",
+            "keywords": 16,
+            "ranked": 12,
+            "averagePosition": 6.4,
+            "panels": 0,
+            "buckets": [
+              {
+                "id": "1",
+                "label": "dashboard.rank_bucket.1",
+                "count": 3
+              },
+              {
+                "id": "2_5",
+                "label": "dashboard.rank_bucket.2_5",
+                "count": 5
+              },
+              {
+                "id": "6_10",
+                "label": "dashboard.rank_bucket.6_10",
+                "count": 2
+              },
+              {
+                "id": "11_20",
+                "label": "dashboard.rank_bucket.11_20",
+                "count": 1
+              },
+              {
+                "id": "21_50",
+                "label": "dashboard.rank_bucket.21_50",
+                "count": 1
+              },
+              {
+                "id": "51_plus",
+                "label": "dashboard.rank_bucket.51_plus",
+                "count": 0
+              },
+              {
+                "id": "not_ranked",
+                "label": "dashboard.rank_bucket.not_ranked",
+                "count": 4
+              }
+            ],
+            "beyond": null,
+            "change": null,
+            "trend": []
+          },
+          {
+            "type": "organic_mobile",
+            "label": "dashboard.rank_type.organic_mobile",
+            "date": "2026-11-02",
+            "keywords": 16,
+            "ranked": 11,
+            "averagePosition": 7.4,
+            "panels": 1,
+            "buckets": [
+              {
+                "id": "1",
+                "label": "dashboard.rank_bucket.1",
+                "count": 3
+              },
+              {
+                "id": "2_5",
+                "label": "dashboard.rank_bucket.2_5",
+                "count": 5
+              },
+              {
+                "id": "6_10",
+                "label": "dashboard.rank_bucket.6_10",
+                "count": 2
+              },
+              {
+                "id": "11_20",
+                "label": "dashboard.rank_bucket.11_20",
+                "count": 1
+              },
+              {
+                "id": "21_50",
+                "label": "dashboard.rank_bucket.21_50",
+                "count": 1
+              },
+              {
+                "id": "51_plus",
+                "label": "dashboard.rank_bucket.51_plus",
+                "count": 0
+              },
+              {
+                "id": "not_ranked",
+                "label": "dashboard.rank_bucket.not_ranked",
+                "count": 3
+              }
+            ],
+            "beyond": null,
+            "change": null,
+            "trend": []
+          },
+          {
+            "type": "map_pack",
+            "label": "dashboard.rank_type.map_pack",
+            "date": "2026-11-02",
+            "keywords": 16,
+            "ranked": 10,
+            "averagePosition": 8.4,
+            "panels": 0,
+            "buckets": [
+              {
+                "id": "1",
+                "label": "dashboard.rank_bucket.1",
+                "count": 3
+              },
+              {
+                "id": "2_5",
+                "label": "dashboard.rank_bucket.2_5",
+                "count": 5
+              },
+              {
+                "id": "6_10",
+                "label": "dashboard.rank_bucket.6_10",
+                "count": 2
+              },
+              {
+                "id": "11_20",
+                "label": "dashboard.rank_bucket.11_20",
+                "count": 1
+              },
+              {
+                "id": "21_50",
+                "label": "dashboard.rank_bucket.21_50",
+                "count": 1
+              },
+              {
+                "id": "51_plus",
+                "label": "dashboard.rank_bucket.51_plus",
+                "count": 0
+              },
+              {
+                "id": "not_ranked",
+                "label": "dashboard.rank_bucket.not_ranked",
+                "count": 2
+              }
+            ],
+            "beyond": null,
+            "change": null,
+            "trend": []
+          },
+          {
+            "type": "maps",
+            "label": "dashboard.rank_type.maps",
+            "date": "2026-11-02",
+            "keywords": 16,
+            "ranked": 9,
+            "averagePosition": 9.4,
+            "panels": 0,
+            "buckets": [
+              {
+                "id": "1",
+                "label": "dashboard.rank_bucket.1",
+                "count": 3
+              },
+              {
+                "id": "2_5",
+                "label": "dashboard.rank_bucket.2_5",
+                "count": 5
+              },
+              {
+                "id": "6_10",
+                "label": "dashboard.rank_bucket.6_10",
+                "count": 2
+              },
+              {
+                "id": "11_20",
+                "label": "dashboard.rank_bucket.11_20",
+                "count": 1
+              },
+              {
+                "id": "21_50",
+                "label": "dashboard.rank_bucket.21_50",
+                "count": 1
+              },
+              {
+                "id": "51_plus",
+                "label": "dashboard.rank_bucket.51_plus",
+                "count": 0
+              },
+              {
+                "id": "not_ranked",
+                "label": "dashboard.rank_bucket.not_ranked",
+                "count": 1
+              }
+            ],
+            "beyond": null,
+            "change": null,
+            "trend": []
+          }
+        ],
+        "rows": [
+          {
+            "keyword": "sunset glow med spa",
+            "isBusinessName": true,
+            "types": {
+              "organic_desktop": {
+                "rank": 1,
+                "checked": true,
+                "panel": false,
+                "previous": 1,
+                "previousPanel": false,
+                "move": {
+                  "by": 0,
+                  "direction": "same"
+                },
+                "trend": [
+                  {
+                    "date": "2026-10-26",
+                    "rank": 1,
+                    "panel": false
+                  },
+                  {
+                    "date": "2026-11-02",
+                    "rank": 1,
+                    "panel": false
+                  }
+                ]
+              },
+              "organic_mobile": {
+                "rank": null,
+                "checked": true,
+                "panel": true,
+                "previous": null,
+                "previousPanel": true,
+                "move": {
+                  "by": null,
+                  "direction": "unknown"
+                },
+                "trend": [
+                  {
+                    "date": "2026-10-26",
+                    "rank": null,
+                    "panel": false
+                  },
+                  {
+                    "date": "2026-11-02",
+                    "rank": null,
+                    "panel": false
+                  }
+                ]
+              },
+              "map_pack": {
+                "rank": 1,
+                "checked": true,
+                "panel": false,
+                "previous": 1,
+                "previousPanel": false,
+                "move": {
+                  "by": 0,
+                  "direction": "same"
+                },
+                "trend": [
+                  {
+                    "date": "2026-10-26",
+                    "rank": 1,
+                    "panel": false
+                  },
+                  {
+                    "date": "2026-11-02",
+                    "rank": 1,
+                    "panel": false
+                  }
+                ]
+              },
+              "maps": {
+                "rank": 1,
+                "checked": true,
+                "panel": false,
+                "previous": 1,
+                "previousPanel": false,
+                "move": {
+                  "by": 0,
+                  "direction": "same"
+                },
+                "trend": [
+                  {
+                    "date": "2026-10-26",
+                    "rank": 1,
+                    "panel": false
+                  },
+                  {
+                    "date": "2026-11-02",
+                    "rank": 1,
+                    "panel": false
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "keyword": "botox pasadena",
+            "isBusinessName": false,
+            "types": {
+              "organic_desktop": {
+                "rank": 7,
+                "checked": true,
+                "panel": false,
+                "previous": 9,
+                "previousPanel": false,
+                "move": {
+                  "by": 2,
+                  "direction": "better"
+                },
+                "trend": [
+                  {
+                    "date": "2026-10-26",
+                    "rank": 9,
+                    "panel": false
+                  },
+                  {
+                    "date": "2026-11-02",
+                    "rank": 7,
+                    "panel": false
+                  }
+                ]
+              },
+              "organic_mobile": {
+                "rank": 6,
+                "checked": true,
+                "panel": false,
+                "previous": 8,
+                "previousPanel": false,
+                "move": {
+                  "by": 2,
+                  "direction": "better"
+                },
+                "trend": [
+                  {
+                    "date": "2026-10-26",
+                    "rank": 8,
+                    "panel": false
+                  },
+                  {
+                    "date": "2026-11-02",
+                    "rank": 6,
+                    "panel": false
+                  }
+                ]
+              },
+              "map_pack": {
+                "rank": 3,
+                "checked": true,
+                "panel": false,
+                "previous": 3,
+                "previousPanel": false,
+                "move": {
+                  "by": 0,
+                  "direction": "same"
+                },
+                "trend": [
+                  {
+                    "date": "2026-10-26",
+                    "rank": 3,
+                    "panel": false
+                  },
+                  {
+                    "date": "2026-11-02",
+                    "rank": 3,
+                    "panel": false
+                  }
+                ]
+              },
+              "maps": {
+                "rank": 4,
+                "checked": true,
+                "panel": false,
+                "previous": 5,
+                "previousPanel": false,
+                "move": {
+                  "by": 1,
+                  "direction": "better"
+                },
+                "trend": [
+                  {
+                    "date": "2026-10-26",
+                    "rank": 5,
+                    "panel": false
+                  },
+                  {
+                    "date": "2026-11-02",
+                    "rank": 4,
+                    "panel": false
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "missing": {
+          "organic_desktop": {
+            "key": "dashboard.ranks.missing",
+            "params": {
+              "depth": 100
+            }
+          },
+          "organic_mobile": {
+            "key": "dashboard.ranks.missing",
+            "params": {
+              "depth": 100
+            }
+          },
+          "map_pack": "dashboard.ranks.missing_map_pack",
+          "maps": {
+            "key": "dashboard.ranks.missing",
+            "params": {
+              "depth": 20
+            }
+          }
+        },
+        "webDepth": 100,
+        "hasPanel": true
+      },
+      "shows": "dashboard.plan_shows.ranks.report",
+      "unlockedBy": "report",
+      "weekly": false
+    },
+    "citations": {
+      "feature": "citations",
+      "status": "ready",
+      "view": {
+        "count": {
+          "ready": true,
+          "text": {
+            "key": "dashboard.citations.count",
+            "params": {
+              "found": 29,
+              "total": 36
+            }
+          },
+          "found": 29,
+          "total": 36,
+          "date": "2026-11-02"
+        },
+        "short": {
+          "key": "dashboard.shared.of",
+          "params": {
+            "found": 29,
+            "total": 36
+          }
+        },
+        "missing": 7,
+        "notChecked": 0,
+        "differing": 2,
+        "compared": 29,
+        "change": null,
+        "date": "2026-11-02"
+      },
+      "shows": "dashboard.plan_shows.citations.report",
+      "unlockedBy": "free",
+      "weekly": false
+    },
+    "count": null,
+    "reviewLink": {
+      "feature": "review_link",
+      "status": "ready",
+      "view": {
+        "state": "ready",
+        "googleUrl": "https://search.google.test/local/writereview?placeid=invented-2",
+        "yelpUrl": null
+      },
+      "shows": "dashboard.plan_shows.review_link.report",
+      "unlockedBy": "report",
+      "weekly": false
+    },
+    "monitoring": null,
+    "quickWins": null,
+    "businessGrades": [
+      {
+        "business": {
+          "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c51",
+          "domain": "sunset-glow-medspa.test",
+          "name": "Sunset Glow Med Spa (invented)",
+          "plan": "monitoring"
+        },
+        "latest": {
+          "reportId": "f6a7b8c9-d0e1-4f2a-9b4c-5d6e7f8a9b06",
+          "kind": "report",
+          "scanType": "full",
+          "domain": "sunset-glow-medspa.test",
+          "deliveredAt": "2026-09-09T20:14:00Z",
+          "grade": {
+            "display": "C (58.4)",
+            "letter": "C",
+            "score": 58.4
+          }
+        }
+      },
+      {
+        "business": {
+          "id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d62",
+          "domain": "ivory-lane-medspa.test",
+          "name": "Ivory Lane Med Spa (invented)",
+          "plan": "report"
+        },
+        "latest": {
+          "reportId": "e1f2a3b4-c5d6-4e7f-8a9b-0c1d2e3f4a5b",
+          "kind": "report",
+          "scanType": "full",
+          "domain": "ivory-lane-medspa.test",
+          "deliveredAt": "2026-10-21T19:02:00Z",
+          "grade": {
+            "display": "B (71.3)",
+            "letter": "B",
+            "score": 71.3
+          }
+        }
+      },
+      {
+        "business": {
+          "id": "c3d4e5f6-a7b8-4c9d-8e1f-2a3b4c5d6e73",
+          "domain": "harborlight-aesthetics.test",
+          "name": null,
+          "plan": "free"
+        },
+        "latest": {
+          "reportId": "a7b8c9d0-e1f2-4a3b-8c5d-6e7f8a9b0c17",
+          "kind": "grade",
+          "scanType": "free_only",
+          "domain": "harborlight-aesthetics.test",
+          "deliveredAt": "2026-11-05T18:12:00Z",
+          "grade": {
+            "display": "C (61.7)",
+            "letter": "C",
+            "score": 61.7
+          }
+        }
+      }
+    ],
+    "creditCents": 0,
+    "pastDue": []
+  }
+}

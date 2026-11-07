@@ -1,0 +1,24 @@
+{
+  "summary": "Failed: the site could not be reached",
+  "value": {
+    "status": "failed",
+    "lead": {
+      "domain": "harborlight-aesthetics.test",
+      "category": "Medical spa",
+      "createdAt": "2026-11-05T17:58:00Z"
+    },
+    "startsBy": null,
+    "busy": null,
+    "slow": false,
+    "phase": null,
+    "queue": null,
+    "scannedAt": null,
+    "failure": {
+      "code": "subject_unreachable"
+    },
+    "grade": null,
+    "competitor": null,
+    "directoryCount": null,
+    "comparison": null
+  }
+}

@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# tests
+playwright-report/
+test-results/
+blob-report/
+coverage/
+
+# environment: never committed (.env.example is the one exception, blank values only)
+.env*
+!.env.example
+
+# editors and systems
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log

@@ -1,0 +1,9 @@
+{
+  "summary": "A non-GET without our Origin",
+  "value": {
+    "error": {
+      "code": "cross_site_refused",
+      "message_key": "errors.error.something_went_wrong"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "summary": "The lines in force (the notice abridged)",
+  "value": {
+    "noticeVersion": "3.15",
+    "notice": {
+      "standardMarkdown": "**We record how you use this site.** …",
+      "gpcMarkdown": "**Cookies.** …"
+    },
+    "noticeButtons": {
+      "agree": "OK, I agree",
+      "optOut": "Opt out",
+      "optedOut": "You have opted out."
+    },
+    "gradeOpinionLine": "The Visibility Grade is an opinion produced by an automated engine applying Visigain's standard to publicly available information as of the scan date.",
+    "freeScanConsent": "I agree to the Terms of Service and Privacy Policy",
+    "marketingConsent": "Email me visibility tips and Visigain news. Unsubscribe any time."
+  }
+}

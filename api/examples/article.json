@@ -1,0 +1,37 @@
+{
+  "summary": "One article (body abridged)",
+  "value": {
+    "slug": "what-is-ai-visibility",
+    "title": "What is AI visibility?",
+    "summary": "How often AI assistants name your business when people ask for one like it.",
+    "category": "Definitions",
+    "tags": [
+      "ai-answers"
+    ],
+    "postType": "definition",
+    "isCanonicalDefinition": true,
+    "isSample": false,
+    "publishedAt": "2026-10-20T16:00:00Z",
+    "updatedAt": "2026-10-20T16:00:00Z",
+    "readingMinutes": 4,
+    "bodyMarkdown": "## The short answer\n\n…",
+    "toc": [
+      {
+        "level": 2,
+        "text": "The short answer",
+        "id": "the-short-answer"
+      }
+    ],
+    "author": {
+      "name": "Visigain",
+      "url": "/about"
+    },
+    "related": [],
+    "seo": {
+      "title": null,
+      "description": null,
+      "canonicalUrl": null,
+      "noindex": false
+    }
+  }
+}

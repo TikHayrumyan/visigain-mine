@@ -1,0 +1,37 @@
+{
+  "summary": "A Monitoring renewal with part of the credit",
+  "value": {
+    "kind": "invoice",
+    "organisation": "Sunset Glow Med Spa (invented)",
+    "domain": "sunset-glow-medspa.test",
+    "seller": {
+      "legalName": "Visigain Example LLC (invented)",
+      "postalAddress": "100 Example Street, Pasadena, CA 91101",
+      "email": "info@visigain.test"
+    },
+    "invoice": {
+      "id": "d0e1f2a3-b4c5-4d6e-9f8a-9b0c1d2e3f4a",
+      "number": "VG-DEMO-0002",
+      "status": "paid",
+      "date": "2026-10-11T08:02:00Z",
+      "periodStart": "2026-10-11T08:00:00Z",
+      "periodEnd": "2026-11-11T08:00:00Z",
+      "lines": [
+        {
+          "description": "Visibility Grade Monitoring, monthly (sunset-glow-medspa.test)",
+          "amountCents": 14900,
+          "periodStart": "2026-10-11",
+          "periodEnd": "2026-11-11"
+        }
+      ],
+      "subtotalCents": 14900,
+      "taxCents": 0,
+      "totalCents": 14900,
+      "creditAppliedCents": 5000,
+      "amountPaidCents": 9900,
+      "amountDueCents": 9900,
+      "currency": "usd",
+      "paidAt": "2026-10-11T08:02:00Z"
+    }
+  }
+}

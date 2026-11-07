@@ -1,0 +1,119 @@
+{
+  "summary": "Ready: the free grade",
+  "value": {
+    "status": "ready",
+    "lead": {
+      "domain": "harborlight-aesthetics.test",
+      "category": "Medical spa",
+      "createdAt": "2026-11-05T17:58:00Z"
+    },
+    "startsBy": null,
+    "busy": null,
+    "slow": false,
+    "phase": null,
+    "queue": null,
+    "scannedAt": "2026-11-05T18:12:00Z",
+    "failure": null,
+    "grade": {
+      "teaser": true,
+      "standard": "1.9.0",
+      "measuredAt": "2026-11-05T18:12:00Z",
+      "business": {
+        "name": "Harborlight Aesthetics (invented)",
+        "domain": "harborlight-aesthetics.test"
+      },
+      "grade": {
+        "letter": "C",
+        "score": 61.7,
+        "display": "C (61.7)",
+        "heldNote": null,
+        "test": false,
+        "average": {
+          "label": {
+            "key": "site.grade.average_label",
+            "params": {
+              "category": "med spas",
+              "city": "Long Beach"
+            }
+          },
+          "value": "57.9",
+          "below": false
+        }
+      },
+      "areas": [
+        {
+          "name": "Findability",
+          "score": 63
+        },
+        {
+          "name": "Reputation",
+          "score": 58.2
+        },
+        {
+          "name": "Website experience",
+          "score": 71.5
+        },
+        {
+          "name": "AI answers",
+          "score": null
+        }
+      ],
+      "fixes": [],
+      "findings": [],
+      "summary": {
+        "easyWin": {
+          "title": "Your Google listing has no opening hours",
+          "summary": "People searching in the evening can't tell whether you're open.",
+          "fix": "Add your opening hours to your Google listing."
+        },
+        "more": [
+          {
+            "title": "Few recent reviews",
+            "effort": "medium",
+            "diy": true
+          },
+          {
+            "title": "No service pages",
+            "effort": "high",
+            "diy": false
+          }
+        ],
+        "biggest": {
+          "title": "Your business is missing from 9 directories",
+          "summary": "Directories that count for med spas don't list you."
+        }
+      },
+      "method": null
+    },
+    "competitor": {
+      "name": "Bayview Skin Studio (invented)",
+      "grade": "B",
+      "score": 72.4
+    },
+    "directoryCount": {
+      "ready": true,
+      "text": {
+        "key": "site.scan.directory_count",
+        "params": {
+          "found": 27,
+          "total": 36
+        }
+      },
+      "date": "2026-11-05",
+      "hint": null
+    },
+    "comparison": {
+      "kind": "figure",
+      "line": {
+        "key": "site.comparison.figure",
+        "params": {
+          "score": "61.7",
+          "average": "57.9",
+          "city": "Long Beach"
+        }
+      },
+      "note": null,
+      "widerThanCity": false
+    }
+  }
+}

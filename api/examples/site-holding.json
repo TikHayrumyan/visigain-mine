@@ -1,0 +1,30 @@
+{
+  "summary": "The holding page on (checkout paused too)",
+  "value": {
+    "holding": true,
+    "holdingPages": [
+      "/",
+      "/pricing",
+      "/contact",
+      "/terms",
+      "/privacy",
+      "/refunds",
+      "/cookies",
+      "/accessibility",
+      "/privacy-choices"
+    ],
+    "checkout": false,
+    "checkoutWallets": false,
+    "aiChat": false,
+    "share": false,
+    "spanish": false,
+    "legalVersion": "v3.17, 5 Nov 2026",
+    "legalVersionNumber": "3.17",
+    "legalPageVersions": {
+      "terms": "3.17",
+      "privacy": "3.17",
+      "refunds": "3.16",
+      "cookies": "3.15"
+    }
+  }
+}

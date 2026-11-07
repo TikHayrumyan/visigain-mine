@@ -1,0 +1,120 @@
+{
+  "summary": "A Full Report with its PDF ready",
+  "value": {
+    "state": "ready",
+    "report": {
+      "id": "f6a7b8c9-d0e1-4f2a-9b4c-5d6e7f8a9b06",
+      "kind": "report",
+      "scanType": "full",
+      "deliveredAt": "2026-09-09T20:14:00Z"
+    },
+    "business": {
+      "domain": "sunset-glow-medspa.test",
+      "name": "Sunset Glow Med Spa (invented)"
+    },
+    "view": {
+      "teaser": false,
+      "standard": "1.8.2",
+      "measuredAt": "2026-09-09T17:00:00Z",
+      "business": {
+        "name": "Sunset Glow Med Spa (invented)",
+        "domain": "sunset-glow-medspa.test"
+      },
+      "grade": {
+        "letter": "C",
+        "score": 58.4,
+        "display": "C (58.4)",
+        "heldNote": null,
+        "test": false,
+        "average": null
+      },
+      "areas": [
+        {
+          "name": "Findability",
+          "score": 61.2
+        },
+        {
+          "name": "Reputation",
+          "score": 54
+        },
+        {
+          "name": "Website experience",
+          "score": 70.1
+        },
+        {
+          "name": "AI answers",
+          "score": 38.5
+        },
+        {
+          "name": "Trust",
+          "score": null
+        }
+      ],
+      "fixes": [
+        {
+          "rank": 1,
+          "text": "Add your service area to your Google listing.",
+          "effort": "low",
+          "diy": true
+        },
+        {
+          "rank": 2,
+          "text": "Reply to every Google review from the last 90 days.",
+          "effort": "medium",
+          "diy": true
+        },
+        {
+          "rank": 3,
+          "text": "Add Service structured data to each service page.",
+          "effort": "medium",
+          "diy": false
+        },
+        {
+          "rank": 4,
+          "text": "Correct your phone number on Yelp so it matches your Google listing.",
+          "effort": "low",
+          "diy": true
+        }
+      ],
+      "findings": [
+        {
+          "title": "AI assistants rarely name you",
+          "area": "AI answers",
+          "evidence": "Named in 3 of 16 answers to questions people ask about plumbers in Los Angeles.",
+          "items": [
+            "ChatGPT: 1 of 4",
+            "Gemini: 0 of 4"
+          ],
+          "fix": "Publish a page for each service you offer.",
+          "why": "Assistants quote pages that answer the question directly.",
+          "notes": []
+        }
+      ],
+      "summary": {
+        "easyWin": {
+          "title": "Your Google listing has no service area",
+          "summary": null,
+          "fix": "Add your service area to your Google listing."
+        },
+        "more": [
+          {
+            "title": "Unanswered reviews",
+            "effort": "medium",
+            "diy": true
+          }
+        ],
+        "biggest": {
+          "title": "AI assistants rarely name you",
+          "summary": "Named in 3 of 16 answers."
+        }
+      },
+      "method": null
+    },
+    "pdf": {
+      "state": "ready",
+      "href": "/api/v1/reports/f6a7b8c9-d0e1-4f2a-9b4c-5d6e7f8a9b06/pdf"
+    },
+    "credit": null,
+    "comparison": null
+  }
+}

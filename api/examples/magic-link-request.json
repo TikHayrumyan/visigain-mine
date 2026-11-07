@@ -1,0 +1,7 @@
+{
+  "summary": "Sign in, then go to the overview",
+  "value": {
+    "email": "owner@sunset-glow-medspa.test",
+    "next": "/dashboard"
+  }
+}

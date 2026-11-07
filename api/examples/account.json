@@ -1,0 +1,33 @@
+{
+  "summary": "One Monitoring subscription, on",
+  "value": {
+    "role": "owner",
+    "subscriptions": [
+      {
+        "id": "b8c9d0e1-f2a3-4b4c-9d6e-7f8a9b0c1d28",
+        "domain": "sunset-glow-medspa.test",
+        "state": "on",
+        "live": true,
+        "term": "monthly",
+        "paidUntil": "2026-12-11T08:00:00Z",
+        "nextChargeAt": "2026-12-11T08:00:00Z",
+        "nextPriceCents": 14900,
+        "nextChargeCents": 14900,
+        "creditLeftCents": 0,
+        "creditAppliedCents": 9900,
+        "updating": false,
+        "card": {
+          "brand": "visa",
+          "last4": "4242",
+          "expMonth": 12,
+          "expYear": 2030
+        },
+        "cardUnknown": false,
+        "cancelRequestedAt": null,
+        "endedAt": null,
+        "chargeSeen": "charged",
+        "canCancel": true
+      }
+    ]
+  }
+}
