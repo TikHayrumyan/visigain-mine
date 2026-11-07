@@ -1,8 +1,14 @@
 # visigain-frontend
 
-The Visigain website and client dashboard: Next.js 16 (App Router), React 19, TypeScript (strict), Tailwind 4. It
-talks to the backend **only through its API**, `/api/v1/...`, on the same domain (no CORS). The data, the words, the
-switches and the legal text all come from the backend; this repository draws them.
+The Visigain public website at **visigain.com**: Next.js 16 (App Router), React 19, TypeScript (strict), Tailwind 4.
+It talks to the backend **only through its API**, `/api/v1/...`, on the same domain (no CORS). The data, the words,
+the switches and the legal text all come from the backend; this repository draws them.
+
+**This repository covers only the public pages:** home, pricing, the free scan and its result, the sample report,
+FAQ, articles, about, contact and legal. **The dashboard, checkout and account are in
+[visigain-app](https://github.com/visigain/visigain-app)** (app.visigain.com): sign-in, the five dashboard pages,
+reports and PDFs, checkout ($99 and $149), account, invoices and cancel, and later the Monitoring sub-pages, fixers
+and chat. Never build those pages here.
 
 - The contract: [`api/openapi.yaml`](api/openapi.yaml) (a copy; the backend owns it) and its rules,
   [`docs/api.md`](docs/api.md) and [`docs/wordings.md`](docs/wordings.md) (the backend's `docs/api/README.md` and `docs/api/wordings.md`, copied
@@ -11,6 +17,29 @@ switches and the legal text all come from the backend; this repository draws the
   [`docs/design-handoff.md`](docs/design-handoff.md) and [`TOKENS.md`](TOKENS.md).
 - This is **Next.js 16**: `src/proxy.ts`, not `middleware.ts`, and other changes. When an API looks unfamiliar, read
   the guide in `node_modules/next/dist/docs/` first ([`AGENTS.md`](AGENTS.md)).
+
+## Two frontends, one backend
+
+| host                 | repository                       | serves                                                                                           | the load balancer sends to the backend                                                           |
+| -------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| `visigain.com`       | **visigain-frontend (this one)** | home, pricing, the free scan and its result, sample report, FAQ, articles, about, contact, legal | `/api/v1/**`, the backend-for-good list (`docs/api.md`, "Paths at the switch", (a)), `/_next/**` |
+| `app.visigain.com`   | visigain-app                     | sign-in, the dashboard, reports and PDFs, checkout, account, invoices, cancel                    | `/api/v1/**`, the auth callbacks (`/auth/google/**`, Connect Google's), the PDF and image routes |
+| `admin.visigain.com` | visigain-backend                 | the admin panel                                                                                  | everything                                                                                       |
+
+Each host is one origin. This app's files are under `/fe/_next/...` and its answers say `x-served-by: frontend`; the
+customer app has no asset prefix and says `x-served-by: app`. The tokens, the API client and the lint rules are
+copied in both repositories (no shared package), each synced from the backend and checked by its own CI.
+
+**The links from here to the customer app:**
+
+- **The scan result's buttons.** "Get the Full Report" and "Monitoring" on `/scan/[token]` link to
+  `https://app.visigain.com/checkout/...` with the scan token (the exact entry paths are still to be named in the
+  spec; ask Backend before building the buttons).
+- **The "Dashboard" link.** It shows when the `vg_signed_in=1` hint cookie (on `.visigain.com`, not HttpOnly, no
+  secret in it) is present, and links to `https://app.visigain.com/dashboard`. The session cookie itself is
+  host-only on app.visigain.com: this app never sees it, so never call a signed-in endpoint from here.
+- **Old addresses.** `visigain.com/dashboard/...`, `/account`, `/signin`, `/auth/verify` and `/checkout/...` answer
+  a 308 to the same path on app.visigain.com (the load balancer's, set up by Backend), so emails keep working.
 
 ## Day 1
 
@@ -30,6 +59,8 @@ Two terminals:
 pnpm mock            # the Prism mock of the API on http://127.0.0.1:4010 (from api/openapi.yaml and api/examples)
 MOCK=1 pnpm dev      # the app on http://127.0.0.1:3000, with /api/v1/* rewritten to the mock
 ```
+
+The customer app (visigain-app) runs on port 3002 beside this one, and one mock on 4010 serves both.
 
 On Windows PowerShell, the second is `$env:MOCK="1"; pnpm dev`.
 
@@ -96,8 +127,8 @@ the image alike. At the switch one load balancer serves both apps on visigain.co
 (its own pages load their files from there) and `/fe/**` comes here. So no page of this app lives under `/fe`, and
 every answer carries `x-served-by: frontend` (the switch's checks read it; the backend's says `backend`).
 
-Staging sends no email: for a signed-in page, ask Backend for a one-time sign-in link for an invented `.test` client.
-You never get, need or call production.
+Staging sends no email. The website has no signed-in page (those are visigain-app's, on app-staging). You never get,
+need or call production.
 
 **Open (Phase 3): production's `API_ORIGIN`.** In production the browser's `/api/*` goes through the load balancer,
 but this app's server calls the backend at `API_ORIGIN`. Which address that is has not been decided; likely the

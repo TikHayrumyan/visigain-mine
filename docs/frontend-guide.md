@@ -5,8 +5,10 @@ For the frontend developer. Rewritten for this repository from the backend's dev
 [`../CONTRIBUTING.md`](../CONTRIBUTING.md) (the rules), [`design-handoff.md`](design-handoff.md) (what the Figma
 holds), [`../TOKENS.md`](../TOKENS.md) and [`api.md`](api.md) (the contract's rules).
 
-**What you are building.** Illia's design, approved by Raf, as the new Visigain site and client dashboard, in this
-repository. Backend does not build the design: Backend keeps the API, the data, the switches, the wording catalogue
+**What you are building.** Illia's design, approved by Raf, as the new Visigain public website, in this repository
+(visigain.com). **The dashboard, checkout and account are not built here:** they are the customer app,
+[visigain-app](https://github.com/visigain/visigain-app) (app.visigain.com), with its own README, CONTRIBUTING (the
+same rules), page list (`docs/pages.md`) and design notes. The same developer builds both. Backend does not build the design: Backend keeps the API, the data, the switches, the wording catalogue
 and the legal text, answers your questions, and reviews every pull request.
 
 **The one boundary: this app calls only the API.** Every page reads `/api/v1/...` (the spec is
@@ -47,43 +49,37 @@ The full rules are in [`api.md`](api.md); the ones you meet first:
 
 ## 3. The pages, in order
 
-The owner's order: tokens first ([`../TOKENS.md`](../TOKENS.md)), then the kit components the pages share, then the
-pages. The dashboard's five come first; each draws every state of its data.
+This repository builds **only the public pages**, at the addresses they have today (they are in printed QR codes and
+emails):
 
-| page              | route here                                                               | API                                                                                                                                                                     | states to design                                                                                                                                                           |
-| ----------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Overview          | `/dashboard`                                                             | `GET /dashboard/overview?b=` (examples `monitoring`, `report`, `free`), `GET /dashboard/grade-history`, `POST /dashboard/tasks/tick`, `POST /dashboard/quick-wins/tick` | Free, Full Report, Monitoring; no business yet (`409 no_business` / `no_organisation`: "Getting started"); a free grade is marked not comparable with a full-report grade  |
-| Local Search Grid | `/dashboard/grid`                                                        | `GET /dashboard/grid?b=&keyword=`; the map is a picture from the URLs in `grid.view.map` (light and dark)                                                               | 1 keyword with the Full Report, 5 with Monitoring, locked on Free; the plain grid when there is no map. The marks' shapes carry the rank group without colour (WCAG 1.4.1) |
-| Rank tracking     | `/dashboard/ranks`                                                       | `GET /dashboard/ranks?b=`                                                                                                                                               | weekly changes with Monitoring only                                                                                                                                        |
-| Citations         | `/dashboard/citations`                                                   | `GET /dashboard/citations?b=`                                                                                                                                           | a count on Free, the list with the Full Report, weekly updates with Monitoring                                                                                             |
-| Reports           | `/dashboard/orders`, `/dashboard/orders/[id]`, `/dashboard/reports/[id]` | `GET /reports`, `GET /orders/{id}`, `GET /reports/{id}`, the PDF link `GET /reports/{id}/pdf`                                                                           | waiting, in line, ready, refunded (`410 report_refunded`: the refund notice instead of the report), the PDF still being made (`409 pdf_preparing`)                         |
+| page                         | route here                                                                                      | API                                                                                                  |
+| ---------------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Home and the public pages    | `/`, `/pricing`, `/faq`, `/contact`, `/articles`, `/articles/[slug]`, `/about`                  | `GET /pricing`, `GET /faq`, `POST /contact`, `GET /articles`, `GET /articles/{slug}`, `GET /about`   |
+| The free scan and its result | `/scan`, `/scan/[token]`                                                                        | `GET /scans/form`, `POST /scans`, `GET /scans/{token}`                                               |
+| Sample report                | `/sample-report`                                                                                | `GET /sample-report`                                                                                 |
+| Legal                        | `/terms`, `/refunds`, `/privacy`, `/cookies`, `/accessibility`, `/privacy-choices`, `/legal/**` | `GET /legal/{slug}`, `GET /legal/lines`, `GET /legal/archive`, `GET /legal/archive/{version}/{slug}` |
+| Every page                   | the root layout                                                                                 | `GET /site`, `GET /wordings`, `GET /legal/lines`, `POST /consent`, `POST /events`                    |
 
-**Every section has a status.** A `Section` draws its `view` only when `status` is `ready`. Otherwise it draws the
-wording for that status: `locked` ("part of Monitoring" or "part of the Full Report and Monitoring", by
-`unlockedBy`), `in_grade`, `empty` (a weekly variant on Monitoring), `error` (the rest of the page still renders),
-`held` (a person is checking the business: nothing of it is shown), `unavailable`, `not_in_area`. The header line is
-the plan's label, then `shows`.
+Their endpoints are in the spec's `public` tag.
 
-**The public pages** (`/`, `/scan`, `/pricing`, `/sample-report`, `/faq`, `/contact`, `/articles`, `/about`) keep
-their addresses: they are in printed QR codes. Their endpoints are in the spec's `public` tag.
+**Not here: the customer app (visigain-app, app.visigain.com).** Sign-in (magic link, Google), the five dashboard
+pages, reports and PDFs, checkout ($99 and $149), account, invoices and cancel, and after launch the Monitoring
+sub-pages, fixers and chat. Its `docs/pages.md` lists them with their calls. This app links to it in two places:
 
-**After launch:** the Monitoring page and its sub-pages, progress, fixers, chat, settings, team, sessions, listing,
-reviews, onboarding, share and partner. They are not in the contract yet (see below for the ones emails link to).
+- **The scan result's buttons.** "Get the Full Report" and "Monitoring" on `/scan/[token]` go to
+  `https://app.visigain.com/checkout/...` with the scan token (the entry paths are still to be named in the spec).
+- **The "Dashboard" link** in the header shows when the `vg_signed_in=1` hint cookie is present (on `.visigain.com`,
+  non-sensitive, readable here) and goes to `https://app.visigain.com/dashboard`. The session cookie is host-only on
+  app.visigain.com; this app never sees it and never calls a signed-in endpoint.
 
-**Which paths this app serves at the switch.** [`api.md`](api.md), "Paths at the switch", splits every path in two:
+The old addresses on visigain.com (`/dashboard/...`, `/account`, `/signin`, `/auth/verify`, `/checkout/...`) answer
+a 308 to the same path on app.visigain.com, set up by Backend on the load balancer.
 
-- **(a) backend for good:** tokens and codes in emails (`/scan/confirm/…`, `/invite/…`, `/monitoring/confirm`), `/v/…`,
-  badges and shared links, the OAuth callbacks (`/auth/google/**`, Connect Google), the PDFs and images, `/admin/**`,
-  `/api/**` and the crawler files. Never build a page at one of these; link to them, or use `/api/v1` (the PDF and the
-  grid map have `/api/v1` addresses).
-- **(b) pages this app builds, at the same paths** so emailed links keep working: the public pages, `/scan` and
-  `/scan/[token]`, `/terms`, `/refunds`, `/legal/**`, `/signin`, `/auth/verify`, `/dashboard` and its grid, ranks,
-  citations, orders and reports, `/dashboard/buy`, `/checkout/done`, `/account` and its invoices. The table in
-  `api.md` names the calls each one uses.
-- **Emailed, but no launch API: they stay on the backend after the switch until their endpoints exist.**
-  `/dashboard/monitoring`, `/dashboard/progress`, `/dashboard/team` and `/partner` are linked from emails (and
-  Stripe's return), but have no endpoint at launch. The load balancer's list names them, so they keep going to the
-  backend. **This app does not build them at launch**; each moves when its endpoints are in the spec.
+**Which paths go to the backend on visigain.com.** [`api.md`](api.md), "Paths at the switch", list (a): tokens and
+codes in emails (`/scan/confirm/…`, `/invite/…`, `/monitoring/confirm`), `/v/…`, badges and shared links, the PDFs and
+images, `/admin/**` (until admin.visigain.com), `/api/**` and the crawler files, plus `/_next/**` (this app's own
+files are under `/fe`). Never build a page at one of these. The (b) list in `api.md` still names the dashboard,
+checkout and account paths as the frontend's: they are visigain-app's now.
 
 ## 4. Things the design must not break
 
