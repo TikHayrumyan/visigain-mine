@@ -33,6 +33,7 @@
     "unavailable": false,
     "sample": false,
     "textMessage": null,
+    "email": null,
     "qr": null,
     "sheets": []
   }

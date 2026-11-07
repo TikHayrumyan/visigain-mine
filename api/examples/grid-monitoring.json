@@ -29,11 +29,13 @@
     ],
     "sample": false,
     "words": {
-      "customers": "common.customers.clients",
-      "customer": "common.customer.client",
       "storefront": true,
       "held": false,
       "audience": "local_service"
+    },
+    "categoryWords": {
+      "customers": "clients",
+      "customer": "client"
     },
     "keywords": [
       {
@@ -95,7 +97,15 @@
           },
           "changeReason": null,
           "size": 7,
-          "basis": "dashboard.grid.basis.locations"
+          "basis": {
+            "key": "dashboard.grid.basis.checked_other.unread_none.miles_other.found_other",
+            "params": {
+              "checked": 49,
+              "unread": 0,
+              "spacing": 0.5,
+              "found": 46
+            }
+          }
         },
         "picture": {
           "size": 7,

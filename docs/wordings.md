@@ -66,8 +66,16 @@ export falls back to English in the frontend.
   that key as its slug.
 - **a code text** keeps the key the API names it by (`api/openapi.yaml`), whatever its parts: `errors.cancel_failed`,
   `dashboard.plan_shows.grid.report`. A value the code fills is a `{name}` placeholder named from its expression
-  (`up {by}`), or the name the spec's examples already give it. A text whose words the code picks between (a plural, an
-  optional clause) is not read: it stays in the spec's `x-wordings.pending`, with why.
+  (`up {by}`), or the name the spec's examples already give it.
+- **a form**: a text whose words the code picks between (a plural, an optional clause) is one entry per form the code
+  produces. Its builder writes it with a form function whose choices are booleans (`directoryCountWords(many, ...)`,
+  src/server/engine/v2/view.ts), and the build reads each form by calling that function with one set of choices as
+  literals. The key names the form: `.one` and `.other` for a plural, `.with_clause` and `.without_clause` for a clause,
+  or the choices joined (`dashboard.monitoring.run.found.fixed_one_reopened`). The builder's `...Wording` function
+  gives the API the key of the form it picked (src/server/wordings/forms.ts); tests/api/wording-forms.test.ts holds
+  each form, rendered with its params, to the builder's sentence.
+- **engine's words for customers** ("clients", "patients": a profile's own) are not entries: engine's data, sent as
+  plain strings (`categoryWords`).
 - **collisions**: a key that would name two different texts gets a short hash suffix (`_1a2b`), once.
 - **stability**: `catalogue-keys.json` maps what an entry is (a page text by its words, a registry row by its section
   and key, a site-copy string by its export and words) to its key. A key, once given, never changes, and a key no

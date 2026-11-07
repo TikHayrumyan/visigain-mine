@@ -29,11 +29,13 @@
     ],
     "sample": false,
     "words": {
-      "customers": "common.customers.clients",
-      "customer": "common.customer.client",
       "storefront": true,
       "held": false,
       "audience": "local_service"
+    },
+    "categoryWords": {
+      "customers": "clients",
+      "customer": "client"
     },
     "organisation": {
       "id": "6f1c2a9e-3b4d-4e5f-8a7b-1c2d3e4f5a60",
@@ -359,7 +361,15 @@
           "change": null,
           "changeReason": null,
           "size": 7,
-          "basis": "dashboard.grid.basis.locations"
+          "basis": {
+            "key": "dashboard.grid.basis.checked_other.unread_none.miles_other.found_other",
+            "params": {
+              "checked": 49,
+              "unread": 0,
+              "spacing": 0.5,
+              "found": 46
+            }
+          }
         },
         "picture": {
           "size": 7,
@@ -1199,7 +1209,7 @@
         "count": {
           "ready": true,
           "text": {
-            "key": "dashboard.citations.count",
+            "key": "dashboard.citations.count.other",
             "params": {
               "found": 29,
               "total": 36

@@ -29,11 +29,13 @@
     ],
     "sample": false,
     "words": {
-      "customers": "common.customers.clients",
-      "customer": "common.customer.client",
       "storefront": true,
       "held": false,
       "audience": "local_service"
+    },
+    "categoryWords": {
+      "customers": "clients",
+      "customer": "client"
     },
     "organisation": {
       "id": "6f1c2a9e-3b4d-4e5f-8a7b-1c2d3e4f5a60",
@@ -51,7 +53,7 @@
       {
         "kind": "duplicate",
         "sentence": {
-          "key": "dashboard.alert.duplicate",
+          "key": "dashboard.alert.duplicate.with_name",
           "params": {
             "name": "Sunset Glow Medspa (invented)"
           }
@@ -74,8 +76,14 @@
         "change": {
           "previousWeek": "2026-W44",
           "share": {
-            "by": 6.3,
-            "direction": "better"
+            "by": 6,
+            "direction": "better",
+            "text": {
+              "key": "common.move.points.better.other",
+              "params": {
+                "by": 6
+              }
+            }
           }
         },
         "newThisWeek": [
@@ -465,7 +473,15 @@
           },
           "changeReason": null,
           "size": 7,
-          "basis": "dashboard.grid.basis.locations"
+          "basis": {
+            "key": "dashboard.grid.basis.checked_other.unread_none.miles_other.found_other",
+            "params": {
+              "checked": 49,
+              "unread": 0,
+              "spacing": 0.5,
+              "found": 46
+            }
+          }
         },
         "picture": {
           "size": 7,
@@ -936,10 +952,10 @@
               },
               "rankedBefore": 11,
               "found": {
-                "key": "dashboard.ranks.found",
+                "key": "dashboard.ranks.found.up.other",
                 "params": {
-                  "found": 12,
-                  "of": 16,
+                  "ranked": 12,
+                  "keywords": 16,
                   "before": 11
                 }
               }
@@ -1023,10 +1039,10 @@
               },
               "rankedBefore": 10,
               "found": {
-                "key": "dashboard.ranks.found",
+                "key": "dashboard.ranks.found.up.other",
                 "params": {
-                  "found": 11,
-                  "of": 16,
+                  "ranked": 11,
+                  "keywords": 16,
                   "before": 10
                 }
               }
@@ -1110,10 +1126,10 @@
               },
               "rankedBefore": 9,
               "found": {
-                "key": "dashboard.ranks.found",
+                "key": "dashboard.ranks.found.up.other",
                 "params": {
-                  "found": 10,
-                  "of": 16,
+                  "ranked": 10,
+                  "keywords": 16,
                   "before": 9
                 }
               }
@@ -1197,10 +1213,10 @@
               },
               "rankedBefore": 8,
               "found": {
-                "key": "dashboard.ranks.found",
+                "key": "dashboard.ranks.found.up.other",
                 "params": {
-                  "found": 9,
-                  "of": 16,
+                  "ranked": 9,
+                  "keywords": 16,
                   "before": 8
                 }
               }
@@ -1457,7 +1473,7 @@
         "count": {
           "ready": true,
           "text": {
-            "key": "dashboard.citations.count",
+            "key": "dashboard.citations.count.other",
             "params": {
               "found": 29,
               "total": 36

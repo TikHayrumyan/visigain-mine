@@ -93,7 +93,7 @@
     "directoryCount": {
       "ready": true,
       "text": {
-        "key": "site.scan.directory_count",
+        "key": "site.scan.directory_count.other",
         "params": {
           "found": 27,
           "total": 36,
