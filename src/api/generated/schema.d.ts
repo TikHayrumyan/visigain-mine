@@ -2304,8 +2304,7 @@ export interface paths {
          *     the frontend has its own: that page shows `making` or `failed` (x-wording-keys) for those two parameters.
          *
          *     The page's other sentences are the frontend's (the catalogue's `dashboard.review_card.*`). With `words`, the
-         *     [customer] sentences take `words.customer`. The email a client copies (subject and body) has no key yet: a
-         *     catalogue gap (`dashboard.review_card.email.*`).
+         *     [customer] sentences take `categoryWords.customer`. The email a client copies is `email` (subject and lines).
          */
         get: operations["getReviewCard"];
         put?: never;
@@ -3198,6 +3197,12 @@ export interface components {
             by: number | null;
             direction: components["schemas"]["Direction"];
         };
+        /** @description A share's move, said in percentage points: its words are `text` (common.move.points.<better|worse>.<one|other> with [by]; the Direction's own key for same and unknown), never the Direction's key alone. */
+        PointsMove: {
+            by: number | null;
+            direction: components["schemas"]["Direction"];
+            text: components["schemas"]["Wording"];
+        };
         SectionBase: {
             feature: components["schemas"]["FeatureId"];
             status: components["schemas"]["SectionStatus"];
@@ -3242,13 +3247,19 @@ export interface components {
                 role: "owner";
             };
         };
-        /** @description How this kind of business names its customers, for the sentences that differ. */
+        /** @description How the sentences that differ by kind of business are chosen. Its customers' own words are `categoryWords`. */
         CategoryWords: {
-            customers: components["schemas"]["WordingKey"];
-            customer: null | components["schemas"]["WordingKey"];
             storefront: boolean;
             held: boolean;
             audience: string;
+        };
+        /**
+         * @description Engine's own words for this kind of business's customers ("customers", "clients", "patients"), for the
+         *     sentences with a [customers] or [customer] in them. Engine's data, so plain strings, never keys: put in as they are.
+         */
+        CategoryCustomerWords: {
+            customers: string;
+            customer: string | null;
         };
         Common: {
             plan: components["schemas"]["PlanLevel"];
@@ -3258,6 +3269,7 @@ export interface components {
             /** @description Engine answered from fixtures (invented data); staff see a marker. */
             sample: boolean;
             words?: components["schemas"]["CategoryWords"];
+            categoryWords?: components["schemas"]["CategoryCustomerWords"];
         };
         EngineWeek: {
             week: string;
@@ -3325,7 +3337,7 @@ export interface components {
             notRead: number;
             change: null | {
                 previousWeek: string;
-                share: components["schemas"]["Move"];
+                share: components["schemas"]["PointsMove"];
             };
             newThisWeek: components["schemas"]["AssistantQuestion"][];
             lostThisWeek: components["schemas"]["AssistantQuestion"][];
@@ -3448,7 +3460,11 @@ export interface components {
                 googleCount: components["schemas"]["Move"];
                 yelpCount: components["schemas"]["Move"];
             };
-            notAvailable: components["schemas"]["Wording"][];
+            /** @description A review site we cannot read yet, by its name (data), shown beside its label. */
+            notAvailable: {
+                site: string;
+                label: components["schemas"]["WordingKey"];
+            }[];
             sinceStart: null | {
                 start: string;
                 from: string;
@@ -3531,7 +3547,8 @@ export interface components {
                 locationsBetter: number | null;
                 locationsWorse: number | null;
             };
-            changeReason: null | components["schemas"]["Wording"];
+            /** @description Engine's code for why a grid that is not a first one has no change (no_earlier_grid_of_this_size). No sentence is drawn for it: the week shows no change line. */
+            changeReason: string | null;
             /**
              * @description The grid's side: 7, or 3 on engine's light weekly grid.
              * @enum {integer}
@@ -5171,6 +5188,7 @@ export interface components {
             };
             businesses: components["schemas"]["MemberBusiness"][];
             words?: components["schemas"]["CategoryWords"];
+            categoryWords?: components["schemas"]["CategoryCustomerWords"];
             /** @description false: a regulated category; the page shows `regulatedLine` and nothing else. */
             offered: boolean;
             regulatedLine?: components["schemas"]["WordingKey"];
@@ -5185,6 +5203,16 @@ export interface components {
             /** @description Engine's fixtures, marked for staff only. */
             sample: boolean;
             textMessage: null | components["schemas"]["WordingRef"];
+            /**
+             * @description The email a client copies, as keys (`dashboard.review_card.email.*`, [business] the business's name). Copied
+             *     as "Subject: " and the subject, a blank line, then the lines joined by blank lines: `opening`, the `link` on
+             *     a line of its own, `closing`. Null whenever `textMessage` is.
+             */
+            email: null | {
+                subject: components["schemas"]["WordingRef"];
+                opening: components["schemas"]["Wording"][];
+                closing: components["schemas"]["Wording"][];
+            };
             /** @description The backend's QR code routes (outside /api/v1); null without a link. */
             qr: null | {
                 png: string;
@@ -5686,7 +5714,7 @@ export interface components {
                     reopened: number;
                     newFindings: number;
                 };
-                /** @description The counts in words (dashboard.monitoring.run.found), then see_on_progress. */
+                /** @description The counts in the form the line took (dashboard.monitoring.run.found.<parts>: fixed_one or fixed_other, reopened, findings_one or findings_other, joined by _ in that order, a zero part left out), then see_on_progress. */
                 foundLine: null | components["schemas"]["Wording"];
             }[];
         };
@@ -6063,7 +6091,7 @@ export interface components {
     headers: {
         /**
          * @description The catalogue's version (the body's `version`), quoted; send it back in If-None-Match. The mock always sends this one.
-         * @example "225569fc317d8092"
+         * @example "0df4c87454729e7a"
          */
         WordingsETag: string;
         /**

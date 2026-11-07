@@ -39,6 +39,33 @@
         "link": "https://search.google.test/local/writereview?placeid=ChIJfixture0yo8wypinvented"
       }
     },
+    "email": {
+      "subject": {
+        "key": "dashboard.review_card.email.subject",
+        "params": {
+          "business": "Sunset Glow Med Spa (invented)"
+        }
+      },
+      "opening": [
+        "dashboard.review_card.email.greeting",
+        {
+          "key": "dashboard.review_card.email.thanks",
+          "params": {
+            "business": "Sunset Glow Med Spa (invented)"
+          }
+        },
+        "dashboard.review_card.email.ask"
+      ],
+      "closing": [
+        "dashboard.review_card.email.sign_off",
+        {
+          "key": "dashboard.review_card.email.team",
+          "params": {
+            "business": "Sunset Glow Med Spa (invented)"
+          }
+        }
+      ]
+    },
     "qr": {
       "png": "/dashboard/review-card/qr/png?business=sunset-glow-medspa.test",
       "svg": "/dashboard/review-card/qr/svg?business=sunset-glow-medspa.test"

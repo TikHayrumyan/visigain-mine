@@ -29,11 +29,13 @@
     ],
     "sample": false,
     "words": {
-      "customers": "common.customers.clients",
-      "customer": "common.customer.client",
       "storefront": true,
       "held": false,
       "audience": "local_service"
+    },
+    "categoryWords": {
+      "customers": "clients",
+      "customer": "client"
     },
     "keywords": [],
     "grid": {

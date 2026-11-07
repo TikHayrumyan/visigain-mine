@@ -76,6 +76,10 @@ tags:
 #    the catalogue build must take it from the source named. The key named here is the API-side name to give it.
 #  - "draft needed": no approved sentence exists; it goes through the strategist's draft round first.
 # A name ending in ".*" stands for a family. tests/api/contract.test.ts holds every rule.
+# A sentence the code builds with a plural or an optional clause has one key per form the code produces (`.one` and
+# `.other`, `.with_clause` and `.without_clause`, or its choices joined), each with the code's exact words; the API sends
+# the key of the form the code picked, with params (docs/api/wordings.md, "Forms"). Engine's words for a business's
+# customers are data (`categoryWords`), never keys.
 x-wordings:
   errors:
     unauthenticated: auth.auth.sign_in_to_visigain
@@ -170,20 +174,6 @@ x-wordings:
       dark: common.theme.dark
   pending:
     errors.legal_version_changed: { status: draft needed, for: "409: the legal version in force changed since the buyer saw the terms (new behaviour). Proposed in docs/product-v2/new-wordings.md (the section The API's new sentence), for the strategist; not a table row yet, so it holds no deploy; the starts that answer it stand behind API_CHECKOUT_ENABLED, refused in production" }
-    common.move.points.*: { status: catalogue gap, for: "a share's move said in points (up [by] points, up 1 point): the code picks point or points, so it is no one sentence", source: "src/server/engine/v2/view.ts pointsMove" }
-    dashboard.ranks.found: { status: catalogue gap, for: "[found] of [of] searches found, down or up from [before]: the code picks search or searches, and down or up", source: "src/server/engine/v2/view.ts rankFoundSentence" }
-    dashboard.alert.*: { status: catalogue gap, for: "AlertNote.sentence, per kind: each sentence is built with clauses the code adds or leaves out (the duplicate's name, the review's no-reply line)", source: "src/server/v2/alerts/wording.ts" }
-    dashboard.comparison.figure: { status: catalogue gap, for: "Compared with the [label]: [N], and (you are below it) added by the code", source: "src/server/city-averages/wording.ts comparedLine" }
-    dashboard.comparison.preparing: { status: catalogue gap, for: "the being-prepared line with an estimate: the code picks 1 hour or [N] hours", source: "src/server/city-averages/wording.ts preparingLine, estimateWords" }
-    site.scan.directory_count: { status: catalogue gap, for: "the free grade's directory count line: the code picks directory or directories (plural)", source: "src/server/engine/v2/view.ts directoryCountSentence" }
-    dashboard.citations.count: { status: catalogue gap, for: "CitationCount.text: the same sentence, the same plural", source: "src/server/engine/v2/view.ts directoryCountSentence" }
-    dashboard.grid.basis.*: { status: catalogue gap, for: "GridNumbers.basis and changeReason: built with plurals and clauses the code picks", source: "src/server/engine/v2/view.ts grid numbers (basis)" }
-    dashboard.v2.*: { status: catalogue gap, for: "other loader sentences (reviews.notAvailable, standardNote and markers, refund why): no key named yet", source: "src/server/v2/load.ts, standard-change.ts, src/server/orders/refund-shown.ts" }
-    common.customers.*: { status: catalogue gap, for: "CategoryWords: engine's own word for a profile's customers (clients, patients) is engine's data, not a wording; the core word is served (common.customers.customers)", source: "src/server/v2/category-words/wording.ts" }
-    common.customer.*: { status: catalogue gap, for: "CategoryWords (singular): the same; the core word is served (common.customer.customer)", source: "src/server/v2/category-words/wording.ts" }
-    dashboard.review_card.email.*: { status: catalogue gap, for: "the email a client copies on the review card (subject, body): built in a function from the business's name and link", source: "src/server/v2/review-card/wording.ts reviewTemplates" }
-    dashboard.monitoring.run.found: { status: catalogue gap, for: "MonitoringWeekly runs[].foundLine: [fixed] fixes confirmed, [reopened] reopened, [newFindings] new findings; the code picks fix or fixes, finding or findings, and leaves a zero part out", source: "src/server/v2/tasks.ts runFoundLine" }
-    site.scan.directory_count.*: { status: catalogue gap, for: "the count's other lines: coming_soon, not_in_area, and the hint confirm_hint", source: "src/server/engine/v2/view.ts DIRECTORY_COUNT_COMING_SOON, DIRECTORY_COUNT_NOT_IN_AREA; src/server/freescan/directory-count.ts COUNT_CONFIRM_HINT" }
 
 paths:
   # ---------------------------------------------------------------- public
@@ -3609,8 +3599,7 @@ paths:
         the frontend has its own: that page shows `making` or `failed` (x-wording-keys) for those two parameters.
 
         The page's other sentences are the frontend's (the catalogue's `dashboard.review_card.*`). With `words`, the
-        [customer] sentences take `words.customer`. The email a client copies (subject and body) has no key yet: a
-        catalogue gap (`dashboard.review_card.email.*`).
+        [customer] sentences take `categoryWords.customer`. The email a client copies is `email` (subject and lines).
       x-visigain-availability: launch
       x-wording-keys:
         locked: common.shared.this_is_part_of_the_full
@@ -4113,7 +4102,7 @@ components:
     WordingsETag:
       description: The catalogue's version (the body's `version`), quoted; send it back in If-None-Match. The mock always sends this one.
       schema: { type: string }
-      example: '"0df4c87454729e7a"'
+      example: '"594a3c349760c85c"'
     WordingsCacheControl:
       description: The catalogue may be kept 5 minutes, then checked again with If-None-Match.
       schema: { type: string }
@@ -5022,6 +5011,15 @@ components:
       properties:
         by: { type: [number, "null"], minimum: 0 }
         direction: { $ref: "#/components/schemas/Direction" }
+    PointsMove:
+      type: object
+      description: "A share's move, said in percentage points: its words are `text` (common.move.points.<better|worse>.<one|other> with [by]; common.move.same and common.move.unknown), never the Direction's key alone."
+      required: [by, direction, text]
+      additionalProperties: false
+      properties:
+        by: { type: [number, "null"], minimum: 0 }
+        direction: { $ref: "#/components/schemas/Direction" }
+        text: { $ref: "#/components/schemas/Wording" }
     SectionBase:
       type: object
       required: [feature, status, view, shows, unlockedBy, weekly]
@@ -5080,15 +5078,23 @@ components:
             role: { type: string, const: owner }
     CategoryWords:
       type: object
-      description: How this kind of business names its customers, for the sentences that differ.
-      required: [customers, customer, storefront, held, audience]
+      description: How the sentences that differ by kind of business are chosen. Its customers' own words are `categoryWords`.
+      required: [storefront, held, audience]
       additionalProperties: false
       properties:
-        customers: { $ref: "#/components/schemas/WordingKey" }
-        customer: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/WordingKey" }] }
         storefront: { type: boolean }
         held: { type: boolean }
         audience: { type: string }
+    CategoryCustomerWords:
+      type: object
+      description: |
+        Engine's own words for this kind of business's customers ("customers", "clients", "patients"), for the
+        sentences with a [customers] or [customer] in them. Engine's data, so plain strings, never keys: put in as they are.
+      required: [customers, customer]
+      additionalProperties: false
+      properties:
+        customers: { type: string }
+        customer: { type: [string, "null"] }
     Common:
       type: object
       required: [plan, business, businesses, sample]
@@ -5098,6 +5104,7 @@ components:
         businesses: { type: array, description: "The organisation's businesses, for the switch (shown with 2 or more).", items: { $ref: "#/components/schemas/MemberBusiness" } }
         sample: { type: boolean, description: Engine answered from fixtures (invented data); staff see a marker. }
         words: { $ref: "#/components/schemas/CategoryWords" }
+        categoryWords: { $ref: "#/components/schemas/CategoryCustomerWords" }
     EngineWeek:
       type: object
       required: [week, starts_at, complete_at, timezone]
@@ -5190,7 +5197,7 @@ components:
               additionalProperties: false
               properties:
                 previousWeek: { type: string }
-                share: { $ref: "#/components/schemas/Move" }
+                share: { $ref: "#/components/schemas/PointsMove" }
         newThisWeek: { type: array, items: { $ref: "#/components/schemas/AssistantQuestion" } }
         lostThisWeek: { type: array, items: { $ref: "#/components/schemas/AssistantQuestion" } }
         byAssistant:
@@ -5382,7 +5389,16 @@ components:
                 since: { type: string }
                 googleCount: { $ref: "#/components/schemas/Move" }
                 yelpCount: { $ref: "#/components/schemas/Move" }
-        notAvailable: { type: array, items: { $ref: "#/components/schemas/Wording" } }
+        notAvailable:
+          type: array
+          description: A review site we cannot read yet, by its name (data), shown beside its label.
+          items:
+            type: object
+            required: [site, label]
+            additionalProperties: false
+            properties:
+              site: { type: string }
+              label: { $ref: "#/components/schemas/WordingKey" }
         sinceStart:
           oneOf:
             - type: "null"
@@ -5511,7 +5527,7 @@ components:
                 shareTop3: { $ref: "#/components/schemas/Move" }
                 locationsBetter: { type: [integer, "null"] }
                 locationsWorse: { type: [integer, "null"] }
-        changeReason: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Wording" }] }
+        changeReason: { type: [string, "null"], description: "Engine's code for why a grid that is not a first one has no change (no_earlier_grid_of_this_size). No sentence is drawn for it: the week shows no change line." }
         size: { type: integer, enum: [3, 7], description: "The grid's side: 7, or 3 on engine's light weekly grid." }
         basis: { $ref: "#/components/schemas/Wording" }
     GridPicture:
@@ -7892,7 +7908,7 @@ components:
             coming: { $ref: "#/components/schemas/WordingKey" }
     ReviewCardPage:
       type: object
-      required: [business, businesses, offered, link, state, yelpUrl, unavailable, sample, textMessage, qr, sheets]
+      required: [business, businesses, offered, link, state, yelpUrl, unavailable, sample, textMessage, email, qr, sheets]
       additionalProperties: false
       properties:
         business:
@@ -7905,6 +7921,7 @@ components:
             plan: { $ref: "#/components/schemas/PlanLevel" }
         businesses: { type: array, items: { $ref: "#/components/schemas/MemberBusiness" } }
         words: { $ref: "#/components/schemas/CategoryWords" }
+        categoryWords: { $ref: "#/components/schemas/CategoryCustomerWords" }
         offered: { type: boolean, description: "false: a regulated category; the page shows `regulatedLine` and nothing else." }
         regulatedLine: { $ref: "#/components/schemas/WordingKey" }
         link: { type: [string, "null"], description: "Google's review link; null on the free plan, while being prepared, without a listing, or when engine did not answer." }
@@ -7913,6 +7930,20 @@ components:
         unavailable: { type: boolean, description: "Engine could not be read (say so, never \"no listing\")." }
         sample: { type: boolean, description: "Engine's fixtures, marked for staff only." }
         textMessage: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/WordingRef" }] }
+        email:
+          description: |
+            The email a client copies, as keys (`dashboard.review_card.email.*`, [business] the business's name). Copied
+            as "Subject: " and the subject, a blank line, then the lines joined by blank lines: `opening`, the `link` on
+            a line of its own, `closing`. Null whenever `textMessage` is.
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [subject, opening, closing]
+              additionalProperties: false
+              properties:
+                subject: { $ref: "#/components/schemas/WordingRef" }
+                opening: { type: array, items: { $ref: "#/components/schemas/Wording" } }
+                closing: { type: array, items: { $ref: "#/components/schemas/Wording" } }
         qr:
           description: The backend's QR code routes (outside /api/v1); null without a link.
           oneOf:
@@ -8565,7 +8596,7 @@ components:
                   fixed: { type: integer }
                   reopened: { type: integer }
                   newFindings: { type: integer }
-              foundLine: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Wording" }], description: "The counts in words (dashboard.monitoring.run.found), then see_on_progress." }
+              foundLine: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Wording" }], description: "The counts in the form the line took (dashboard.monitoring.run.found.<parts>: fixed_one or fixed_other, reopened, findings_one or findings_other, joined by _ in that order, a zero part left out), then see_on_progress." }
     MonitoringEmail:
       type: object
       x-wording-keys:

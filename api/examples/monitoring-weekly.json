@@ -51,7 +51,7 @@
           "reopened": 1
         },
         "foundLine": {
-          "key": "dashboard.monitoring.run.found",
+          "key": "dashboard.monitoring.run.found.reopened",
           "params": {
             "fixed": 0,
             "reopened": 1,

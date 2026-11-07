@@ -139,16 +139,12 @@
         },
         "notAvailable": [
           {
-            "key": "dashboard.v2.reviews.not_available",
-            "params": {
-              "site": "Healthgrades"
-            }
+            "site": "Healthgrades",
+            "label": "dashboard.shared.not_available_yet"
           },
           {
-            "key": "dashboard.v2.reviews.not_available",
-            "params": {
-              "site": "RealSelf"
-            }
+            "site": "RealSelf",
+            "label": "dashboard.shared.not_available_yet"
           }
         ],
         "sinceStart": {

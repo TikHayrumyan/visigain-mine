@@ -293,11 +293,20 @@ list of operations behind a switch and checks each names a switch of `/site`. A 
   key): the plan, a Move's direction, a section's status, order, subscription, document and invoice statuses, the rank
   types. Use the table; never build a key from a code.
 - **Every key the spec names is a real catalogue key** with approved text, except those under `x-wordings.pending`:
-  - **catalogue gap**: the sentence is live on today's pages, but built in server code in a way the catalogue cannot
-    read as one sentence: the code picks some of its words (a plural, "down" or "up", a clause it adds or leaves out),
-    for example the directory count line, a share's move in points and the alert sentences. The texts the build can
-    read word for word are served (source `code`, scripts/catalogue-code.ts: the plan label "Free scan", a Move's
-    "up {by}", the order statuses, the section header lines, the error sentences).
+  - **catalogue gap**: the sentence is live on today's pages, but built in server code the catalogue does not read
+    yet. None is left: the texts built in code are served (source `code`, scripts/catalogue-code.ts), and so is each
+    form of a sentence whose words the code picks (below).
+  - **draft needed**: no approved sentence exists yet (`errors.legal_version_changed`).
+- **Forms.** A sentence the code builds with a plural or an optional clause has one key per form the code produces,
+  each with the code's exact words and `{name}` placeholders: `.one` and `.other` for a plural
+  (`site.scan.directory_count.one`: "... of the {total} directory we check ..."), `.with_clause` and `.without_clause`
+  for an optional clause, and the choices joined where there are several (`dashboard.grid.basis.checked_other.unread_none.miles_other.found_other`).
+  The API sends the key of the form the code picked, with params; fill it as any other key. Numbers come as numbers
+  (an average or a score is written with one decimal, a move in the Standard's note with its sign, cents as money) and
+  days as ISO dates, formatted by the frontend as the pages write them.
+- **Engine's words for a business's customers** ("customers", "clients", "patients") are engine's data, not wordings:
+  `categoryWords: { customers, customer }`, plain strings, put into the [customers] and [customer] sentences as they
+  are. `words` keeps the rest (`storefront`, `held`, `audience`).
   - **draft needed**: no approved sentence exists yet, so it goes to the strategist's draft round
     (`errors.legal_version_changed` only, proposed in docs/product-v2/new-wordings.md).
   Until a pending key is served, the frontend shows nothing in its place and Backend is told. `tests/api/contract.test.ts`
@@ -405,9 +414,9 @@ Where the spec left a point open, or was wrong, the built API decided as below. 
   `disposable_email`, `category_unsupported`, `rate_limited` (429), `scans_paused` (503, an admin paused it),
   `scan_busy` (503, no database connection in time). `ScanRequest` takes an optional `locale` (the Spanish site's
   form). A body over 8,000 bytes is 413.
-- **The directory count's lines** are keys: `site.scan.directory_count` with `found`, `total` and `date` (engine's
-  reading, ISO), else `site.scan.directory_count.coming_soon` or `site.scan.directory_count.not_in_area`; the hint is
-  `site.scan.directory_count.confirm_hint`. All are catalogue gaps (the sentences are live in server code).
+- **The directory count's lines** are keys: `site.scan.directory_count.one` or `.other` (the plural of "directory")
+  with `found`, `total` and `date` (engine's reading, ISO), else `site.scan.directory_count.coming_soon` or
+  `site.scan.directory_count.not_in_area`; the hint is `site.scan.directory_count.confirm_hint`.
 - **The grade's average label** is `site.grade.average_label` with `category` and `city`, as engine sends them.
 - **`POST /scans/confirm/{code}`:** a signed code confirms (`first` true once); a code whose signature does not check
   answers its own token with `first: false`, as the emailed link still opens the page; a token that is no lead's is 404.
@@ -431,8 +440,8 @@ Where the spec left a point open, or was wrong, the built API decided as below. 
   `invalid_locale` and the three `@postContact` keys.
 - `POST /contact` and `POST /scans` read a body but listed no 413; `POST /scans` listed no 404 (holding);
   `GET /scans/{token}` and `GET /sample-report` take `locale` but listed no 422: each added.
-- The free scan's directory count needs its date as a param, and its other lines keys: `site.scan.directory_count`
-  takes `[date]`, and the `site.scan.directory_count.*` family is pending.
+- The free scan's directory count needs its date as a param, and its other lines keys: `site.scan.directory_count.one`
+  and `.other` take `{date}`, and its other lines are `site.scan.directory_count.*`.
 - `ScanRequest` had no `locale`, so a scan sent from the Spanish site could not ask for Spanish emails: added.
 - `Site.checkout` and `checkoutWallets` now say they are effective.
 
@@ -459,13 +468,23 @@ Where the spec left a point open, or was wrong, the built API decided as below. 
 - A member removed from an organisation reads nothing of it: 404 by id; with no organisation left, the dashboard and
   lists answer 409 `no_organisation`. There is no "view as client": an admin who is no member is treated as anyone else.
 
-**Words.** Each loader sentence is its catalogue key (`src/server/api/v1/wording.ts`). Sent as pending keys, with
-their facts as params: `dashboard.alert.<kind>`, `dashboard.ranks.found`, `dashboard.citations.count`,
-`dashboard.grid.basis.locations` (and `dashboard.grid.basis.<engine's change_reason>`), `dashboard.comparison.figure`,
-`dashboard.comparison.preparing`, `site.scan.directory_count.coming_soon` and `.not_in_area`, `common.customers.<word>`,
-`common.customer.<word>`, and in the `dashboard.v2.*` family: `dashboard.v2.reviews.not_available` (`site`),
-`dashboard.v2.standard_marker` (`version`), `dashboard.v2.standard_note`, `dashboard.v2.refund.credit_used`
-(`usedCents`, `priceCents`) and `dashboard.v2.refund.nothing_back`.
+**Words.** Each loader sentence is its catalogue key (`src/server/api/v1/wording.ts`). The built ones are the key of
+the form the code picked (see Forms), with their facts as params:
+- `dashboard.alert.<kind>.<form>`: `low_review.posted`, `.no_reply` and `.no_reply_caution` (`stars`, `date`,
+  `checked`); `overtaken` (`name`, `keyword`, `date`, `since`, the four ranks, one decimal); `ai_dropped.with_mark` and
+  `.without_mark` (`assistant`, `question`, `monday`: the week before's Monday, `date`); `duplicate.with_name` and
+  `.without_name` (`name`, `date`, `since`); `listing_changed.<hours|phone|website>.plain`, `.hours.days` (`days`: the
+  listing page's own lines for the days that changed, data) and `.<phone|website>.now_was` (`now`, `was`).
+- `dashboard.ranks.found.<down|up>.<one|other>` (`ranked`, `keywords`, `before`); `dashboard.citations.count.<one|other>`
+  (`found`, `total`, `date`); `dashboard.grid.basis.<checked>.<unread>.<miles>.<found>` (`checked`, `unread`,
+  `spacing`, `found`). `GridNumbers.changeReason` is engine's code (data): no sentence is drawn for it.
+- `dashboard.comparison.figure.with_clause` ("(you are below it)") and `.without_clause` (`label`, `score`);
+  `dashboard.comparison.preparing.one` and `.other` (`hours`).
+- The AI share's move: `share.text`, `common.move.points.<better|worse>.<one|other>` (`by`).
+- `dashboard.v2.standard_marker` (`version`); `dashboard.v2.standard_note.changed` (`version`, `score`, `grade`,
+  `scoreBefore`, `change`) and `.letter` (`grade`, `gradeBefore`); `dashboard.v2.refund.credit_used.with_clause`
+  (`usedCents`, `priceCents`) and `dashboard.v2.refund.nothing_back`.
+- A review site not read yet is `{ site, label }`: its name and the "Not available yet" label's key.
 
 **Other points.**
 - An unknown task, or a to-do list that is not tickable (no Monitoring), is 404 on `POST /dashboard/tasks/tick`; the
@@ -504,8 +523,8 @@ Built on night-api6: every `checkout` and `account` operation, through the pages
 - **Cancel:** "never started" and Stripe not answering are 503 `cancel_failed`, as on the page. `reason` and `detail`
   are kept only while the question's words are approved.
 - **Documents:** `what` is `common.monitoring.monitoring_for` or `account.invoices.invoice` for an invoice,
-  `account.invoices.full_report` for a receipt; the cursor is opaque (an offset). A receipt's `refund.why` is null
-  until the refund sentences have keys (`dashboard.v2.*`).
+  `account.invoices.full_report` for a receipt; the cursor is opaque (an offset). A receipt's `refund.why` is the
+  refund's sentence for a refund of less than the price (`dashboard.v2.refund.*`), null otherwise.
 - **Owner only:** the card update, its finish and cancel answer 403 `owner_only` to a member; another organisation's
   record is 404, as an unknown one.
 
@@ -660,7 +679,8 @@ its page's address without `/dashboard` (the review card and the two read pages 
   New keyed templates from existing approved words (scripts/catalogue-code.ts): `dashboard.ask_for_reviews.email_*`
   (the email preview and the default paragraph), `dashboard.watch.fix_*` and `dashboard.watch.detail_*` (AI Fact
   Check's step; its `[detail]` and `[stated]` params are keys), `dashboard.review_card.sheet_<size>.title` and `.note`.
-  The email a client copies from the review card is still a catalogue gap (`dashboard.review_card.email.*`).
+  The email a client copies from the review card is `email`: `dashboard.review_card.email.subject`, then `opening`
+  (`greeting`, `thanks`, `ask`), the link, and `closing` (`sign_off`, `team`), [business] the business's name.
 - **Not here (the fixers' API, group 2):** the review reply's Save, Approve, Reject and "I posted it"; a page's "Write
   a draft", Save, Approve, Reject and "I published it"; AI Fact Check's "I've updated it" and "Not needed"; the flash
   lines those answer with.

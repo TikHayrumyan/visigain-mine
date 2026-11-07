@@ -29,11 +29,13 @@
     ],
     "sample": false,
     "words": {
-      "customers": "common.customers.clients",
-      "customer": "common.customer.client",
       "storefront": true,
       "held": false,
       "audience": "local_service"
+    },
+    "categoryWords": {
+      "customers": "clients",
+      "customer": "client"
     },
     "organisation": {
       "id": "6f1c2a9e-3b4d-4e5f-8a7b-1c2d3e4f5a60",
@@ -104,7 +106,7 @@
     "count": {
       "ready": true,
       "text": {
-        "key": "dashboard.citations.count",
+        "key": "dashboard.citations.count.other",
         "params": {
           "found": 27,
           "total": 36

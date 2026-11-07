@@ -29,11 +29,13 @@
     ],
     "sample": false,
     "words": {
-      "customers": "common.customers.clients",
-      "customer": "common.customer.client",
       "storefront": true,
       "held": false,
       "audience": "local_service"
+    },
+    "categoryWords": {
+      "customers": "clients",
+      "customer": "client"
     },
     "ranks": {
       "feature": "ranks",
@@ -97,10 +99,10 @@
               },
               "rankedBefore": 11,
               "found": {
-                "key": "dashboard.ranks.found",
+                "key": "dashboard.ranks.found.up.other",
                 "params": {
-                  "found": 12,
-                  "of": 16,
+                  "ranked": 12,
+                  "keywords": 16,
                   "before": 11
                 }
               }
@@ -184,10 +186,10 @@
               },
               "rankedBefore": 10,
               "found": {
-                "key": "dashboard.ranks.found",
+                "key": "dashboard.ranks.found.up.other",
                 "params": {
-                  "found": 11,
-                  "of": 16,
+                  "ranked": 11,
+                  "keywords": 16,
                   "before": 10
                 }
               }
@@ -271,10 +273,10 @@
               },
               "rankedBefore": 9,
               "found": {
-                "key": "dashboard.ranks.found",
+                "key": "dashboard.ranks.found.up.other",
                 "params": {
-                  "found": 10,
-                  "of": 16,
+                  "ranked": 10,
+                  "keywords": 16,
                   "before": 9
                 }
               }
@@ -358,10 +360,10 @@
               },
               "rankedBefore": 8,
               "found": {
-                "key": "dashboard.ranks.found",
+                "key": "dashboard.ranks.found.up.other",
                 "params": {
-                  "found": 9,
-                  "of": 16,
+                  "ranked": 9,
+                  "keywords": 16,
                   "before": 8
                 }
               }
