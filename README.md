@@ -65,22 +65,31 @@ CI (`.github/workflows/ci.yml`, GitHub Actions) runs the same, in that order, on
 `src/api/origin.ts` decides this; `next.config.ts` holds the rewrite. Rewrites are read when the dev server starts or
 the app is built, so restart after changing `MOCK` or `API_ORIGIN`. `.env.example` lists every variable, all blank.
 
-## Pointing at staging, later (coming with frontend-staging, Phase 3b)
+## Pointing at staging (frontend-staging, Phase 3b)
 
-Staging is private: every request carries a Google identity allowed to call it. The plan, once Raf has granted your
-Google account (`roles/run.invoker` on the staging services) and Backend has shipped it:
+Staging is private: every request carries a Google identity allowed to call it. Once Raf has granted your Google
+account `roles/run.invoker` on `backend-staging` and `frontend-staging`:
 
 1. Install the Google Cloud CLI and `gcloud auth login` with that account.
-2. Run your app as usual: `pnpm dev` on http://127.0.0.1:3000.
-3. Run the backend's staging proxy in its one-origin mode on http://127.0.0.1:3200 (`deploy/staging-proxy.mjs` in
-   the backend repository; Backend gives you the exact command). It sends `/api/**` and the backend-only paths
-   ([`docs/api.md`](docs/api.md), "Paths at the switch", list (a), plus the emailed pages that have no launch API yet) to `backend-staging`, signed with your own Google identity
-   (the token is never printed), and everything else to your `next dev` on 3000.
+2. Run your app as usual: `pnpm dev` on http://127.0.0.1:3000, with `API_ORIGIN=http://127.0.0.1:3200` and
+   `SITE_ORIGIN=http://127.0.0.1:3200` in `.env.local`.
+3. In the backend repository, run the staging proxy in its one-origin mode:
+   `node deploy/staging-proxy.mjs <backend-staging URL> 3200 --frontend http://127.0.0.1:3000` (Backend gives you
+   the URL). It sends `/api/**` and the backend-for-good paths ([`docs/api.md`](docs/api.md), "Paths at the switch",
+   list (a); the code is the backend's `deploy/backend-paths.mjs`) to `backend-staging`, signed with your own Google
+   identity (the token is never printed), and everything else to your `next dev`, unsigned. With the frontend-staging URL after
+   `--frontend` instead, it shows the deployed frontend, signed the same way.
 4. Open http://127.0.0.1:3200. The browser sees one origin, as in production, so the session cookie and the
    backend's Origin check on every non-GET work as they will on visigain.com.
 
-`API_ORIGIN` stays for the server side only: what this app's own server calls while rendering a page (in this setup,
-the proxy at http://127.0.0.1:3200).
+**The deployed image.** `Dockerfile` builds Next's standalone server (`NEXT_OUTPUT=standalone`, Node 22, a non-root
+user, port 8080). The backend's `deploy/20-frontend-staging.sh` builds it with Docker on Raf's PC and deploys
+`frontend-staging` with `API_ORIGIN` and `SITE_ORIGIN` set to backend-staging's address and `API_ID_TOKEN=metadata`.
+With that flag this app's server fetches an ID token for the `API_ORIGIN` audience from the metadata server, holds it
+for 45 minutes and sends it as `Authorization: Bearer` beside the visitor's own cookie (`src/api/id-token.ts`). The
+browser never gets it. To try the image locally against the mock: `pnpm mock`, then
+`docker build -t visigain-frontend . && docker run --rm -p 127.0.0.1:3080:8080 -e MOCK=1 -e MOCK_ORIGIN=http://host.docker.internal:4010 visigain-frontend`
+and open http://127.0.0.1:3080/example.
 
 Staging sends no email: for a signed-in page, ask Backend for a one-time sign-in link for an invented `.test` client.
 You never get, need or call production.
