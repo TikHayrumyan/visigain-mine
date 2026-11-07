@@ -1,0 +1,7 @@
+{
+  "summary": "Hidden: a switch is off here (AI_CHAT_ENABLED, the admin's switches, the staging allow rule)",
+  "value": {
+    "availability": "hidden",
+    "reason": "off"
+  }
+}

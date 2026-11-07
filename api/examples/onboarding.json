@@ -1,0 +1,10 @@
+{
+  "summary": "Signed in, no organisation yet",
+  "value": {
+    "hasOrganisation": false,
+    "kinds": [
+      "business",
+      "agency"
+    ]
+  }
+}

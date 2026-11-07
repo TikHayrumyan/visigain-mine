@@ -1,0 +1,39 @@
+{
+  "summary": "The chat is there: not switched off, the allowance under 80% (nothing shown)",
+  "value": {
+    "availability": "available",
+    "business": {
+      "domain": "sunset-glow-medspa.test"
+    },
+    "off": false,
+    "usage": {
+      "show": false,
+      "percent": null,
+      "resetsOn": "2026-12-01",
+      "reached": false,
+      "sentence": null
+    },
+    "words": {
+      "heading": "dashboard.chat.heading",
+      "intro": "dashboard.chat.intro",
+      "input_label": "dashboard.chat.input_label",
+      "send": "dashboard.chat.send",
+      "sending": "dashboard.chat.sending",
+      "ai_label": "dashboard.chat.ai_label",
+      "draft_label": "dashboard.chat.draft_label",
+      "thumbs_up": "dashboard.chat.thumbs_up",
+      "thumbs_down": "dashboard.chat.thumbs_down",
+      "thanks": "dashboard.chat.thanks",
+      "report": "dashboard.chat.report",
+      "report_prompt": "dashboard.chat.report_prompt",
+      "report_send": "dashboard.chat.report_send",
+      "report_thanks": "dashboard.chat.report_thanks",
+      "allowance": "dashboard.chat.allowance",
+      "limit": "dashboard.chat.limit",
+      "off": "dashboard.chat.off",
+      "empty": "dashboard.chat.empty",
+      "error": "dashboard.chat.error",
+      "disclaimer": "dashboard.chat.disclaimer"
+    }
+  }
+}

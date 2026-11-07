@@ -1,0 +1,18 @@
+{
+  "summary": "The permission box was not ticked: nothing sent",
+  "value": {
+    "sent": false,
+    "tone": "error",
+    "lines": [
+      "dashboard.monitoring.tick_the_box_to_confirm_you"
+    ],
+    "counts": {
+      "today": 2,
+      "month": 2,
+      "perDay": 50,
+      "perMonth": 200,
+      "leftToday": 48,
+      "leftMonth": 198
+    }
+  }
+}

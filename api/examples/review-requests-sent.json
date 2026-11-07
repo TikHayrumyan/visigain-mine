@@ -1,0 +1,40 @@
+{
+  "summary": "Two requests on their way; one line could not be read",
+  "value": {
+    "sent": true,
+    "tone": "success",
+    "lines": [
+      {
+        "key": "dashboard.monitoring.requests_are_on_their_way",
+        "params": {
+          "N": 2
+        }
+      },
+      {
+        "key": "dashboard.monitoring.lines_that_could_not_be_read",
+        "params": {
+          "N": 1
+        }
+      },
+      {
+        "key": "dashboard.monitoring.line",
+        "params": {
+          "N": 3,
+          "reason": "dashboard.monitoring.there_is_no_email_address_on"
+        }
+      }
+    ],
+    "queued": 2,
+    "duplicates": 0,
+    "suppressed": 0,
+    "overCap": 0,
+    "counts": {
+      "today": 2,
+      "month": 2,
+      "perDay": 50,
+      "perMonth": 200,
+      "leftToday": 48,
+      "leftMonth": 198
+    }
+  }
+}

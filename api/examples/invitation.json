@@ -1,0 +1,9 @@
+{
+  "summary": "The invitation, pending",
+  "value": {
+    "id": "2d0f8c4e-7f6a-4b5c-8d3e-1a9f8e7d6c53",
+    "email": "manager@sunset-glow-medspa.test",
+    "role": "member",
+    "expiresAt": "2026-11-14T08:00:00.000Z"
+  }
+}

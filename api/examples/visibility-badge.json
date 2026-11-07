@@ -1,0 +1,20 @@
+{
+  "summary": "A Monitoring business with its badge on",
+  "value": {
+    "owner": true,
+    "businesses": [
+      {
+        "id": "3e1a9d5f-8a7b-4c6d-9e4f-2b0a9f8e7d64",
+        "domain": "sunset-glow-medspa.test",
+        "monitored": true,
+        "badge": {
+          "embedHtml": "<a href=\"https://visigain.com/visibility/Hq3Lm8Rt2Vw6Yb1Nc4Df7Gh0Jk5Ls9Pq2\"><img src=\"https://visigain.com/visibility/Hq3Lm8Rt2Vw6Yb1Nc4Df7Gh0Jk5Ls9Pq2/badge\" alt=\"Visigain Visibility Grade\"></a>",
+          "imagePath": "/visibility/Hq3Lm8Rt2Vw6Yb1Nc4Df7Gh0Jk5Ls9Pq2/badge",
+          "pagePath": "/visibility/Hq3Lm8Rt2Vw6Yb1Nc4Df7Gh0Jk5Ls9Pq2",
+          "showBusiness": false,
+          "showing": true
+        }
+      }
+    ]
+  }
+}

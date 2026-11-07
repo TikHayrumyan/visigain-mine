@@ -1,0 +1,96 @@
+{
+  "summary": "Open: the counts, the preview of the email, the review card, the velocity card",
+  "value": {
+    "state": "open",
+    "business": {
+      "domain": "sunset-glow-medspa.test",
+      "name": "Sunset Glow Med Spa (invented)"
+    },
+    "businesses": [
+      {
+        "id": "34bc348f-49a7-4c1a-9912-f88531fca389",
+        "domain": "sunset-glow-medspa.test",
+        "name": "Sunset Glow Med Spa (invented)",
+        "plan": "monitoring"
+      },
+      {
+        "id": "13b7ba82-ce1a-4194-837b-194eac40575b",
+        "domain": "ivory-lane-medspa.test",
+        "name": null,
+        "plan": "free"
+      },
+      {
+        "id": "90446ef3-0a9b-45f1-9065-bbd0d5dc1912",
+        "domain": "harborlight-aesthetics.test",
+        "name": null,
+        "plan": "free"
+      }
+    ],
+    "counts": {
+      "today": 0,
+      "month": 0,
+      "perDay": 50,
+      "perMonth": 200,
+      "leftToday": 50,
+      "leftMonth": 200
+    },
+    "limits": {
+      "messageMax": 1500,
+      "listMax": 512000
+    },
+    "link": "https://search.google.test/local/writereview?placeid=ChIJfixture0yo8wypinvented",
+    "defaultMessage": {
+      "key": "dashboard.ask_for_reviews.email_message",
+      "params": {
+        "business": "Sunset Glow Med Spa (invented)"
+      }
+    },
+    "preview": {
+      "subject": {
+        "key": "dashboard.ask_for_reviews.email_heading",
+        "params": {
+          "business": "Sunset Glow Med Spa (invented)"
+        }
+      },
+      "heading": {
+        "key": "dashboard.ask_for_reviews.email_heading",
+        "params": {
+          "business": "Sunset Glow Med Spa (invented)"
+        }
+      },
+      "greeting": "dashboard.ask_for_reviews.email_greeting_none",
+      "button": "dashboard.ask_for_reviews.email_button",
+      "link": "https://search.google.test/local/writereview?placeid=ChIJfixture0yo8wypinvented",
+      "after": "dashboard.ask_for_reviews.email_after",
+      "reason": {
+        "key": "dashboard.ask_for_reviews.email_reason",
+        "params": {
+          "business": "Sunset Glow Med Spa (invented)"
+        }
+      },
+      "unsubscribe": "dashboard.ask_for_reviews.email_unsubscribe",
+      "unsubscribeNote": "dashboard.ask_for_reviews.email_unsubscribe_note"
+    },
+    "noLink": null,
+    "card": {
+      "page": "/api/v1/dashboard/review-card?b=sunset-glow-medspa.test",
+      "qrPng": "/dashboard/review-card/qr/png?business=sunset-glow-medspa.test"
+    },
+    "velocity": {
+      "ok": true,
+      "you": {
+        "name": null,
+        "daysSinceLast": 3,
+        "reviews30d": 2
+      },
+      "competitors": [
+        {
+          "name": "Example Rival Plumbing",
+          "daysSinceLast": null,
+          "reviews30d": 5
+        }
+      ],
+      "asOf": "2026-11-06T05:38:40.550Z"
+    }
+  }
+}

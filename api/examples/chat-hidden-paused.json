@@ -1,0 +1,7 @@
+{
+  "summary": "Hidden: the subscription is paused (the panel shows only dashboard.chat.off)",
+  "value": {
+    "availability": "hidden",
+    "reason": "paused"
+  }
+}

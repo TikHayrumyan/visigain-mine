@@ -1,0 +1,9 @@
+{
+  "summary": "No draft came just now (nothing counted)",
+  "value": {
+    "error": {
+      "code": "draft_failed",
+      "message_key": "dashboard.monitoring.draft_failed"
+    }
+  }
+}

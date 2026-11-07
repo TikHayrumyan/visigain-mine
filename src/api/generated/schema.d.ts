@@ -37,7 +37,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The switches the frontend must obey, and the legal version */
+        /**
+         * The switches the frontend must obey, every module's unlock state, and the legal version
+         * @description Public: no session is needed, and none is asked for (never 401). `switches` lists every client-facing switch
+         *     by its backend name, with the value the code obeys now (docs/api/README.md, "The switches"). With a session
+         *     cookie, the answer also carries `modules`: the 8 fix modules of one of the session organisation's businesses,
+         *     chosen by `?b=<domain>` as on the dashboard reads (missing or empty: the first). A `b` that is not one of the
+         *     organisation's own, a session with no organisation or no business, and no session at all: no `modules`, never
+         *     another organisation's. With `modules` the answer is `private, no-store`; without it `public, max-age=60`.
+         */
         get: operations["getSite"];
         put?: never;
         post?: never;
@@ -126,7 +134,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Prices from PRICES (never typed), the fair-use lines and the pricing FAQ */
+        /**
+         * Prices from PRICES (never typed), the fair-use lines and the pricing FAQ
+         * @description With locale=es (only while `spanish` is on; 422 invalid_locale otherwise), the questions in Spanish where approved.
+         */
         get: operations["getPricing"];
         put?: never;
         post?: never;
@@ -265,7 +276,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The FAQ (the CMS's published entries, else the approved site copy) */
+        /**
+         * The FAQ (the CMS's published entries, else the approved site copy)
+         * @description With locale=es (only while `spanish` is on; 422 invalid_locale otherwise), the site copy's questions in Spanish where approved, as /es/faq; the CMS's own entries are English and are left out.
+         */
         get: operations["getFaq"];
         put?: never;
         post?: never;
@@ -605,6 +619,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/organisations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add a business or agency (the onboarding form, `createOrg`); it becomes the organisation the dashboard shows
+         * @description What /dashboard/onboarding does today, and what settings' "Add another business or agency"
+         *     (`dashboard.settings.add_another_business_or_agency`) opens: a new organisation, with the caller as its owner,
+         *     its free grades of the caller's (verified) email claimed into it, a referral link's code kept with it (vg_ref,
+         *     only with REFERRAL_CREDIT_ENABLED on), and `vg_org` set to it. A business's website (a domain) is never added
+         *     on its own: it comes with a Full Report or Monitoring start (POST /checkout/full-report, /checkout/monitoring) or
+         *     a claimed free grade, as on the pages. The form's words: `dashboard.onboarding.business_or_agency_name`,
+         *     `dashboard.onboarding.this_account_is_for`, `dashboard.onboarding.my_own_business`,
+         *     `dashboard.onboarding.an_agency_with_several_businesses`. A name missing or under 2 characters is 422
+         *     `invalid_business_name` (the page's own sentence, `errors.invalid_business_name`); another field, `invalid_state`.
+         */
+        post: operations["createOrganisation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/businesses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The session organisation's businesses, with the plan each is on (the switch's list, `memberBusinesses`)
+         * @description Monitoring first, then Full Report, then Free, as the dashboard's switch lists them; `?b=<domain>` takes any of these. Another organisation's are chosen with POST /session/organisation.
+         */
+        get: operations["listBusinesses"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/businesses/{id}/scans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * One business's scan history - its delivered grades and reports, newest first (the grade history, for that business only)
+         * @description The business must be one of the session organisation's own; another organisation's and an unknown id answer the same 404.
+         */
+        get: operations["listBusinessScans"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reports": {
         parameters: {
             query?: never;
@@ -894,6 +976,1645 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/free-ai-check/form": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The free AI check's form (a fresh stamp, the categories, the limits, the bot check) */
+        get: operations["getFreeAiCheckForm"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/free-ai-check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run the free AI check ("Do ChatGPT, Gemini and Perplexity recommend you?")
+         * @description The form's action, unchanged: the honeypot (`message`) and the stamp, the bot check, the fields, the limits (per
+         *     address, email, business, and the day's total) and the reuse of a check already made (`reused`). Every refusal is
+         *     the page's own alert: 422 `invalid_name`, `city_not_covered`, `invalid_category`, `invalid_domain`,
+         *     `name_not_distinctive`, `bot_refused`, `form_expired`; 503 `check_unavailable` for every limit reached and every
+         *     time the answers cannot be had (the page says one sentence for all of them).
+         */
+        post: operations["startFreeAiCheck"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/free-ai-check/results/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A free AI check's result, for whoever holds its key
+         * @description `pending`: still collecting; look again after `refreshSeconds` (engine is read at most once in 10 seconds for a
+         *     check, however many look). `try_later`: no answer could be had. `ready`: the count with its date, who was named
+         *     instead (a plain list: its order is no rank), the detail only once the address is confirmed, and the share link
+         *     while it works. What a visitor or engine wrote (a name, a question, an assistant's label) is plain text.
+         */
+        get: operations["getFreeAiCheck"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/free-ai-check/results/{token}/detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ask for the full detail (an email with a link to confirm the address)
+         * @description The gate's form: the box (required, never pre-ticked) and the address; the consent is recorded with its words,
+         *     and the confirm email is held by the send until its own words are approved. 409 `check_not_ready` while the
+         *     check has no result; 503 `check_unavailable` past the limits.
+         */
+        post: operations["requestFreeAiCheckDetail"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/free-ai-check/results/{token}/next": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * The free grade or the Full Report, after a confirmed address
+         * @description The step is counted; go to `path` (the free scan's form with the website only, never an email; or /pricing). 404 before the address is confirmed.
+         */
+        post: operations["nextFreeAiCheckStep"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/free-ai-check/results/{token}/share": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Make a link anyone can open (one per check; a new one replaces the old)
+         * @description It shows the count, the date, the city and the type of business, and the name only if `showName`. Never who was named instead, never the email.
+         */
+        post: operations["shareFreeAiCheck"];
+        /** Remove the share link (it stops at once) */
+        delete: operations["unshareFreeAiCheck"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/free-ai-check/confirm/{code}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The emailed link's page (opening it changes nothing) */
+        get: operations["getFreeAiCheckConfirm"];
+        put?: never;
+        /** The confirm page's button (the address is confirmed once) */
+        post: operations["confirmFreeAiCheck"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/free-ai-check/shared/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A shared free AI check (never a rival's name; opening it writes nothing) */
+        get: operations["getSharedFreeAiCheck"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/partner": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The signed-in person's partner page, or the application when they have none
+         * @description `none`: draw the application (/partner/apply). `applied`, `rejected`, `paused`: the page's one line. `approved`:
+         *     the link and code, the referred businesses by name with a status (never a report, never their website), the three
+         *     totals and the payments to the partner, and the logo: what /partner shows and nothing more. Tax forms and payouts
+         *     stay the admin's.
+         */
+        get: operations["getPartner"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/partner/apply": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Apply to the partner program (an admin approves each partner)
+         * @description Both boxes are required and never pre-ticked: 422 `invalid_state` (the page's form alert) without the agreement,
+         *     a name or a website; 422 `partner_us_only` for an agency outside the United States; 429 `rate_limited` past the
+         *     day's applications. Applying again answers the partner as it is.
+         */
+        post: operations["applyPartner"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/partner/logo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * An approved partner's logo (a PNG, in base64)
+         * @description Sanitised and checked as the page's upload. 422 `logo_not_png` or `logo_too_large` (the page's two alerts). 404 for anyone but an approved partner.
+         */
+        post: operations["uploadPartnerLogo"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/p/{code}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Where a partner's link lands (no cookie; the code stays in the address) */
+        get: operations["getPartnerLanding"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/p/{code}/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Where the partner link's two choices go next, with the code on the address
+         * @description Pay before the account where that is on; else sign in first (`signIn`), then name the business when there is none. Reads the session if there is one; writes nothing.
+         */
+        get: operations["startPartnerReferral"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/account/pause-monitoring": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Pause instead of cancel, for one subscription (owners only)
+         * @description Whether it may be paused now: `refusal` null, or `open` (one is on), `recent` (one pause in `againAfterDays`,
+         *     180), `refused` (the plan may not be paused), each with the page's alert. `paused`: the pause that is on. Another
+         *     organisation's subscription, a member who is not an owner, or an unknown id: 404, as the page.
+         */
+        get: operations["getPause"];
+        put?: never;
+        /**
+         * Pause Monitoring for 1 or 2 months (nothing is charged while paused; the billing date stays)
+         * @description 409 `pause_open`, `pause_recent` or `pause_refused`, the page's alerts. Cancelling still works, paused or not.
+         */
+        post: operations["pauseMonitoring"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/benchmarks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The benchmark pages (one per line of engine's export), and the AI Visibility Index
+         * @description `indexable` is false unless BENCHMARK_INDEXING_ENABLED, /how-we-grade and the site allow it: say noindex then.
+         */
+        get: operations["listBenchmarks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/benchmarks/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * One category in one place (aggregates only, every figure the export's own)
+         * @description The share image stays the backend route `cardPath`.
+         */
+        get: operations["getBenchmark"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/benchmarks/ai-visibility-index": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The AI Visibility Index, one link per place and category to its latest month (no figure) */
+        get: operations["listIndexPages"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/benchmarks/ai-visibility-index/{place}/{month}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * One month of one AI Visibility Index page, and its other months
+         * @description The share image stays the backend route `cardPath`.
+         */
+        get: operations["getIndexPage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/how-we-grade": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** How the Visibility Grade works (the five areas and their one-line descriptions, nothing else of the Standard) */
+        get: operations["getMethodology"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The settings page - the organisation's name, the person's email and privacy choices, the language
+         * @description What /dashboard/settings shows (src/server/api/v1/settings.ts `settingsView`). The theme is the frontend's own
+         *     (no API call). "Download my data" stays a backend download: link to `exportPath` (a JSON file, signed-in only).
+         *     `language` is null while SPANISH_SITE_ENABLED is off (the setting is on /account today).
+         */
+        get: operations["getSettings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/organisation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Rename the organisation (owners only)
+         * @description 422 `invalid_name` under 2 characters (the page's own sentence). 403 `owner_only` for a member.
+         */
+        post: operations["renameOrganisation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/do-not-sell": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Do not sell or share my personal information - on or off (the person's own) */
+        post: operations["setDoNotSell"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/language": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * The person's own language, for their emails and where sign-in lands (/account's "Save language")
+         * @description 404 while SPANISH_SITE_ENABLED is off (no setting, nothing saved).
+         */
+        post: operations["setLanguage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/delete-account": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Delete my account (type DELETE to confirm); every session ends and the cookie is cleared
+         * @description 422 `invalid_state` when `confirm` is not DELETE; 409 `owner_first` for the last owner of an organisation that has
+         *     other members (each with the page's own sentence). Receipts and invoices are kept without the name.
+         */
+        post: operations["deleteAccount"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/team": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The team page - members with their roles, and for an owner the pending invitations
+         * @description `invitations` is null for a member (the page shows a member neither the list nor the form).
+         */
+        get: operations["getTeam"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/team/invitations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send an invitation (owners only); the email goes out in the request
+         * @description The invite accept page (/invite/{token}) stays a site route. 422 `invalid_email` with the form's own sentence.
+         */
+        post: operations["inviteMember"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/team/invitations/{id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Revoke a pending invitation (owners only) */
+        post: operations["revokeInvitation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/team/members/{id}/role": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Change a member's role (owners only; {id} is the member's user id)
+         * @description 409 `last_owner` when the organisation would be left with no owner.
+         */
+        post: operations["changeMemberRole"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/team/members/{id}/remove": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Remove a member (owners only), or leave (one's own user id)
+         * @description 409 `last_owner` when the organisation would be left with no owner.
+         */
+        post: operations["removeMember"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Every session of the signed-in person that has not ended, newest first
+         * @description The device is given by its parts, product names (`Chrome`, `Windows`); the frontend says it with
+         *     `device_line` ([browser] on [os]), a null part with `any_browser` or `any_system`, and a null device with `unknown`.
+         */
+        get: operations["listSessions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sessions/{id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * End one of the person's own sessions (not the current one), by its handle
+         * @description Another person's session, the current one, or one that ended already is 404 (the page's own sentence); nothing is ended.
+         */
+        post: operations["revokeSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sessions/sign-out-everywhere": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sign out everywhere - every session of the person ends, this one too; the cookie is cleared */
+        post: operations["signOutEverywhere"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitoring/google": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The "Connect Google" cards - one per Monitoring business, locked until its Listings day
+         * @description Hidden while GOOGLE_CONNECT_ENABLED or FIXERS_ENABLED is off (never on in production) or its drafts may not show.
+         *     A card is `locked` before the Listings module's day (day 60, an admin's early unlock, or Listings work there):
+         *     it says "Coming soon." with no button. Never a token or a code.
+         */
+        get: operations["getGoogleConnect"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitoring/google/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start "Connect Google" for one business (owners only) - the address to send the browser to
+         * @description `redirect`: send the browser to `url` (Google's consent page; only once Google has approved our access).
+         *     `not_available`: nothing was connected (`locked` before the Listings day, no OAuth client, or awaiting Google).
+         *     Off, a member, or another organisation's business: 404. The callback and the disconnect stay backend routes.
+         */
+        post: operations["startGoogleConnect"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/progress": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The progress page - each Monitoring business's grade over time, fixed, open and new, and the monthly PDFs
+         * @description A fix's, a finding's and a task's words are engine's report text (`ApprovedText`). A task's `mark` is its state and
+         *     day, said with the keys of `x-wording-keys` (`mark_*`, [date] the day). `slot` is the weekly check's day and hour
+         *     (Los Angeles). The PDFs stay backend downloads: `pdfPath`.
+         */
+        get: operations["getProgress"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/share": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The share page - the organisation's referral link, and whether the grade badge's page is there
+         * @description `referral.referred` is null while REFERRAL_CREDIT_ENABLED is on (the page does not show the older count then);
+         *     else said with `bought` ([count], [who] the `business_has` or `businesses_have` key) and `not_yet`.
+         *     `badge`: VISIBILITY_BADGE_ENABLED is on here (the link to /dashboard/visibility-badge is shown).
+         */
+        get: operations["getShare"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/share/referral-link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Make the organisation's referral link (owners only; pressing twice gives the same link) */
+        post: operations["createReferralLink"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/{id}/share-links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A Full Report's active share links (hidden while sharing is off)
+         * @description A link opens our own summary page (/r/s/{token}) without signing in. Another organisation's report, or a grade, is 404.
+         */
+        get: operations["listShareLinks"];
+        put?: never;
+        /**
+         * Create a share link for a Full Report (7, 30 or 90 days)
+         * @description 404 while sharing is off, for a refunded order's report, and for another organisation's report.
+         */
+        post: operations["createShareLink"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/share-links/{id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revoke a share link (it stops opening at once)
+         * @description Another organisation's link is 404. Revoking twice is safe.
+         */
+        post: operations["revokeShareLink"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/visibility-badge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The grade badge page - each business, its badge if on, and the code to paste
+         * @description Hidden while VISIBILITY_BADGE_ENABLED is off. `badge.embedHtml` is the code a client pastes into their own site:
+         *     an image and a link, its only words the image's approved description. `showing`: the image shows a grade now
+         *     (else it is blank until the next grade).
+         */
+        get: operations["getVisibilityBadge"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/visibility-badge/opt-in": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Switch a business's badge on (owners only; the box ticked; Monitoring needed)
+         * @description 422 `consent_required` without the box; 409 `needs_monitoring` without Monitoring; 404 while off or for another organisation's business.
+         */
+        post: operations["optInVisibilityBadge"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/visibility-badge/opt-out": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Switch a business's badge off (owners only); works with the switch off too */
+        post: operations["optOutVisibilityBadge"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/visibility-badge/show-business": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Show the business's name and website on the badge's public page, or not (owners only) */
+        post: operations["setVisibilityBadgeShowBusiness"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/onboarding": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The onboarding page's state (its form is POST /organisations)
+         * @description `hasOrganisation`: the page sends the person on to the dashboard (unless they came to add another business).
+         */
+        get: operations["getOnboarding"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The chat for one business - there or hidden, switched off by the admin, the month's allowance, the panel's words
+         * @description "Ask about your report" (the dashboard's panel) for one of the session organisation's businesses. Every answer
+         *     of the chat is the panel's own server code (src/server/assist): the guards before and after the model, the
+         *     fixed replies, the masking, the hourly bound and engine's US$3 a month cap. `ChatHidden` where the panel is not
+         *     drawn: AI_CHAT_ENABLED or the admin's database switches (Admin › AI chat: the global one, the business's) off,
+         *     the staging allow rule, no Monitoring (`not_monitoring`), or the subscription paused (`paused`: the panel then
+         *     holds only `dashboard.chat.off`). `off`: the admin switched the chat off for this subscriber (show
+         *     `dashboard.chat.off`, no box).
+         */
+        get: operations["getChat"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chat/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The business's conversation, newest first, paged - only text still within its keeping
+         * @description The questions and answers a client may still read: 90 days, a health or legal question and its answer 30 (the
+         *     answer goes with its question), never a question whose text was not stored (a patient's details) and never a
+         *     row whose text was deleted, even before the daily pass deletes it. Newest first (draw them reversed); `limit`
+         *     up to 40. Hidden as GET /chat.
+         */
+        get: operations["listChatMessages"];
+        put?: never;
+        /**
+         * Ask a question about the business's report - answered inside this request, as the panel's send
+         * @description The panel's own send: the question through every guard, fixed reply and check, stored masked with its answer.
+         *     One question at a time per business and 30 an hour; past either the answer is `refused` with `busy` (the
+         *     panel's error line). At engine's US$3 cap the answer is the limit (`kind: limit`, `dashboard.chat.limit`) and
+         *     `usage.reached` is true, as in the panel. The POST waits for the whole answer, as the panel's action does (no
+         *     answer is worked on after its request ends), up to the panel's model deadline (120 seconds) and a few seconds
+         *     for the stores: 200 `done` or `refused`, or `failed` past that deadline (the panel's error line; the poll then
+         *     says `failed` too, never `pending` for ever). Keep the request open that long. The Idempotency-Key makes a retry
+         *     of the same press the same question (never asked twice); the key keeps the id alone, so a replay answers the
+         *     question's state: a page reloaded meanwhile sends the same key and body again (keep them in sessionStorage) and
+         *     gets the answer, or 202 `pending` with the id when another instance is answering it; then GET
+         *     /chat/messages/{id}, polled or streamed. Hidden (200, nothing asked) as GET /chat.
+         */
+        post: operations["sendChatQuestion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chat/messages/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A question's answer by the id the send gave - pending, then done (poll it, or stream it as server-sent events)
+         * @description For a page reloaded while its question is answered (the send's own request gives the answer itself), with
+         *     the id a replay of the send gave. It reads the question's row; nothing is worked on here.
+         *     **Polling** (always works, and enough alone): 202 `pending` until the answer is written, then 200 `done` with
+         *     the question and the answer as stored (the copy a reload of the panel draws), or `refused` / `failed` with the
+         *     panel's sentence. **Server-sent events** (optional): with `Accept: text/event-stream` the same states come as
+         *     `event: state` blocks whose `data` is this JSON, one at once and one each time it changes, until it settles or
+         *     25 seconds pass (then reconnect, or poll); a comment line keeps it open. Where a stream does not reach the
+         *     browser in time (a proxy that buffers it), poll. Another organisation's id, an unknown one and one whose text is
+         *     past its keeping are 404 alike. Hidden as GET /chat.
+         */
+        get: operations["getChatMessage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chat/messages/{id}/thumbs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Thumbs up (1), down (-1) or taken back (0) on an answer
+         * @description The panel's thumbs (`dashboard.chat.thumbs_up`, `dashboard.chat.thumbs_down`, then `dashboard.chat.thanks`). A question, another organisation's answer or an unknown id is 404. Hidden as GET /chat.
+         */
+        post: operations["rateChatMessage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chat/messages/{id}/problem": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Report a problem with an answer
+         * @description The panel's "Report a problem" (`dashboard.chat.report_prompt`, then `dashboard.chat.report_thanks`): masked,
+         *     kept with the answer for the admin's log (2000 characters), 20 an hour a person (429 past it). A question,
+         *     another organisation's answer or an unknown id is 404. Hidden as GET /chat.
+         */
+        post: operations["reportChatProblem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/fixers/fixes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * One business's fixes with their states and the steps the caller may take, and its eight modules
+         * @description Newest first, in the modules on here (`module` narrows it to one). Each module says whether it is on, unlocked
+         *     (its day of Monitoring, `unlockDay`; an admin's early unlock; a module with work in it stays open) and early.
+         *     `paused`: the business's Monitoring pause, which holds the re-measures and the batch drafts until it ends.
+         *     `{ hidden: true }`: FIXERS_ENABLED or the module's switch off, a business not on Monitoring, or a category that
+         *     gets no fixer; the app hides the page.
+         */
+        get: operations["listFixes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/fixers/fixes/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * One fix, its draft as the owner reads it, and its log
+         * @description `draft.text` is the draft itself (the model's words or the owner's own), client data the owner edits and
+         *     approves; `draft.lint.hints` are the module's approved hints as catalogue keys. Another organisation's fix is 404,
+         *     the same answer as an unknown id.
+         */
+        get: operations["getFix"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/fixers/fixes/{id}/edit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Save the owner's own words for a draft (linted; a member may edit)
+         * @description A review's reply or a service page or blog post only (the pages that allow it). 409 `needs_change`: the lint stopped
+         *     the words (the fix waits for a change); `fix_refused`: the fix is not waiting for its owner, or its kind is decided
+         *     by the emailed link only; `fixers_hidden`: a switch is off.
+         */
+        post: operations["editFix"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/fixers/fixes/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Approve a draft (owners only; with text, those words are linted first)
+         * @description As the page: the words in the box are what is approved, so a changed `text` is saved and linted first (409
+         *     `needs_change` when the lint stops it). 403 `owner_only` for a member. Approving does not wait for a pause.
+         */
+        post: operations["approveFix"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/fixers/fixes/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reject a draft (owners only)
+         * @description 403 `owner_only` for a member; 409 `fix_refused` when the fix is past deciding.
+         */
+        post: operations["rejectFix"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/fixers/fixes/{id}/remeasure": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The re-measure of a published fix - its points at +2, +4 and +8 weeks, and the pause that holds it
+         * @description Each point is `pending`, `measured` (engine's value, the delta from the baseline and its direction), or a
+         *     `gap` with engine's reason (never a value). `context` says what else could have moved the number: a delta is
+         *     not a cause. `paused`: the business's pause; no re-measure is asked of engine until it ends.
+         */
+        get: operations["getFixRemeasure"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/fixers/fixes/{id}/published": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * The owner posted the approved reply or published the approved page - the re-measure starts (owners only)
+         * @description The pages' "I posted it" and "I published it" (the copy-paste adapter): the fix is published and its
+         *     re-measure scheduled at +2, +4 and +8 weeks (a service page with no ranking baseline, and a blog post, stay
+         *     published: nothing to re-measure). A paused business's re-measure waits for the pause's end, as built.
+         */
+        post: operations["startFixRemeasure"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/fixers/drafts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ask for the draft of one service page or blog post, by engine's brief id (owners only)
+         * @description The page builders' "Write a draft": the brief is read again from engine, one page per real service, a blog
+         *     topic only once the blog is open. 409 `fair_use_reached`: the month's drafts of that kind are used (nothing
+         *     counted); `module_locked`: Pages is not unlocked yet for this business; `business_paused`: a batch draft held
+         *     by the pause; `fix_refused`: asked already, or the offer is gone; `fixers_hidden`: a switch is off or the
+         *     business is not on Monitoring. 503 `draft_failed`: no draft came (nothing counted). `queued`: a batch draft,
+         *     written later (the fix waits in `drafting`).
+         */
+        post: operations["requestPageDraft"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/fixers/facts/updated": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * AI Fact Check's "I've updated it" on one row - the fix approved and marked done (owners only)
+         * @description The owner changed the listing or the page himself: the fix is approved, published through the copy-paste
+         *     adapter, and its re-measure starts (`state` `remeasuring`). The row is named
+         *     by its key (`GET /monitoring/watch`, `facts.rows[].key`), as the page's form names it: its fix is made at
+         *     the owner's click, so there is often no fix id before. Through the page's own `ownerFactAction` (the row read
+         *     again from engine). 403 `owner_only` for a member; 409 `module_locked` before AI Fact Check's day (nothing
+         *     made), `fix_refused` when engine no longer has the row or its owner has finished with it, `fixers_hidden`
+         *     when a switch is off or the business is not on Monitoring.
+         */
+        post: operations["markFactUpdated"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/fixers/facts/not-needed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * AI Fact Check's "Not needed" on one row - the fix rejected (owners only)
+         * @description The row's fix is rejected (`state` `rejected`) and the row leaves the card. The row is named
+         *     by its key (`GET /monitoring/watch`, `facts.rows[].key`), as the page's form names it: its fix is made at
+         *     the owner's click, so there is often no fix id before. Through the page's own `ownerFactAction` (the row read
+         *     again from engine). 403 `owner_only` for a member; 409 `module_locked` before AI Fact Check's day (nothing
+         *     made), `fix_refused` when engine no longer has the row or its owner has finished with it, `fixers_hidden`
+         *     when a switch is off or the business is not on Monitoring.
+         */
+        post: operations["markFactNotNeeded"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/fixers/fair-use": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The published fair-use limits, with what the business used and has left
+         * @description Service pages and blog posts a Los Angeles month (enforced), review requests a Pacific day and month
+         *     (enforced), the chat's questions a month (`enforced: false`: a soft figure that only displays). A module
+         *     switched off here is left out.
+         */
+        get: operations["getFairUse"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The reviews page of one business (Google and Yelp, the sites not read yet, Monitoring's trend)
+         * @description Wraps `loadReviews` (src/server/v2/load.ts). `reviews` is a `Section` as on the overview; `trend` is Monitoring's readings over time, null unless the section is ready.
+         */
+        get: operations["getDashboardReviews"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/listing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The Google listing page of one business (possible duplicates, photos, posts, its details, its alerts)
+         * @description Wraps `loadListingExtras` (src/server/v2/load.ts). `alerts` are the listing's alerts of the last 35 days (Monitoring only), each as the overview's `AlertNote`.
+         */
+        get: operations["getDashboardListing"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/review-card": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The review link and QR code page, and the links to the QR code and printable sheets
+         * @description Wraps `loadReviewCard` (src/server/v2/review-card). The plan decides what is offered: nothing on the free plan
+         *     (the page's locked line and its link); the link, the QR code and the text message with the Full Report and
+         *     Monitoring; the printable sheets with Monitoring only. A regulated category (`offered: false`) is offered
+         *     nothing but `regulatedLine`.
+         *
+         *     The downloads stay backend routes, outside /api/v1 (the load balancer's fixed list): `qr.png`, `qr.svg` and each
+         *     `sheets[].href`, opened by the browser with the session cookie. A sheet the PDF job has not finished redirects
+         *     back to `/dashboard/review-card?business=<domain>&making=<kind>` (or `failed=<kind>`), the backend page, until
+         *     the frontend has its own: that page shows `making` or `failed` (x-wording-keys) for those two parameters.
+         *
+         *     The page's other sentences are the frontend's (the catalogue's `dashboard.review_card.*`). With `words`, the
+         *     [customer] sentences take `words.customer`. The email a client copies (subject and body) has no key yet: a
+         *     catalogue gap (`dashboard.review_card.email.*`).
+         */
+        get: operations["getReviewCard"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitoring/ask-for-reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * "Ask for reviews": the counts and limits, the email's preview, the review card's links, the velocity card
+         * @description Wraps src/app/dashboard/monitoring/ask-for-reviews (src/server/fixes/requests): `hidden` where that page is not
+         *     found (FIXERS_ENABLED or the `reviews` module off, refused in production; no Monitoring; a held or regulated
+         *     category). The module opens on day 0, so it is never `locked`. The limits are the published fair use, a Pacific
+         *     day and a Pacific month per business (`counts.perDay`, `counts.perMonth`: 50 and 200).
+         */
+        get: operations["getAskForReviews"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitoring/ask-for-reviews/send": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * "Send the requests": one email per customer (owners only)
+         * @description The page's form, through the same `sendReviewRequests`. A CSV file is sent as its text in `list` (at most 512,000
+         *     characters are read). Where the page is hidden it is 404 and nothing is read or written; a member who is not an
+         *     owner is 403 `owner_only`. The form's own refusals (the box not ticked, no address, a paragraph to change, no
+         *     review link yet) are 200 with `sent: false` and the page's lines. Never an address back: a line that could not be
+         *     read is named by its number.
+         */
+        post: operations["sendReviewRequests"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitoring/reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * "Reviews to answer": the queue, each review with its draft reply and hints (read only)
+         * @description Wraps src/app/dashboard/monitoring/reviews (src/server/fixes/reviews `reviewQueue`): negative first, then
+         *     oldest. `hidden` where that page is not found (FIXERS_ENABLED or the `reviews` module off; no Monitoring). As the
+         *     page, a visit queues the drafts whose batch job expired twice (fixes/batch.ts `queueLiveDrafts`). Saving,
+         *     approving, rejecting and "I posted it" are the fixers' API (group 2).
+         */
+        get: operations["getReviewsToAnswer"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitoring/pages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * "Service pages and blog posts": the offers, the drafted pages and posts, the month's fair-use limits
+         * @description Wraps src/app/dashboard/monitoring/pages (src/server/fixes/pages `pagesBoard`). `hidden` where that page is not
+         *     found (FIXERS_ENABLED or the `pages` module off; no Monitoring; a category that gets no fixer); `locked` before
+         *     day 30 of Monitoring (or an admin's early unlock; a module with work in it stays open). The limits are enforced
+         *     a Los Angeles month per subscription: `used` against `caps` (2 service pages, 2 blog posts), again from
+         *     `resetsOn`; the blog opens after `blogAfterApprovedPages` approved pages, or once every real service has one. As
+         *     the page, a visit queues the drafts whose batch job expired twice. "Write a draft" and the owner's steps are the
+         *     fixers' API (group 2).
+         */
+        get: operations["getServicePages"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitoring/modules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The eight modules of one business, their unlock, the top 3 this week, the work done and the fair-use note
+         * @description Wraps `moduleBoard` (src/server/fixes/modules), as the Monitoring page's "Your modules" section draws it for one
+         *     business. `MonitoringHidden` while FIXERS_ENABLED or every module switch is off, for a business not on Monitoring
+         *     and for a category that gets no fixer. Each tile says whether its module is `unlocked` (the 0/14/30/60/90-day
+         *     schedule, an admin's early unlock, or work already there) and never the day it will be. Calls & Clicks has no page
+         *     of its own: it is the `results` tile (`needs_google`).
+         */
+        get: operations["getMonitoringModules"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitoring/weekly": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The business's weekly full check and the runs the Monitoring page lists
+         * @description The Monitoring page's "Weekly checks" row of this business and "Changes in your weekly full checks"
+         *     (`listMonitoring`), with the page's rule: a run is listed only when it has something to say. `checked` with no
+         *     `runs`: checks have run and none has a line (the page's other empty sentence). `check` null: no Monitoring.
+         */
+        get: operations["getMonitoringWeekly"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitoring/email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * One business's weekly email and alerts, the weekly summary's switch and the rivals-this-week email
+         * @description The Monitoring page's "Weekly email and alerts for [domain]" block: the time zone, the five alerts (with "Not
+         *     available yet"), who stopped the weekly summary with the link in the email, and `canEdit` (owners only). With it,
+         *     the organisation's weekly summary mode and `rivalsWeek`, the "your rivals this week" email, which goes to the
+         *     weekly summary's own people (hidden while RIVALS_EMAIL_ENABLED is off; it has no switch of its own). Who receives
+         *     monitoring email and "What we send" are the settings group's. `MonitoringHidden` without live Monitoring.
+         */
+        get: operations["getMonitoringEmail"];
+        put?: never;
+        /**
+         * Save the business's time zone and its five alerts (owners only)
+         * @description The block's "Save" (`saveEmailSettings`). Every alert is given (a box left unticked is false). 403 `owner_only`
+         *     for a member; 404 for a business without Monitoring; 422 `invalid_state` for a time zone not in `timeZones`.
+         */
+        post: operations["saveMonitoringEmail"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitoring/email/resubscribe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Turn the weekly summary back on for the signed-in person's own address
+         * @description "Turn it back on" (`resubscribeWeekly`), shown on the row of `stopped` whose `mine` is true. The address is the
+         *     session's, never the request's: someone else's stop stays. No body. 404 for a business without Monitoring.
+         */
+        post: operations["resubscribeMonitoringWeekly"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitoring/rivals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Your rivals (Competitor Watch and Spam Radar), or hidden, or locked until the module's day
+         * @description Wraps `rivalsSurface` and `rivalsCard` (src/server/fixes/rivals). Read-only. Spam Radar stays out of a client's
+         *     card until the strategist's review (`spamRadar` false, no candidate). `card.kind`: `hidden` (engine did not
+         *     answer: draw nothing), `coming` (engine has not built it yet), `ok`.
+         */
+        get: operations["getMonitoringRivals"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitoring/watch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Your listing and AI answers (AI Fact Check, Guardian v1, holiday hours), or hidden, or locked
+         * @description Wraps `watchSurface` and the page's three cards (src/server/fixes/watch). AI Fact Check needs the `ai_answers`
+         *     switch and its day (before it, `factsLocked` true and `facts` null: the page draws the module's name with "Coming
+         *     soon."); Guardian and the holidays need `guardian`. Locked when neither is open. A card of kind `hidden` draws
+         *     nothing. The owner's "I've updated it" and "Not needed" are the fixers' `POST /fixers/facts/updated` and
+         *     `POST /fixers/facts/not-needed`, by the row's `key`.
+         */
+        get: operations["getMonitoringWatch"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitoring/site-watch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The business's Site Watch card (the site, its certificate, its domain, the booking links)
+         * @description The Monitoring page's Site Watch card (src/server/fixes/site-watch, behind FIXERS_ENABLED and the `guardian`
+         *     switch): the stored states and the card's lines in order. Hidden while the gate is shut or without Monitoring.
+         */
+        get: operations["getMonitoringSiteWatch"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The to-do list alone (the overview's `tasks`), to draw again without the whole overview
+         * @description The same list as GET /dashboard/overview `tasks` (`loadTasks`); none on the free plan; `tickable` with Monitoring. Ticks are POST /dashboard/tasks/tick.
+         */
+        get: operations["getDashboardTasks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/quick-wins": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The first-week quick wins alone (the overview's `quickWins`)
+         * @description The same checklist as GET /dashboard/overview `quickWins` (`loadQuickWins`, with the held rule); null while QUICK_WINS_ENABLED is off, outside Monitoring's first week and for a held business. Ticks are POST /dashboard/quick-wins/tick.
+         */
+        get: operations["getDashboardQuickWins"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -980,6 +2701,113 @@ export interface components {
                 refunds: string;
                 cookies: string;
             };
+            /**
+             * @description Every client-facing switch, by its backend name (src/server/config.ts), with the value the code obeys now: after
+             *     config()'s production refusals and each feature's own gate (its drafts rule, holding). A switch refused in
+             *     production is always false there. Added 8 November 2026; a new switch is a new property (additive). The internal
+             *     and ops switches are left out (docs/api/README.md says which, and why). An operation tagged
+             *     `x-visigain-availability: behind-switch` names one of these in `x-visigain-switch`.
+             */
+            switches: {
+                /** @description The holding page, effective (also on while production holds for an unapproved wording): the same as `holding`. */
+                SITE_HOLDING: boolean;
+                /** @description The pay pages' switch, effective (off while holding): the same as `checkout`. */
+                CHECKOUT_ENABLED: boolean;
+                /** @description Pay before the account (/checkout/report, /checkout/monitoring). Refused in production. */
+                CHECKOUT_PAY_FIRST: boolean;
+                /** @description Apple Pay and Google Pay, effective (off whenever checkout is): the same as `checkoutWallets`. Refused in production. */
+                CHECKOUT_WALLETS: boolean;
+                /** @description This API's checkout starts, effective (with CHECKOUT_ENABLED, holding off): the same as `apiCheckout`. Refused in production. */
+                API_CHECKOUT_ENABLED: boolean;
+                /** @description Google sign-in (/auth/google): on only with its credentials set. */
+                GOOGLE_SIGNIN_ENABLED: boolean;
+                /** @description Ask about your report, effective: off where its drafts may not show (production, while one is a draft). A business may still be off. */
+                AI_CHAT_ENABLED: boolean;
+                /** @description Share this report: the same as `share`. */
+                SHARE_REPORT_ENABLED: boolean;
+                /** @description The Spanish site, effective: the same as `spanish`. Refused in production. */
+                SPANISH_SITE_ENABLED: boolean;
+                /** @description Search engines may index the public pages, effective (never while holding). */
+                SITE_INDEXABLE: boolean;
+                /** @description The Standard's page and definition post are published. */
+                STANDARD_PUBLIC: boolean;
+                /** @description The Standard's version marker in grade histories. */
+                STANDARD_CHANGE_NOTE: boolean;
+                /** @description City averages built on demand (the being-prepared line). */
+                CITY_AVERAGES_ON_DEMAND: boolean;
+                /** @description The scan and Monitoring forms take every type of business. */
+                ENGINE_SCAN_ANY_CATEGORY: boolean;
+                /** @description Referral credit. */
+                REFERRAL_CREDIT_ENABLED: boolean;
+                /** @description The fixers' code switch, effective; each module also has its own (`modules`). Refused in production. */
+                FIXERS_ENABLED: boolean;
+                /** @description Connect Google, effective (needs FIXERS_ENABLED). Refused in production. */
+                GOOGLE_CONNECT_ENABLED: boolean;
+                /** @description The 3 quick wins, effective (dark while a sentence is a draft outside staging). Refused in production. */
+                QUICK_WINS_ENABLED: boolean;
+                /** @description Monday's rivals email, effective. Refused in production. */
+                RIVALS_EMAIL_ENABLED: boolean;
+                /** @description Pause instead of cancel, effective. Refused in production. */
+                PAUSE_SUBSCRIPTION_ENABLED: boolean;
+                /** @description The grade badge and public grade page, effective. Refused in production. */
+                VISIBILITY_BADGE_ENABLED: boolean;
+                /** @description The free AI check (website), effective. Refused in production. */
+                FREE_AI_CHECK_ENABLED: boolean;
+                /** @description The partner program, effective. Refused in production. */
+                PARTNER_PROGRAM_ENABLED: boolean;
+                /** @description The benchmark and Index pages (website), effective. Refused in production. */
+                BENCHMARK_PAGES_ENABLED: boolean;
+                /** @description Raf's word that the benchmark pages may be indexed, effective. Refused in production. */
+                BENCHMARK_INDEXING_ENABLED: boolean;
+                /** @description The draft page How the Visibility Grade works, effective. Refused in production. */
+                METHODOLOGY_PAGE_ENABLED: boolean;
+                /** @description The nurture email series. */
+                EMAIL_NURTURE_ENABLED: boolean;
+                /** @description The checkout reminder email. */
+                EMAIL_CHECKOUT_REMINDER_ENABLED: boolean;
+                /** @description The Report to Monitoring email series. */
+                EMAIL_REPORT_TO_MONITORING_ENABLED: boolean;
+                /** @description The onboarding email series. */
+                EMAIL_ONBOARDING_ENABLED: boolean;
+                /** @description The failed payment email series. */
+                EMAIL_FAILED_PAYMENT_ENABLED: boolean;
+                /** @description The win-back email series. */
+                EMAIL_WINBACK_ENABLED: boolean;
+                /** @description Google Analytics' tag, effective (off while holding); it loads only with a real id and the consent rules. */
+                TAG_GA4_ENABLED: boolean;
+                /** @description Clarity's tag, effective (off while holding). */
+                TAG_CLARITY_ENABLED: boolean;
+                /** @description Meta's tag, effective (off while holding). */
+                TAG_META_ENABLED: boolean;
+                /** @description LinkedIn's tag, effective (off while holding). */
+                TAG_LINKEDIN_ENABLED: boolean;
+                /** @description TikTok's tag, effective (off while holding). */
+                TAG_TIKTOK_ENABLED: boolean;
+                /** @description Google Ads' tag, effective (off while holding). */
+                TAG_GOOGLE_ADS_ENABLED: boolean;
+            };
+            modules?: components["schemas"]["SiteModules"];
+        };
+        /** @description With a session only: the 8 fix modules of one business (src/server/fixes/modules: the 0/14/30/60/90-day unlock), in the schedule's order. Added 8 November 2026. */
+        SiteModules: {
+            business: {
+                id: components["schemas"]["Uuid"];
+                domain: string;
+            };
+            items: components["schemas"]["ModuleState"][];
+        };
+        ModuleState: {
+            module: components["schemas"]["FixModule"];
+            /** @description Open for this business today: its day of Monitoring reached, unlocked early by an admin, or already used (work there stays open). False without a live Monitoring subscription. */
+            unlocked: boolean;
+            /** @description The day of Monitoring it unlocks on (UNLOCK_DAY: 0, 14, 30, 60 or 90). */
+            unlockDay: number;
+            /** @description Whole days since the business's live Monitoring subscription started (0 on the first day); null without one. */
+            daysIn: number | null;
+            /** @description An admin unlocked it early for this business. */
+            earlyUnlock: boolean;
+            /** @description Its switches: FIXERS_ENABLED (refused in production) and the module's own database switch. Off: hide the module's page, whatever `unlocked` says. */
+            on: boolean;
         };
         /** @enum {string} */
         LegalSlug: "terms" | "privacy" | "refunds" | "cookies" | "accessibility";
@@ -1240,6 +3068,8 @@ export interface components {
             q: components["schemas"]["ApprovedText"];
             /** @description Markdown. */
             a: components["schemas"]["ApprovedText"];
+            /** @description Only with locale=es asked: es, or en for an item whose Spanish is not approved (it stays English). */
+            locale?: components["schemas"]["Locale"];
         };
         Faq: {
             items: components["schemas"]["FaqItem"][];
@@ -1389,6 +3219,29 @@ export interface components {
             name: string | null;
             plan: components["schemas"]["PlanLevel"];
         };
+        BusinessList: {
+            organisationId: components["schemas"]["Uuid"];
+            items: components["schemas"]["MemberBusiness"][];
+        };
+        CreateOrganisationRequest: {
+            /** @description The business or agency name (trimmed). */
+            name: string;
+            /**
+             * @default business
+             * @enum {string}
+             */
+            kind: "business" | "agency";
+        };
+        OrganisationCreated: {
+            organisation: {
+                id: components["schemas"]["Uuid"];
+                name: string;
+                /** @enum {string} */
+                kind: "business" | "agency";
+                /** @constant */
+                role: "owner";
+            };
+        };
         /** @description How this kind of business names its customers, for the sentences that differ. */
         CategoryWords: {
             customers: components["schemas"]["WordingKey"];
@@ -1465,7 +3318,7 @@ export interface components {
             week: string;
             date: components["schemas"]["EngineDate"];
             city: string;
-            /** @description A formatted percentage such as "43%" (a number, not a sentence). */
+            /** @description 'A formatted percentage such as "43%" (a number, not a sentence).' */
             shareText: string;
             mentioned: number;
             pairs: number;
@@ -1481,7 +3334,7 @@ export interface components {
                 label: string;
                 mentioned: number;
                 pairs: number;
-                /** @description A formatted percentage such as "43%" (a number, not a sentence). */
+                /** @description 'A formatted percentage such as "43%" (a number, not a sentence).' */
                 shareText: string;
                 share: number | null;
             }[];
@@ -1502,7 +3355,7 @@ export interface components {
                 week: string;
                 date: string;
                 share: number | null;
-                /** @description A formatted percentage such as "43%" (a number, not a sentence). */
+                /** @description 'A formatted percentage such as "43%" (a number, not a sentence).' */
                 shareText: string;
                 mentioned: number;
                 pairs: number;
@@ -1572,7 +3425,7 @@ export interface components {
                 }[];
                 replied: number;
                 repliedOf: number;
-                /** @description A formatted percentage such as "43%" (a number, not a sentence). */
+                /** @description 'A formatted percentage such as "43%" (a number, not a sentence).' */
                 replyShareText: string;
                 last30Days: number | null;
                 last30AtLeast: boolean;
@@ -1655,7 +3508,7 @@ export interface components {
             keyword: string;
             date: components["schemas"]["EngineDate"];
             averageRank: number | null;
-            /** @description A formatted percentage such as "43%" (a number, not a sentence). */
+            /** @description 'A formatted percentage such as "43%" (a number, not a sentence).' */
             shareTop3Text: string;
             locations: {
                 total: number;
@@ -1999,7 +3852,7 @@ export interface components {
             trend: {
                 date: string;
                 averageRank: number | null;
-                /** @description A formatted percentage such as "43%" (a number, not a sentence). */
+                /** @description 'A formatted percentage such as "43%" (a number, not a sentence).' */
                 shareTop3Text: string;
             }[];
             trendChangedOn: string | null;
@@ -2378,6 +4231,1719 @@ export interface components {
              */
             accessUntil: string | null;
         };
+        /** @description The form's words whatever its state are the x-wording-keys; a refusal's alert is its error code's key. */
+        FreeAiCheckForm: {
+            /** @description Send back as `stamp`. */
+            stamp: string;
+            /** @description Engine's categories, for the list. */
+            categories: string[];
+            limits: {
+                name: number;
+                city: number;
+                website: number;
+            };
+            /** @description Draw the Turnstile widget (with `action`) and the bot_note line only when `siteKey` is set; send its token as `botToken`. */
+            bot: {
+                siteKey: string | null;
+                action: string;
+            };
+            title: components["schemas"]["Wording"];
+        };
+        FreeAiCheckRequest: {
+            /** @description The business's name. */
+            name: string;
+            city: string;
+            category: string;
+            /** @description Optional; it tells the business from others with a similar name. */
+            website?: string;
+            /** @description The Turnstile widget's token, when `bot.siteKey` is set. */
+            botToken?: string;
+            /** @description The form's `stamp`, from GET /free-ai-check/form. */
+            stamp: string;
+            /** @description The honeypot. People never see it; leave it empty. */
+            message?: string;
+        };
+        FreeAiCheckStarted: {
+            viewToken: string;
+            /** @description The same check as one made a moment ago. */
+            reused: boolean;
+        };
+        FreeAiCheckStartedToken: {
+            viewToken: string;
+        };
+        FreeAiCheckCount: {
+            namedIn: number;
+            of: number;
+            asOf: components["schemas"]["EngineDate"];
+            /** @description Who was named instead. A plain list; its order (most answers first) is no rank. */
+            namedInstead?: {
+                /** @description Engine's text: draw it as plain text. */
+                name: string;
+                namedIn: number;
+                line: components["schemas"]["Wording"];
+            }[];
+        };
+        FreeAiCheckView: {
+            /** @enum {string} */
+            status: "pending" | "try_later" | "ready";
+            /** @description Pending only: look again after this many seconds (draw waiting_refresh). */
+            refreshSeconds: number | null;
+            title: components["schemas"]["Wording"];
+            lead: null | components["schemas"]["Wording"];
+            /** @description try_later: the page's alert. */
+            message: null | components["schemas"]["Wording"];
+            /** @description What the visitor typed, as plain text. */
+            business: {
+                name: string;
+                category: string;
+                city: string;
+            };
+            /** @description Ready: "Named in [named_in] of [of] AI answers, [date]." or its not-named twin; [date] is `asOf` (format it). */
+            line: null | components["schemas"]["Wording"];
+            summary: null | components["schemas"]["FreeAiCheckCount"];
+            /** @description Once the address is confirmed; null before (draw the gate's form then). */
+            detail: null | {
+                assistants: {
+                    label: string;
+                    /** @description Null: this assistant could not be read this time (a gap, never a no). */
+                    namedIn: number | null;
+                    of: number;
+                    line: components["schemas"]["Wording"];
+                }[];
+                questions: {
+                    /** @description Engine's text: draw it as plain text. */
+                    question: string;
+                    namedIn: number | null;
+                    of: number;
+                    /** @description Null: the question alone, as the page draws it. */
+                    line: null | components["schemas"]["Wording"];
+                }[];
+            };
+            /** @description The share link while it works. */
+            share: null | components["schemas"]["FreeAiCheckShare"];
+        };
+        FreeAiCheckDetailRequest: {
+            email: string;
+            /** @description The required box (consent_box, then the free scan's terms line), never pre-ticked: false is 422 consent_required. */
+            consent: boolean;
+            /** @description The separate marketing box (GET /legal/lines `marketingConsent`), optional and never pre-ticked. */
+            marketing?: boolean;
+        };
+        FreeAiCheckConfirm: {
+            title: components["schemas"]["Wording"];
+            lead: components["schemas"]["Wording"];
+        };
+        FreeAiCheckNextRequest: {
+            /** @enum {string} */
+            step: "grade" | "offer";
+        };
+        FreeAiCheckNext: {
+            /** @description An address of the website (the free scan's form, or /pricing). */
+            path: string;
+        };
+        FreeAiCheckShareRequest: {
+            /** @description The box share_name, never pre-ticked. */
+            showName: boolean;
+        };
+        FreeAiCheckShare: {
+            /** Format: uri */
+            url: string;
+            /** Format: date-time */
+            expiresAt: string;
+            line: components["schemas"]["Wording"];
+        };
+        SharedFreeAiCheck: {
+            /** @description Only when its maker ticked share_name. */
+            business: string | null;
+            category: string;
+            city: string;
+            namedIn: number;
+            of: number;
+            asOf: components["schemas"]["EngineDate"];
+            lead: components["schemas"]["Wording"];
+            line: components["schemas"]["Wording"];
+        };
+        /** @enum {string} */
+        PartnerState: "none" | "applied" | "rejected" | "paused" | "approved";
+        PartnerView: {
+            state: components["schemas"]["PartnerState"];
+            /** @description applied, rejected, paused: the page's one line. */
+            message: null | components["schemas"]["Wording"];
+            /** @description none: what the application shows. */
+            apply: null | {
+                commissionPercent: number;
+                commissionMonths: number;
+                terms: components["schemas"]["Wording"];
+            };
+            /** @description approved: the partner page. */
+            partner: null | {
+                name: string;
+                code: string;
+                /** Format: uri */
+                link: string;
+                codeLine: components["schemas"]["Wording"];
+                referred: {
+                    /** @description The business's name: never its report or website. */
+                    business: string;
+                    /** @enum {string} */
+                    status: "report" | "monitoring" | "monitoring_ended";
+                    statusText: components["schemas"]["Wording"];
+                    /** Format: date */
+                    since: string;
+                }[];
+                earnings: {
+                    currency: components["schemas"]["Currency"];
+                    pendingCents: components["schemas"]["Cents"];
+                    clearedCents: components["schemas"]["Cents"];
+                    paidCents: components["schemas"]["Cents"];
+                };
+                payments: {
+                    /** Format: date */
+                    paidOn: string;
+                    amountCents: components["schemas"]["Cents"];
+                    reference: string;
+                }[];
+                logo: {
+                    /** @description The saved logo, or null. */
+                    dataUrl: string | null;
+                    alt: components["schemas"]["Wording"];
+                    hint: components["schemas"]["Wording"];
+                    maxBytes: number;
+                    maxSidePx: number;
+                };
+            };
+        };
+        PartnerApplyRequest: {
+            /** @description The agency's name. */
+            name: string;
+            website: string;
+            /** @description The box terms_box, never pre-ticked. */
+            termsAccepted: boolean;
+            /** @description The box us_box, never pre-ticked. */
+            usBased: boolean;
+        };
+        PartnerApplied: {
+            state: components["schemas"]["PartnerState"];
+        };
+        PartnerLogoRequest: {
+            /** @description The PNG file in base64: at most 256 KB and 2,000 pixels on its longest side. */
+            png: string;
+        };
+        PartnerLogo: {
+            dataUrl: string | null;
+            message: components["schemas"]["Wording"];
+        };
+        PartnerLanding: {
+            code: string;
+            partner: {
+                name: string;
+            };
+            title: components["schemas"]["Wording"];
+            disclosure: components["schemas"]["Wording"];
+            /** @description Each link's words are landing_report and landing_monitoring (x-wording-keys). Follow one with GET /p/{code}/start. */
+            links: {
+                report: string;
+                monitoring: string;
+            };
+        };
+        PartnerStart: {
+            /** @description Where to go, the code on it (`partner=`). */
+            path: string;
+            /** @description The path is the sign-in page (no session). */
+            signIn: boolean;
+        };
+        PausePaused: {
+            /** @enum {integer} */
+            months: 1 | 2;
+            /** Format: date-time */
+            resumesAt: string;
+            /**
+             * Format: date-time
+             * @description The first billing date after the pause, at the plan's price.
+             */
+            nextChargeAt: string | null;
+            nextChargeCents: components["schemas"]["Cents"];
+            line: components["schemas"]["Wording"];
+        };
+        PauseView: {
+            subscriptionId: components["schemas"]["Uuid"];
+            domain: string;
+            title: components["schemas"]["Wording"];
+            /** @enum {string|null} */
+            refusal: "open" | "recent" | "refused" | null;
+            /** @description The page's alert for `refusal`; draw no form then. */
+            message: null | components["schemas"]["Wording"];
+            months: (1 | 2)[];
+            /** @description One pause in this many days (180). */
+            againAfterDays: number;
+            paused: null | components["schemas"]["PausePaused"];
+        };
+        PauseRequest: {
+            subscriptionId: components["schemas"]["Uuid"];
+            /** @enum {integer} */
+            months: 1 | 2;
+        };
+        PauseStarted: {
+            subscriptionId: components["schemas"]["Uuid"];
+            /** @enum {integer} */
+            months: 1 | 2;
+            /** Format: date-time */
+            resumesAt: string;
+            /** Format: date-time */
+            nextChargeAt: string | null;
+            nextChargeCents: components["schemas"]["Cents"];
+            line: components["schemas"]["Wording"];
+            /** @description The account page's line after pausing. */
+            message: components["schemas"]["Wording"];
+        };
+        BenchmarkItem: {
+            /** @description Engine's area name. */
+            area: string;
+            /** @description Engine's finding, as plain text. */
+            finding: string;
+        };
+        BenchmarkGap: {
+            area?: unknown;
+            finding?: unknown;
+            measured: number;
+            missed: string;
+            short: string;
+        } & components["schemas"]["BenchmarkItem"];
+        BenchmarkAllMissed: {
+            area?: unknown;
+            finding?: unknown;
+            measured: number;
+        } & components["schemas"]["BenchmarkItem"];
+        BenchmarkTopItem: {
+            area?: unknown;
+            finding?: unknown;
+            top: string;
+            rest: string;
+        } & components["schemas"]["BenchmarkItem"];
+        BenchmarkSwitches: {
+            /** @description /how-we-grade is on: link to it (its title). */
+            methodology: boolean;
+            /** @description false: say noindex. */
+            indexable: boolean;
+            minBusinesses: number;
+        };
+        BenchmarkList: {
+            methodology?: unknown;
+            indexable?: unknown;
+            minBusinesses?: unknown;
+            title: components["schemas"]["Wording"];
+            lead: components["schemas"]["Wording"];
+            rule: components["schemas"]["Wording"];
+            empty: null | components["schemas"]["Wording"];
+            pages: {
+                slug: string;
+                category: string;
+                place: string;
+                version: string;
+                path: string;
+                line: components["schemas"]["Wording"];
+            }[];
+            index: null | {
+                path: string;
+                title: components["schemas"]["Wording"];
+            };
+        } & components["schemas"]["BenchmarkSwitches"];
+        /** @description One line of engine's export, every figure as it writes it. Each section's words are the benchmark rows' keys (site.benchmarks.*), filled with these figures. */
+        BenchmarkPageData: {
+            slug: string;
+            /** @enum {string} */
+            level: "area" | "city";
+            category: string;
+            place: string;
+            state: string;
+            businesses: number;
+            from: string;
+            to: string;
+            fromDay: string;
+            toDay: string;
+            version: string;
+            median: string;
+            low: string;
+            high: string;
+            gaps: components["schemas"]["BenchmarkGap"][];
+            allMissed: components["schemas"]["BenchmarkAllMissed"][];
+            top: null | {
+                businesses: number;
+                median: string;
+                items: components["schemas"]["BenchmarkTopItem"][];
+            };
+        };
+        BenchmarkPageView: {
+            methodology?: unknown;
+            indexable?: unknown;
+            minBusinesses?: unknown;
+            /** @description The share image (a backend route). */
+            cardPath: string;
+            title: components["schemas"]["Wording"];
+            lead: components["schemas"]["Wording"];
+            page: components["schemas"]["BenchmarkPageData"];
+        } & components["schemas"]["BenchmarkSwitches"];
+        IndexList: {
+            methodology?: unknown;
+            indexable?: unknown;
+            minBusinesses?: unknown;
+            title: components["schemas"]["Wording"];
+            lead: components["schemas"]["Wording"];
+            rule: components["schemas"]["Wording"];
+            empty: null | components["schemas"]["Wording"];
+            pages: {
+                slug: string;
+                month: string;
+                category: string;
+                place: string;
+                state: string;
+                path: string;
+                /** @description [month] is `month` (2026-10): write it as a month and year. */
+                line: components["schemas"]["Wording"];
+            }[];
+        } & components["schemas"]["BenchmarkSwitches"];
+        /** @description One month of one line of engine's export, every figure as it writes it; the sections' words are the index rows' keys (site.benchmarks.*). */
+        IndexPageData: {
+            slug: string;
+            month: string;
+            /** @description The month as the English page writes it ("October 2026"). */
+            monthName: string;
+            /** @enum {string} */
+            level: "area" | "city";
+            category: string;
+            place: string;
+            state: string;
+            businesses: number;
+            from: string;
+            to: string;
+            fromDay: string;
+            toDay: string;
+            asOf: string;
+            windowDays: number;
+            version: string;
+            median: string;
+            named: null | {
+                share: string;
+                measured: number;
+                namedIn: number | null;
+                answers: number | null;
+            };
+            notMeasured: number;
+            assistants: {
+                label: string;
+                share: string;
+                measured: number;
+            }[];
+            gaps: components["schemas"]["BenchmarkGap"][];
+            allMissed: components["schemas"]["BenchmarkAllMissed"][];
+            top: null | {
+                starts: string;
+                median: string;
+                above: string;
+                detail: null | {
+                    businesses: number;
+                    median: string;
+                    named: null | {
+                        top: string;
+                        rest: string;
+                    };
+                    items: components["schemas"]["BenchmarkTopItem"][];
+                };
+            };
+            otherVersions: boolean;
+            beforeTag: null | {
+                count: number;
+                day: string;
+            };
+        };
+        IndexPageView: {
+            methodology?: unknown;
+            indexable?: unknown;
+            minBusinesses?: unknown;
+            /** @description The share image (a backend route). */
+            cardPath: string;
+            title: components["schemas"]["Wording"];
+            lead: components["schemas"]["Wording"];
+            page: components["schemas"]["IndexPageData"];
+            otherMonths: {
+                month: string;
+                path: string;
+            }[];
+        } & components["schemas"]["BenchmarkSwitches"];
+        Methodology: {
+            /** @description false: say noindex. */
+            indexable: boolean;
+            title: components["schemas"]["Wording"];
+            lead: components["schemas"]["Wording"];
+            sections: {
+                id: string;
+                title: components["schemas"]["Wording"];
+                lead: null | components["schemas"]["Wording"];
+                paragraphs: components["schemas"]["Wording"][];
+            }[];
+            /** @description The five areas, in order: the first section's list. */
+            areas: {
+                /** @description The area's fixed display name (engine's). */
+                name: string;
+                description: components["schemas"]["Wording"];
+            }[];
+            action: {
+                path: string;
+                label: components["schemas"]["Wording"];
+            };
+        };
+        /** @description The page is not there here (its switch is off; the page answers 404 today). Hide it. */
+        SettingsHidden: {
+            /** @constant */
+            availability: "hidden";
+            /** @constant */
+            reason: "off";
+        };
+        /** @enum {string} */
+        Role: "owner" | "member";
+        Settings: {
+            user: {
+                /** Format: email */
+                email: string;
+                doNotSell: boolean;
+            };
+            organisation: {
+                id: components["schemas"]["Uuid"];
+                /** @description Client data. */
+                name: string;
+                /** @enum {string} */
+                kind: "business" | "agency";
+            };
+            role: components["schemas"]["Role"];
+            /** @description An owner (a member sees the name only). */
+            canRename: boolean;
+            /**
+             * @description "Download my data": a backend download (JSON), linked as it is.
+             * @constant
+             */
+            exportPath: "/api/account/export";
+            /** @constant */
+            deleteConfirmWord: "DELETE";
+            /** @description The person's language (SPANISH_SITE_ENABLED); null while it is off. */
+            language: null | {
+                value: components["schemas"]["Locale"];
+            };
+        };
+        RenameOrganisationRequest: {
+            /** @description Trimmed and cut at 200 characters; under 2 is 422 `invalid_name`. */
+            name: string;
+        };
+        RenamedOrganisation: {
+            organisation: {
+                id: components["schemas"]["Uuid"];
+                name: string;
+            };
+        };
+        DoNotSellRequest: {
+            on: boolean;
+        };
+        DoNotSell: {
+            doNotSell: boolean;
+        };
+        LanguageRequest: {
+            language: components["schemas"]["Locale"];
+        };
+        DeleteAccountRequest: {
+            /** @description Must read DELETE (spaces around it are ignored). */
+            confirm: string;
+        };
+        TeamMember: {
+            userId: components["schemas"]["Uuid"];
+            email: string;
+            role: components["schemas"]["Role"];
+            you: boolean;
+            canChangeRole: boolean;
+            /** @description An owner's Remove, or one's own Leave. */
+            canRemove: boolean;
+        };
+        Invitation: {
+            id: components["schemas"]["Uuid"];
+            email: string;
+            role: components["schemas"]["Role"];
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        Team: {
+            role: components["schemas"]["Role"];
+            members: components["schemas"]["TeamMember"][];
+            /** @description Pending invitations, for an owner; null for a member. */
+            invitations: null | components["schemas"]["Invitation"][];
+        };
+        InviteRequest: {
+            email: string;
+            role: components["schemas"]["Role"];
+        };
+        RoleRequest: {
+            role: components["schemas"]["Role"];
+        };
+        SessionItem: {
+            /** @description The session's handle (never its token). */
+            id: string;
+            /** @description The device by its product names; null with no user agent at all. */
+            device: null | {
+                /** @enum {string|null} */
+                browser: "Edge" | "Opera" | "Firefox" | "Chrome" | "Safari" | null;
+                /** @enum {string|null} */
+                os: "iOS" | "Android" | "Windows" | "macOS" | "Linux" | null;
+            };
+            /** Format: date-time */
+            signedInAt: string;
+            /** Format: date-time */
+            expiresAt: string;
+            /** @description This device (it has no End session button). */
+            current: boolean;
+        };
+        Sessions: {
+            items: components["schemas"]["SessionItem"][];
+        };
+        GoogleConnectCard: {
+            business: {
+                id: components["schemas"]["Uuid"];
+                domain: components["schemas"]["Domain"];
+            };
+            /**
+             * @description coming: engine or Google not ready, or before the Listings day.
+             * @enum {string}
+             */
+            state: "coming" | "none" | "pending" | "active" | "revoked";
+            /** @description Before the Listings day ("Coming soon." and no button). */
+            locked: boolean;
+            connection: {
+                /** @enum {string} */
+                status: "none" | "pending" | "active" | "revoked";
+                scopes: string[];
+                /** Format: date-time */
+                connectedAt: string | null;
+            };
+            /** @description Engine's connectors built; null when engine was not asked or did not answer. */
+            engineBuilt: boolean | null;
+        };
+        GoogleConnect: components["schemas"]["SettingsHidden"] | {
+            /** @description Only an owner may press Connect. */
+            owner: boolean;
+            cards: components["schemas"]["GoogleConnectCard"][];
+        };
+        GoogleConnectStart: {
+            /** @constant */
+            kind: "redirect";
+            /**
+             * Format: uri
+             * @description Google's consent page: send the browser there.
+             */
+            url: string;
+        } | {
+            /** @constant */
+            kind: "not_available";
+            /** @enum {string} */
+            reason: "locked" | "no_client_id" | "awaiting_google_approval";
+        };
+        /** @description A task's mark (verified by scan, marked done, reopened by scan) and its day; null for a fix that is no task. */
+        TaskMark: null | {
+            /** @enum {string} */
+            state: "verified" | "done" | "reopened";
+            /** Format: date */
+            date: string | null;
+        };
+        ProgressBusiness: {
+            domain: components["schemas"]["Domain"];
+            /** @description The weekly check's day and hour (Los Angeles time); null when not scheduled. */
+            slot: null | {
+                /** @description 0 is Sunday. */
+                weekday: number;
+                hourLa: number;
+            };
+            /**
+             * Format: date
+             * @description The last completed weekly full check (with or without a grade).
+             */
+            lastCheckDay: string | null;
+            /** @description The grade the dashboard shows for the business; null when there is none. */
+            grade: null | components["schemas"]["GradeAt"];
+            /** @description The weekly checks with a score, oldest first (the chart; drawn from two points). */
+            history: {
+                /** Format: date */
+                day: string;
+                letter: string | null;
+                score: number;
+                marker?: components["schemas"]["Wording"];
+            }[];
+            /** @description The area scores of each Full Report, oldest first (drawn from two reports). */
+            areaSeries: {
+                /** Format: date */
+                day: string;
+                areas: {
+                    name: components["schemas"]["ApprovedText"];
+                    score: number;
+                }[];
+            }[];
+            hasReport: boolean;
+            next3: {
+                text: components["schemas"]["ApprovedText"];
+                effort: null | components["schemas"]["ApprovedText"];
+                mark: components["schemas"]["TaskMark"];
+            }[];
+            fixed: {
+                title: components["schemas"]["ApprovedText"];
+                /** Format: date-time */
+                at: string;
+                mark: components["schemas"]["TaskMark"];
+            }[];
+            newFindings: {
+                title: components["schemas"]["ApprovedText"];
+                /** Format: date-time */
+                at: string;
+            }[];
+            /** @description What is open after "Your next 3 fixes"; `numbered` - the list goes on from the three (numbered from 4). */
+            stillOpen: {
+                items: {
+                    text: components["schemas"]["ApprovedText"];
+                    mark: components["schemas"]["TaskMark"];
+                }[];
+                numbered: boolean;
+            };
+            openCount: number;
+            reports: {
+                id: components["schemas"]["Uuid"];
+                /** @enum {string} */
+                kind: "report" | "grade";
+                /** Format: date-time */
+                deliveredAt: string | null;
+                /** @description GET /api/v1/reports/{id}/pdf, for a Full Report. */
+                pdfPath: string | null;
+            }[];
+        };
+        Progress: {
+            businesses: components["schemas"]["ProgressBusiness"][];
+            /** @description The monthly progress PDFs, newest first. */
+            monthly: {
+                id: components["schemas"]["Uuid"];
+                /** @description YYYY-MM (Los Angeles); the frontend names the month. */
+                month: string;
+                /** @description The backend download (/dashboard/progress/monthly/{id}/pdf). */
+                pdfPath: string;
+            }[];
+        };
+        Share: {
+            role: components["schemas"]["Role"];
+            referral: null | {
+                /** Format: uri */
+                url: string;
+                /** @description Businesses that bought with the link; null while REFERRAL_CREDIT_ENABLED is on. */
+                referred: number | null;
+            };
+            /** @description An owner with no link yet. */
+            canCreate: boolean;
+            /** @description VISIBILITY_BADGE_ENABLED is on (link to the badge page). */
+            badge: boolean;
+        };
+        ReferralLink: {
+            /** Format: uri */
+            url: string;
+        };
+        ShareLink: {
+            id: components["schemas"]["Uuid"];
+            /**
+             * Format: uri
+             * @description Our own summary page, /r/s/{token}.
+             */
+            url: string;
+            /** Format: date-time */
+            expiresAt: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        ShareLinks: components["schemas"]["SettingsHidden"] | {
+            items: components["schemas"]["ShareLink"][];
+        };
+        ShareLinkRequest: {
+            /** @enum {integer} */
+            days: 7 | 30 | 90;
+        };
+        ShareLinkCreated: {
+            id: components["schemas"]["Uuid"];
+            /** Format: uri */
+            url: string;
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        VisibilityBadgeBusiness: {
+            id: components["schemas"]["Uuid"];
+            domain: components["schemas"]["Domain"];
+            /** @description Has Monitoring (the badge needs it). */
+            monitored: boolean;
+            badge: null | {
+                embedHtml: components["schemas"]["ApprovedText"];
+                imagePath: string;
+                pagePath: string;
+                showBusiness: boolean;
+                showing: boolean;
+            };
+        };
+        VisibilityBadge: components["schemas"]["SettingsHidden"] | {
+            owner: boolean;
+            businesses: components["schemas"]["VisibilityBadgeBusiness"][];
+        };
+        BadgeBusinessRef: {
+            /** @description A business id of the session organisation's own. */
+            businessId: string;
+        };
+        BadgeOptInRequest: {
+            businessId: string;
+            /** @description The box, never pre-ticked. */
+            consent: boolean;
+            showBusiness: boolean;
+        };
+        BadgeShowBusinessRequest: {
+            businessId: string;
+            showBusiness: boolean;
+        };
+        Onboarding: {
+            hasOrganisation: boolean;
+            kinds: ("business" | "agency")[];
+        };
+        /**
+         * @description The chat is not there for this business: hide the panel. `off`: a switch is off here (AI_CHAT_ENABLED, the
+         *     admin's global or business switch, the staging allow rule); `not_monitoring`: the business has no live
+         *     Monitoring; `paused`: its subscription is paused (the panel shows only `dashboard.chat.off`, no box).
+         */
+        ChatHidden: {
+            /** @constant */
+            availability: "hidden";
+            /** @enum {string} */
+            reason: "off" | "not_monitoring" | "paused";
+        };
+        /**
+         * @description The month's allowance as the panel shows it (engine's figures, never a cost): `show` from 80% of the cap and at
+         *     it, with `percent` (null below 80%) and `sentence` (`dashboard.chat.allowance`, or `dashboard.chat.limit` once
+         *     `reached`: the box closes until `resetsOn`, a day in Los Angeles).
+         */
+        ChatUsage: {
+            show: boolean;
+            percent: number | null;
+            /** Format: date */
+            resetsOn: string;
+            reached: boolean;
+            sentence: components["schemas"]["Wording"] | null;
+        };
+        ChatState: {
+            /** @constant */
+            availability: "available";
+            business: {
+                domain: components["schemas"]["Domain"];
+            };
+            /** @description The admin switched the chat off for this subscriber: show `dashboard.chat.off` and no box. */
+            off: boolean;
+            usage: components["schemas"]["ChatUsage"];
+            /** @description The panel's own sentences by their name in the panel (heading, intro, send, sending, ai_label, draft_label, thumbs_up, report, disclaimer and the rest), as keys. */
+            words: {
+                [key: string]: components["schemas"]["WordingKey"];
+            };
+        };
+        /**
+         * @description A question (`role: user`: `text` as typed, masked) or an answer as stored. An answer that is one of our fixed
+         *     replies comes as `wording` (a `dashboard.chat_reply.*` or `dashboard.chat.*` key) with `text` null; any other
+         *     answer is `text`: the model's words, or a fixed answer from the client's own report, after every guard (show
+         *     `dashboard.chat.ai_label` with it). `draft`: a draft to copy (`dashboard.chat.draft_label`). `choices`: buttons
+         *     that ask them (a greeting's reply). Only an answer takes thumbs.
+         */
+        ChatMessage: {
+            id: components["schemas"]["Uuid"];
+            /** @enum {string} */
+            role: "user" | "assistant";
+            /** @enum {string|null} */
+            kind: "answer" | "draft" | "refusal" | "redirect" | "fallback" | "limit" | "unavailable" | null;
+            text: string | null;
+            wording: components["schemas"]["Wording"] | null;
+            draft: {
+                /** @enum {string} */
+                kind: "google_post" | "review_reply" | "faq" | "service_text" | "other";
+                text: string;
+            } | null;
+            choices: components["schemas"]["Wording"][] | null;
+            /** @enum {unknown} */
+            thumbs: 1 | -1 | null;
+            /** Format: date-time */
+            at: string;
+        };
+        ChatPage: {
+            items: components["schemas"]["ChatMessage"][];
+            nextCursor: components["schemas"]["NextCursor"];
+        };
+        /** @description Where a question stands, by its answer's id. */
+        ChatAsk: {
+            id: components["schemas"]["Uuid"];
+            /** @constant */
+            status: "pending";
+        } | {
+            id: components["schemas"]["Uuid"];
+            /** @constant */
+            status: "done";
+            /** @description The question as stored; null when its text was not stored (a patient's details), as the panel leaves it out. */
+            question: components["schemas"]["ChatMessage"] | null;
+            answer: components["schemas"]["ChatMessage"];
+            usage: components["schemas"]["ChatUsage"];
+        } | {
+            id: components["schemas"]["Uuid"];
+            /** @constant */
+            status: "refused";
+            /**
+             * @description `off`: switched off while it was out (`message` is `dashboard.chat.off`); `busy`: another question is out, or 30 this hour (the error line).
+             * @enum {string}
+             */
+            reason: "off" | "busy" | "empty" | "paused" | "not_found" | "unknown";
+            message: components["schemas"]["Wording"];
+        } | {
+            id: components["schemas"]["Uuid"];
+            /** @constant */
+            status: "failed";
+            message: components["schemas"]["Wording"];
+        };
+        ChatQuestion: {
+            /** @description Not blank. Sent to the model as typed; stored masked. */
+            question: string;
+        };
+        ChatThumbsRequest: {
+            /** @enum {unknown} */
+            value: 1 | -1 | 0;
+        };
+        ChatThumbs: {
+            id: components["schemas"]["Uuid"];
+            /** @enum {unknown} */
+            thumbs: 1 | -1 | null;
+        };
+        ChatProblemRequest: {
+            text: string;
+        };
+        ReviewsPageData: components["schemas"]["Common"] & {
+            reviews: components["schemas"]["ReviewsSection"];
+            /** @description Monitoring's readings over time, oldest first; null unless `reviews.status` is ready. */
+            trend: null | {
+                date: components["schemas"]["EngineDate"];
+                count: number | null;
+                rating: number | null;
+                /** @description A formatted percentage such as "43%". */
+                replyShareText: string;
+            }[];
+        };
+        ListingPageData: components["schemas"]["Common"] & {
+            listing: components["schemas"]["ListingSection"];
+            alerts: components["schemas"]["AlertNote"][];
+        };
+        /** @enum {string} */
+        FixModuleId: "grade" | "ai_answers" | "guardian" | "listings" | "reviews" | "pages" | "rivals" | "results";
+        /** @enum {string} */
+        FixStateId: "brief" | "drafting" | "draft" | "lint_failed" | "awaiting_owner" | "approved" | "rejected" | "published" | "remeasuring" | "done" | "expired";
+        FixerPageHead: {
+            business: {
+                domain: string;
+                name: string | null;
+            };
+            businesses: components["schemas"]["MemberBusiness"][];
+        };
+        /** @description The page is not offered for this business (the page answers 404): draw nothing of it and link nowhere to it. off: a switch is off here (always in production); not_monitoring: the business is not on Monitoring; not_offered: its category is not offered the tool. */
+        FixerHidden: {
+            /** @constant */
+            state: "hidden";
+            modules: components["schemas"]["FixModuleId"][];
+            /** @enum {string} */
+            reason: "off" | "not_monitoring" | "not_offered";
+        };
+        /** @description A module not unlocked yet for this business (components/fixes/module-locked.tsx): its name as the title, what it does, and Coming soon. Never a date. */
+        FixerLocked: components["schemas"]["FixerPageHead"] & {
+            /** @constant */
+            state: "locked";
+            module: components["schemas"]["FixModuleId"];
+            name: components["schemas"]["WordingKey"];
+            about: components["schemas"]["WordingKey"];
+            coming: components["schemas"]["WordingKey"];
+        };
+        ReviewCardPage: {
+            business: {
+                domain: string;
+                /** @description The name the client gave, else the listing's, else the domain. */
+                name: string;
+                plan: components["schemas"]["PlanLevel"];
+            };
+            businesses: components["schemas"]["MemberBusiness"][];
+            words?: components["schemas"]["CategoryWords"];
+            /** @description false: a regulated category; the page shows `regulatedLine` and nothing else. */
+            offered: boolean;
+            regulatedLine?: components["schemas"]["WordingKey"];
+            /** @description Google's review link; null on the free plan, while being prepared, without a listing, or when engine did not answer. */
+            link: string | null;
+            /** @enum {string} */
+            state: "ready" | "preparing" | "no_listing";
+            /** @description "Your Yelp page": shown to the owner, never in a message. */
+            yelpUrl: string | null;
+            /** @description Engine could not be read (say so, never "no listing"). */
+            unavailable: boolean;
+            /** @description Engine's fixtures, marked for staff only. */
+            sample: boolean;
+            textMessage: null | components["schemas"]["WordingRef"];
+            /** @description The backend's QR code routes (outside /api/v1); null without a link. */
+            qr: null | {
+                png: string;
+                svg: string;
+            };
+            /** @description The printable sheets (Monitoring only), each a backend PDF route. */
+            sheets: {
+                /** @enum {string} */
+                kind: "counter-card" | "table-tent";
+                size: string;
+                title: components["schemas"]["WordingKey"];
+                note: components["schemas"]["WordingKey"];
+                href: string;
+            }[];
+        };
+        ReviewRequestCounts: {
+            today: number;
+            month: number;
+            perDay: number;
+            perMonth: number;
+            leftToday: number;
+            leftMonth: number;
+        };
+        ReviewVelocityRow: {
+            /** @description null for the business itself. */
+            name: string | null;
+            daysSinceLast: number | null;
+            reviews30d: number | null;
+        };
+        AskForReviewsOpen: components["schemas"]["FixerPageHead"] & {
+            /** @constant */
+            state: "open";
+            counts: components["schemas"]["ReviewRequestCounts"];
+            limits: {
+                messageMax: number;
+                listMax: number;
+            };
+            /** @description The business's one Google review link; null while it is not ready (no form then). */
+            link: string | null;
+            defaultMessage: components["schemas"]["Wording"];
+            /** @description "What your customers receive": the request email, as keys (the paragraph is the owner's). */
+            preview: null | {
+                subject: components["schemas"]["Wording"];
+                heading: components["schemas"]["Wording"];
+                greeting: components["schemas"]["Wording"];
+                button: components["schemas"]["Wording"];
+                link: string;
+                after: components["schemas"]["Wording"];
+                reason: components["schemas"]["Wording"];
+                unsubscribe: components["schemas"]["Wording"];
+                unsubscribeNote: components["schemas"]["Wording"];
+            };
+            noLink: null | components["schemas"]["Wording"];
+            /** @description "Ask in person": the review card (this API) and its QR code (a backend route). */
+            card: null | {
+                page: string;
+                qrPng: string;
+            };
+            velocity: {
+                /** @constant */
+                ok: false;
+            } | {
+                /** @constant */
+                ok: true;
+                you: components["schemas"]["ReviewVelocityRow"];
+                competitors: components["schemas"]["ReviewVelocityRow"][];
+                asOf: string | null;
+            };
+        };
+        AskForReviewsPage: components["schemas"]["AskForReviewsOpen"] | components["schemas"]["FixerHidden"];
+        SendReviewRequestsRequest: {
+            /** @description One customer per line (an email address, or a name and an address), or a CSV file's text. */
+            list: string;
+            /** @description The owner's paragraph; empty or left out is the default (`defaultMessage`). */
+            message?: string;
+            /** @description "I have permission to email these customers." */
+            permission: boolean;
+        };
+        ReviewRequestsSent: {
+            /** @description false: the form's refusal (`lines` say why); nothing was queued. */
+            sent: boolean;
+            /** @enum {string} */
+            tone: "success" | "error";
+            lines: components["schemas"]["Wording"][];
+            queued?: number;
+            duplicates?: number;
+            suppressed?: number;
+            overCap?: number;
+            counts: components["schemas"]["ReviewRequestCounts"];
+        };
+        ReviewToAnswer: {
+            fixId: components["schemas"]["Uuid"];
+            rating: number;
+            /** @description The review as Google shows it, masked. */
+            text: string | null;
+            language: string;
+            /** Format: date-time */
+            reviewedAt: string;
+            url: string | null;
+            state: components["schemas"]["FixStateId"];
+            /** @description The draft reply, or the owner's last edit. */
+            reply: string | null;
+            hints: components["schemas"]["WordingKey"][];
+            regulatedHint: null | components["schemas"]["WordingKey"];
+        };
+        ReviewsToAnswerPage: (components["schemas"]["FixerPageHead"] & {
+            /** @constant */
+            state: "open";
+            /** @description Drafts are written in a batch here: a draft being written says it is usually ready within a few hours. */
+            batch: boolean;
+            items: components["schemas"]["ReviewToAnswer"][];
+        }) | components["schemas"]["FixerHidden"];
+        ServicePageItem: {
+            fixId: null | components["schemas"]["Uuid"];
+            /** @enum {string} */
+            kind: "service_page" | "blog_topic";
+            subject: string;
+            briefRef: string;
+            state: null | components["schemas"]["FixStateId"];
+            text: string | null;
+            hints: components["schemas"]["WordingKey"][];
+            regulatedHint: null | components["schemas"]["WordingKey"];
+            /** Format: date-time */
+            publishedAt: string | null;
+        };
+        ServicePagesOpen: components["schemas"]["FixerPageHead"] & {
+            /** @constant */
+            state: "open";
+            /**
+             * @description hidden: engine did not answer, or the category gets no page builder.
+             * @enum {string}
+             */
+            offers: "ok" | "hidden";
+            /** @description The real services with no page yet, each with "Write a draft". */
+            services: {
+                briefId: string;
+                service: string;
+                keyword: string;
+                rank: number | null;
+                competitorRank: number | null;
+                questions: string[];
+            }[];
+            blogs: {
+                briefId: string;
+                question: string;
+                service: string;
+            }[];
+            blogOpen: boolean;
+            blogAfterApprovedPages: number;
+            items: components["schemas"]["ServicePageItem"][];
+            batch: boolean;
+            used: {
+                service_page: number;
+                blog_topic: number;
+            };
+            caps: {
+                service_page: number;
+                blog_topic: number;
+            };
+            /**
+             * Format: date
+             * @description The first day of the next Los Angeles month.
+             */
+            resetsOn: string;
+        };
+        ServicePagesPage: components["schemas"]["ServicePagesOpen"] | components["schemas"]["FixerLocked"] | components["schemas"]["FixerHidden"];
+        /**
+         * @description The eight named modules (src/server/fixes/switches.ts FIX_MODULES).
+         * @enum {string}
+         */
+        FixModule: "grade" | "ai_answers" | "guardian" | "listings" | "reviews" | "pages" | "rivals" | "results";
+        /** @enum {string} */
+        FixState: "brief" | "drafting" | "draft" | "lint_failed" | "awaiting_owner" | "approved" | "rejected" | "published" | "remeasuring" | "done" | "expired";
+        /** @description The page is hidden here (the app draws nothing of it). */
+        FixersHidden: {
+            /** @constant */
+            hidden: true;
+            /**
+             * @description off: FIXERS_ENABLED or the module's switch; not_monitoring; no_fixer: a category that gets no fixer.
+             * @enum {string}
+             */
+            reason: "off" | "not_monitoring" | "no_fixer";
+        };
+        /** @description The steps the caller may take now (the fix's state, its kind and the caller's role). */
+        FixSteps: {
+            edit: boolean;
+            approve: boolean;
+            reject: boolean;
+            /** @description The posted or published step, which starts the re-measure. */
+            remeasure: boolean;
+        };
+        FixSummary: {
+            id: components["schemas"]["Uuid"];
+            module: components["schemas"]["FixModule"];
+            /** @description review_reply, service_page, blog_topic, or another fixer's kind. */
+            kind: string;
+            state: components["schemas"]["FixState"];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /**
+             * Format: date-time
+             * @description When a fix waiting for its owner expires.
+             */
+            expiresAt: string | null;
+            steps: components["schemas"]["FixSteps"];
+        };
+        /** @description The business's Monitoring pause, null when there is none. */
+        FixPaused: {
+            /** Format: date-time */
+            until: string;
+        } | null;
+        FixModuleState: {
+            module: components["schemas"]["FixModule"];
+            /** @description FIXERS_ENABLED and fixers.module.<module>. */
+            on: boolean;
+            unlocked: boolean;
+            /** @description The day of Monitoring it unlocks on. */
+            unlockDay: number;
+            /** @description Unlocked early by an admin. */
+            early: boolean;
+        };
+        FixBusiness: {
+            domain: components["schemas"]["Domain"];
+        };
+        FixList: {
+            /** @constant */
+            hidden: false;
+            business: components["schemas"]["FixBusiness"];
+            /** @enum {string} */
+            role: "owner" | "member";
+            /** @description The business's day of Monitoring (0 on the first). */
+            day: number;
+            paused: components["schemas"]["FixPaused"];
+            modules: components["schemas"]["FixModuleState"][];
+            items: components["schemas"]["FixSummary"][];
+        };
+        FixLint: {
+            passed: boolean;
+            /** @description The module's approved hints for what the lint found. */
+            hints: components["schemas"]["WordingKey"][];
+        } | null;
+        FixDetail: {
+            /** @constant */
+            hidden: false;
+            business: components["schemas"]["FixBusiness"];
+            fix: components["schemas"]["FixSummary"];
+            /** @description The words waiting for the owner (or approved), null before the first draft. */
+            draft: {
+                /** @description The draft itself: client data (the model's words or the owner's own), never a backend sentence. */
+                text: string;
+                seq: number;
+                /** Format: date-time */
+                at: string;
+                /** @enum {string} */
+                by: "person" | "system";
+                lint: components["schemas"]["FixLint"];
+            } | null;
+            log: {
+                seq: number;
+                /** @enum {string} */
+                kind: "brief" | "draft" | "lint" | "owner_edit" | "approved" | "rejected" | "published" | "remeasure" | "expired" | "batch";
+                state: components["schemas"]["FixState"];
+                /** Format: date-time */
+                at: string;
+                /** @enum {string} */
+                by: "person" | "system";
+            }[];
+        };
+        FixEditRequest: {
+            text: string;
+        };
+        FixApproveRequest: {
+            /** @description The words in the box, when the owner changed them. */
+            text?: string;
+        };
+        FixEmptyRequest: Record<string, never>;
+        FixStepDone: {
+            fix: components["schemas"]["FixSummary"];
+        };
+        FixRemeasure: {
+            /** @constant */
+            hidden: false;
+            fixId: components["schemas"]["Uuid"];
+            state: components["schemas"]["FixState"];
+            /** Format: date-time */
+            publishedAt: string | null;
+            /** @description false: published with nothing to re-measure, or not published yet. */
+            scheduled: boolean;
+            baseline: number | null;
+            /** @description engine's metric name, as engine gives it. */
+            metric: string | null;
+            points: {
+                /** @enum {integer} */
+                week: 2 | 4 | 8;
+                /** Format: date-time */
+                dueAt: string | null;
+                /** @enum {string} */
+                status: "pending" | "measured" | "gap";
+                value: number | null;
+                delta: number | null;
+                /** @enum {string|null} */
+                direction: "better" | "worse" | "unchanged" | null;
+                /** @enum {string|null} */
+                reason: "no_reading" | "reading_failed" | "not_tracked" | "business_held" | "not_in_reading" | null;
+                context: {
+                    standardChanged: boolean;
+                    readingBasisChanged: boolean;
+                    letterHeld: boolean;
+                } | null;
+            }[];
+            paused: components["schemas"]["FixPaused"];
+        };
+        FactStepRequest: {
+            /** @description The row's key (GET /monitoring/watch facts.rows[].key). */
+            row: string;
+        };
+        PageDraftRequest: {
+            /** @description engine's brief id of the offer. */
+            brief: string;
+        };
+        PageDraftMade: {
+            fix: components["schemas"]["FixSummary"];
+            /** @description A batch draft, written later (the fix waits in drafting). */
+            queued: boolean;
+        };
+        FairUse: {
+            /** @constant */
+            hidden: false;
+            /** @description The Los Angeles month counted. */
+            month: string;
+            /** Format: date-time */
+            resetsAt: string;
+            limits: {
+                /** @enum {string} */
+                id: "service_pages" | "blog_posts" | "review_requests_day" | "review_requests_month" | "chat_messages";
+                module: null | components["schemas"]["FixModule"];
+                /** @enum {string} */
+                period: "day" | "month";
+                limit: number;
+                used: number;
+                left: number;
+                /** @description false: a soft figure that only displays. */
+                enforced: boolean;
+            }[];
+        };
+        /**
+         * @description The page is not there for this business: hide it (the page answers 404 today). `off`: a switch is off here
+         *     (FIXERS_ENABLED, the module's switch, the drafts' rule; always in production while they are refused there);
+         *     `not_monitoring`: the business has no live Monitoring; `no_fixer`: its category gets no fixer.
+         */
+        MonitoringHidden: {
+            /** @constant */
+            availability: "hidden";
+            /** @enum {string} */
+            reason: "off" | "not_monitoring" | "no_fixer";
+        };
+        /** @description The module is on but not unlocked yet for this business (its day of Monitoring has not come). The tile's own words, never a date; nothing of the module is read. */
+        MonitoringLocked: {
+            /** @constant */
+            availability: "locked";
+            module: components["schemas"]["FixModule"];
+            name: components["schemas"]["Wording"];
+            about: components["schemas"]["Wording"];
+            state: components["schemas"]["Wording"];
+        };
+        MonitoringBusiness: {
+            domain: string;
+        };
+        /**
+         * @description Where an item is done: todo (the overview's to-do list), watch (GET /monitoring/watch), reviews (the reply queue), requests (ask for reviews), pages (service pages and blog posts), rivals (GET /monitoring/rivals), site_watch (the Site Watch card).
+         * @enum {string}
+         */
+        MonitoringTarget: "todo" | "watch" | "reviews" | "requests" | "pages" | "rivals" | "site_watch";
+        /** @description A value as the page prints it: our word for it, or the client's own data as it is (a name, a phone number, a link). */
+        MonitoringShown: {
+            /** @constant */
+            kind: "wording";
+            wording: components["schemas"]["Wording"];
+        } | {
+            /** @constant */
+            kind: "text";
+            text: string;
+        };
+        ModuleTile: {
+            module: components["schemas"]["FixModule"];
+            /**
+             * @description live: built, unlocked and on; coming: not unlocked yet or switched off here; building: not built (Listings); needs_google: Results (Calls & Clicks), which needs the Google connection.
+             * @enum {string}
+             */
+            state: "live" | "coming" | "building" | "needs_google";
+            /** @description The module's unlock for this business (its day, an early unlock, or work already there), whatever its switch. Never a day. */
+            unlocked: boolean;
+            name: components["schemas"]["Wording"];
+            about: components["schemas"]["Wording"];
+            status: null | components["schemas"]["Wording"];
+            /** @enum {string} */
+            tone: "ok" | "warn" | "neutral";
+            /** @description The tile's links; a text of dashboard.monitoring.link_open has the tile's `name` as its [module]. */
+            links: {
+                target: components["schemas"]["MonitoringTarget"];
+                text: components["schemas"]["Wording"];
+            }[];
+        };
+        ModuleTopItem: {
+            key: string;
+            /**
+             * @description 0: urgent (drawn bold).
+             * @enum {integer}
+             */
+            tier: 0 | 1 | 2 | 3;
+            text: components["schemas"]["Wording"];
+            target: components["schemas"]["MonitoringTarget"];
+        };
+        LedgerEntry: {
+            fixId: components["schemas"]["Uuid"];
+            module: string;
+            kind: string;
+            state: components["schemas"]["FixState"];
+            /** Format: date-time */
+            publishedAt: string;
+            reading: null | {
+                week: number;
+                /** @enum {string|null} */
+                direction: "better" | "worse" | "same" | null;
+            };
+            measurable: boolean;
+            what: components["schemas"]["Wording"];
+            on: components["schemas"]["Wording"];
+            moved: components["schemas"]["Wording"];
+        };
+        MonitoringModules: {
+            /** @constant */
+            availability: "shown";
+            business: components["schemas"]["MonitoringBusiness"];
+            /** @description The eight tiles, in the add-on's order. */
+            modules: components["schemas"]["ModuleTile"][];
+            /** @description Top 3 this week; empty: top_none. */
+            top: components["schemas"]["ModuleTopItem"][];
+            /** @description Work done (the proof-of-work ledger): the fixes published, re-measuring or done, newest first; empty: ledger_none. `movedLine` under the list (never told as the cause). */
+            ledger: {
+                entries: components["schemas"]["LedgerEntry"][];
+                moved: null | {
+                    before: number;
+                    after: number;
+                };
+                movedLine: null | components["schemas"]["Wording"];
+            };
+            /** @description What's included (the published fair-use limits) and the chat's soft counter, which only displays. */
+            included: {
+                fairUse: {
+                    locations: number;
+                    chatMessagesPerMonth: number;
+                    servicePagesPerMonth: number;
+                    blogPostsPerMonth: number;
+                    blogAfterApprovedPages: number;
+                    reviewRequestsPerDay: number;
+                    reviewRequestsPerMonth: number;
+                };
+                line: components["schemas"]["Wording"];
+                chatMessages: number | null;
+                chat: null | components["schemas"]["Wording"];
+            };
+        };
+        MonitoringWeekly: {
+            business: components["schemas"]["MonitoringBusiness"];
+            /** @description The weekly re-check (on_hold_until while an admin holds it), and the last full check (not_yet while none). Null: no_check. */
+            check: null | {
+                slot: null | {
+                    weekday: number;
+                    hourLa: number;
+                };
+                /** Format: date-time */
+                onHoldUntil: string | null;
+                /** Format: date-time */
+                lastFullCheck: string | null;
+            };
+            /** @description A weekly full check has run (with no `runs`: the page's 'no change to show' line). */
+            checked: boolean;
+            runs: {
+                id: components["schemas"]["Uuid"];
+                /** Format: date-time */
+                date: string;
+                event: string;
+                title: components["schemas"]["Wording"];
+                /** @description False: not_available (a person is checking the measurement); nothing else is drawn. */
+                clientFacing: boolean;
+                /** @description score_from_to with before and after (grade_changed after it when gradeChanged), else score with after. */
+                score: null | {
+                    before: string | null;
+                    after: string;
+                    gradeChanged: boolean;
+                };
+                /** @description Engine's reading of the check, when it gives none of the Standard away (English). */
+                reading: null | components["schemas"]["ApprovedText"];
+                found: {
+                    fixed: number;
+                    reopened: number;
+                    newFindings: number;
+                };
+                /** @description The counts in words (dashboard.monitoring.run.found), then see_on_progress. */
+                foundLine: null | components["schemas"]["Wording"];
+            }[];
+        };
+        MonitoringEmail: {
+            /** @constant */
+            availability: "shown";
+            business: components["schemas"]["MonitoringBusiness"];
+            /** @description An owner: the fields are editable and Save is drawn; else owner_only. */
+            canEdit: boolean;
+            /** @example America/Los_Angeles */
+            timeZone: string;
+            /** @description The choices, the US zones first. A zone with no label is drawn by its name (its value, underscores as spaces). */
+            timeZones: {
+                value: string;
+                label: null | components["schemas"]["WordingKey"];
+            }[];
+            alerts: {
+                /** @enum {string} */
+                kind: "low_review" | "overtaken" | "ai_dropped" | "duplicate" | "listing_changed";
+                label: components["schemas"]["WordingKey"];
+                on: boolean;
+                /** @description False: not_available beside it (no reading carries it yet). */
+                available: boolean;
+            }[];
+            /** @description Who stopped the weekly summary with the link in the email; turn_back_on on the row that is `mine`. */
+            stopped: {
+                email: string;
+                /** Format: date-time */
+                date: string;
+                mine: boolean;
+            }[];
+            /**
+             * @description The organisation's weekly summary (its "What we send" setting).
+             * @enum {string}
+             */
+            summary: "immediate" | "weekly" | "off";
+            /** @description The "your rivals this week" email (RIVALS_EMAIL_ENABLED): Monday from 10am in the business's zone, to the weekly summary's own people; `sends` false while the summary is off. Hidden while the switch is off. */
+            rivalsWeek: components["schemas"]["MonitoringHidden"] | {
+                /** @constant */
+                availability: "shown";
+                sends: boolean;
+            };
+        };
+        SaveMonitoringEmailRequest: {
+            timeZone: string;
+            alerts: {
+                low_review: boolean;
+                overtaken: boolean;
+                ai_dropped: boolean;
+                duplicate: boolean;
+                listing_changed: boolean;
+            };
+        };
+        RivalChange: {
+            key: string;
+            /** @enum {string} */
+            kind: "new_entrant" | "rating_jump" | "review_spike" | "name_change";
+            label: components["schemas"]["Wording"];
+            /** @description The competitor's name as Google shows it (client data). */
+            competitor: string;
+            before: components["schemas"]["MonitoringShown"];
+            now: components["schemas"]["MonitoringShown"];
+            seenAt: components["schemas"]["EngineDate"];
+        };
+        SpamCandidate: {
+            key: string;
+            /** @constant */
+            kind: "stuffing_candidate";
+            label: components["schemas"]["Wording"];
+            text: components["schemas"]["Wording"];
+            competitor: string;
+            seenAt: components["schemas"]["EngineDate"];
+            evidence: components["schemas"]["MonitoringShown"][];
+            /** @description The values to paste into Google's public form, by the owner himself: never sent by us. */
+            form: {
+                /** Format: uri */
+                formUrl: string;
+                fields: {
+                    /** @enum {string} */
+                    key: "name" | "url" | "issue" | "evidence";
+                    label: components["schemas"]["Wording"];
+                    values: components["schemas"]["MonitoringShown"][];
+                }[];
+            };
+        };
+        MonitoringRivals: {
+            /** @constant */
+            availability: "shown";
+            business: components["schemas"]["MonitoringBusiness"];
+            card: {
+                /** @enum {string} */
+                kind: "hidden" | "coming";
+            } | {
+                /** @constant */
+                kind: "ok";
+                changes: components["schemas"]["RivalChange"][];
+                candidates: components["schemas"]["SpamCandidate"][];
+                /** @description This week's grid and last week's were of different sizes: not_compared in place of the two none lines. */
+                notCompared: boolean;
+                /** @description Whether the Spam Radar section is drawn at all (false for clients until the strategist's review). */
+                spamRadar: boolean;
+            };
+        };
+        /** @description A Google listing value: as MonitoringShown, or the hours by day (each day's label, then its spans or value_closed). */
+        ListingValue: components["schemas"]["MonitoringShown"] | {
+            /** @constant */
+            kind: "hours";
+            days: {
+                /** @enum {string} */
+                day: "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
+                label: components["schemas"]["Wording"];
+                closed: boolean;
+                spans: string[];
+            }[];
+        };
+        FactCheckRow: {
+            key: string;
+            /** @enum {string} */
+            field: "phone" | "website" | "address" | "open_status";
+            label: components["schemas"]["Wording"];
+            stated: components["schemas"]["MonitoringShown"];
+            ours: components["schemas"]["MonitoringShown"];
+            /** @description The site the answer cites (client data). */
+            source: string | null;
+            /** @description The assistant's name, for asked_by's [engine]; null: no asked_by line. */
+            assistant: null | components["schemas"]["Wording"];
+            question: components["schemas"]["ApprovedText"];
+            /** @description seen_in with [N] stating and [M] answers, when answers > 0. */
+            seen: {
+                answers: number;
+                stating: number;
+            };
+            fixState: null | components["schemas"]["FixState"];
+            /** @description fix_done_note in place of the fix. */
+            done: boolean;
+            /** @description The owner has finished with it: no fix drawn. */
+            closed: boolean;
+            /** @description The fix's sentence. Its [detail] is `detail`'s word, its [stated] `stated`'s word in lower case; the other names are in its params. */
+            fix: {
+                text: components["schemas"]["Wording"];
+                detail: null | components["schemas"]["Wording"];
+                stated: null | components["schemas"]["Wording"];
+            };
+        };
+        MonitoringWatch: {
+            /** @constant */
+            availability: "shown";
+            business: components["schemas"]["MonitoringBusiness"];
+            factsLocked: boolean;
+            facts: null | {
+                /** @enum {string} */
+                kind: "hidden" | "area_not_supported" | "waiting";
+            } | {
+                /** @constant */
+                kind: "ok";
+                /**
+                 * Format: date
+                 * @description facts_week's [date] (the week's Monday).
+                 */
+                week: string;
+                /** @description Without the rows the owner said were not needed; empty: facts_none. */
+                rows: components["schemas"]["FactCheckRow"][];
+            };
+            guardian: null | {
+                /** @enum {string} */
+                kind: "hidden" | "waiting";
+            } | {
+                /** @constant */
+                kind: "ok";
+                week: string;
+                /** @description Drawn first: notFound is the prominent alert (alert_heading, alert_text), never told as a suspension; any other is label with alert_other. */
+                alerts: {
+                    field: string;
+                    notFound: boolean;
+                    label: components["schemas"]["Wording"];
+                }[];
+                changes: {
+                    field: string;
+                    label: components["schemas"]["Wording"];
+                    before: components["schemas"]["ListingValue"];
+                    now: components["schemas"]["ListingValue"];
+                    seenAt: components["schemas"]["EngineDate"];
+                }[];
+                /** @description duplicate_text with [name]. */
+                duplicates: {
+                    name: string;
+                }[];
+            };
+            holidays: null | {
+                /** @constant */
+                kind: "hidden";
+            } | {
+                /** @constant */
+                kind: "ok";
+                /** @description holiday_none's [days]. */
+                days: number;
+                /** @description holiday_reminder with [holiday] (name's word), [date] and [hours]; then holiday_note. */
+                reminders: {
+                    holiday: string;
+                    name: components["schemas"]["Wording"];
+                    /** Format: date */
+                    date: string;
+                    hours: string;
+                }[];
+            };
+        };
+        MonitoringSiteWatch: {
+            /** @constant */
+            availability: "shown";
+            business: components["schemas"]["MonitoringBusiness"];
+            card: {
+                uptime: null | {
+                    status: string;
+                    /** Format: date-time */
+                    since: string;
+                    /** Format: date-time */
+                    checkedAt: string | null;
+                };
+                ssl: components["schemas"]["SiteWatchExpiry"];
+                domainExpiry: components["schemas"]["SiteWatchExpiry"];
+                booking: {
+                    found: number | null;
+                    links: {
+                        url: string;
+                        status: string;
+                    }[];
+                    /** Format: date-time */
+                    checkedAt: string | null;
+                };
+                /**
+                 * Format: date-time
+                 * @description checked_at's [time].
+                 */
+                checkedAt: string | null;
+                /** @description The card's lines in order (the site, the certificate, the domain, the booking links), each in its tone. */
+                lines: {
+                    key: string;
+                    text: components["schemas"]["Wording"];
+                    /** @enum {string} */
+                    tone: "ok" | "warn" | "danger" | "neutral";
+                }[];
+            };
+        };
+        SiteWatchExpiry: null | {
+            status: string;
+            /** Format: date-time */
+            notAfter: string | null;
+            /** Format: date-time */
+            checkedAt: string | null;
+        };
+        TasksPage: {
+            plan: components["schemas"]["PlanLevel"];
+            tasks: null | components["schemas"]["Tasks"];
+        };
+        QuickWinsPage: {
+            quickWins: null | components["schemas"]["QuickWins"];
+        };
     };
     responses: {
         /** @description No session, or it ended. Send the visitor to /signin?next=<this page>. */
@@ -2471,11 +6037,19 @@ export interface components {
         Id: components["schemas"]["Uuid"];
         /** @description The free scan's view token. */
         ViewToken: string;
+        /** @description The free AI check's key (the result page's address). */
+        FreeAiCheckToken: string;
+        /** @description The emailed, signed confirm code. */
+        FreeAiCheckCode: string;
+        /** @description A partner's code (8 letters and digits). */
+        PartnerCode: string;
         /** @description `es` only while `spanish` is on in /site; engine's own sentences stay English. */
         LocaleQuery: components["schemas"]["Locale"];
         /** @description The `nextCursor` of the page before; leave out for the first page. Opaque. */
         Cursor: string;
         Limit: number;
+        /** @description One of the eight modules; leave out for all of them. */
+        FixModuleQuery: components["schemas"]["FixModule"];
         /**
          * @description A fresh random key per checkout attempt (16 to 64 of A-Z a-z 0-9 _ -), reused on a retry of the same press.
          *     The same key with the same body within 24 hours answers the first answer again (with the header
@@ -2489,7 +6063,7 @@ export interface components {
     headers: {
         /**
          * @description The catalogue's version (the body's `version`), quoted; send it back in If-None-Match. The mock always sends this one.
-         * @example "5b5f657338c2aa30"
+         * @example "225569fc317d8092"
          */
         WordingsETag: string;
         /**
@@ -2498,7 +6072,7 @@ export interface components {
          */
         WordingsCacheControl: string;
         /**
-         * @description The switches may be kept at most 60 seconds.
+         * @description The switches may be kept at most 60 seconds: `public, max-age=60`. An answer with `modules` (a session) is `private, no-store`.
          * @example public, max-age=60
          */
         SiteCacheControl: string;
@@ -2523,12 +6097,17 @@ export interface components {
          */
         RetryAfter: number;
         /**
-         * @description `vg_session=<token>; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=2592000`
+         * @description `vg_session=<token>; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=2592000`. Host-only. Once the app has its own host (APP_ORIGIN), a second Set-Cookie writes the website's hint `vg_signed_in=1; Domain=visigain.com; Path=/; SameSite=Lax; Secure; Max-Age=2592000` (no identity).
          * @example vg_session=bW9jay1zZXNzaW9uLXRva2VuLWludmVudGVk; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=2592000
          */
         SetSessionCookie: string;
         /**
-         * @description `vg_session=; Path=/; Max-Age=0`
+         * @description `vg_org=<organisation id>; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=31536000` (it only chooses among the user's own organisations)
+         * @example vg_org=0b6f3c2e-8d4a-4f1b-9c7e-2a5d6e8f1a3b; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=31536000
+         */
+        SetOrganisationCookie: string;
+        /**
+         * @description `vg_session=; Path=/; Max-Age=0`. Once the app has its own host (APP_ORIGIN), a second Set-Cookie clears the hint: `vg_signed_in=; Domain=visigain.com; Path=/; SameSite=Lax; Secure; Max-Age=0`.
          * @example vg_session=; Path=/; Max-Age=0
          */
         ClearSessionCookie: string;
@@ -2577,14 +6156,17 @@ export interface operations {
     };
     getSite: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description With a session only, the business whose modules are given (its domain, among the session organisation's own). Ignored without a session. */
+                b?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description The switches, read on every request (cache for at most 60 seconds). */
+            /** @description The switches, read on every request (cache for at most 60 seconds; never with `modules`). */
             200: {
                 headers: {
                     "Cache-Control": components["headers"]["SiteCacheControl"];
@@ -2690,7 +6272,10 @@ export interface operations {
     };
     getPricing: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description `es` only while `spanish` is on in /site; engine's own sentences stay English. */
+                locale?: components["parameters"]["LocaleQuery"];
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2706,6 +6291,7 @@ export interface operations {
                     "application/json": components["schemas"]["Pricing"];
                 };
             };
+            422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
         };
     };
@@ -2869,7 +6455,10 @@ export interface operations {
     };
     getFaq: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description `es` only while `spanish` is on in /site; engine's own sentences stay English. */
+                locale?: components["parameters"]["LocaleQuery"];
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2885,6 +6474,7 @@ export interface operations {
                     "application/json": components["schemas"]["Faq"];
                 };
             };
+            422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
         };
     };
@@ -3390,6 +6980,92 @@ export interface operations {
             429: components["responses"]["RateLimited"];
         };
     };
+    createOrganisation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateOrganisationRequest"];
+            };
+        };
+        responses: {
+            /** @description Made; `vg_org` now names it. */
+            201: {
+                headers: {
+                    "Set-Cookie": components["headers"]["SetOrganisationCookie"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganisationCreated"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            413: components["responses"]["TooLarge"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listBusinesses: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The businesses (none yet is an empty list). */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BusinessList"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            409: components["responses"]["Conflict"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listBusinessScans: {
+        parameters: {
+            query?: {
+                /** @description The `nextCursor` of the page before; leave out for the first page. Opaque. */
+                cursor?: components["parameters"]["Cursor"];
+                limit?: components["parameters"]["Limit"];
+            };
+            header?: never;
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GradeHistoryPage"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
     listReports: {
         parameters: {
             query?: {
@@ -3830,6 +7506,2445 @@ export interface operations {
             422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
             503: components["responses"]["Unavailable"];
+        };
+    };
+    getFreeAiCheckForm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Draw the form. Send `stamp` back with it; draw the Turnstile widget only when `bot.siteKey` is set. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FreeAiCheckForm"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    startFreeAiCheck: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FreeAiCheckRequest"];
+            };
+        };
+        responses: {
+            /** @description Started (or the same check again). Open the result with `viewToken`. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FreeAiCheckStarted"];
+                };
+            };
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            413: components["responses"]["TooLarge"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["Unavailable"];
+        };
+    };
+    getFreeAiCheck: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The free AI check's key (the result page's address). */
+                token: components["parameters"]["FreeAiCheckToken"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The result page's state. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FreeAiCheckView"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    requestFreeAiCheckDetail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The free AI check's key (the result page's address). */
+                token: components["parameters"]["FreeAiCheckToken"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FreeAiCheckDetailRequest"];
+            };
+        };
+        responses: {
+            /** @description Taken: show the gate's sent line (x-wording-keys gate_sent of FreeAiCheckView). */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            413: components["responses"]["TooLarge"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["Unavailable"];
+        };
+    };
+    nextFreeAiCheckStep: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The free AI check's key (the result page's address). */
+                token: components["parameters"]["FreeAiCheckToken"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FreeAiCheckNextRequest"];
+            };
+        };
+        responses: {
+            /** @description Where the button goes. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FreeAiCheckNext"];
+                };
+            };
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            413: components["responses"]["TooLarge"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    shareFreeAiCheck: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The free AI check's key (the result page's address). */
+                token: components["parameters"]["FreeAiCheckToken"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FreeAiCheckShareRequest"];
+            };
+        };
+        responses: {
+            /** @description The link, and until when it works (30 days). */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FreeAiCheckShare"];
+                };
+            };
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            413: components["responses"]["TooLarge"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    unshareFreeAiCheck: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The free AI check's key (the result page's address). */
+                token: components["parameters"]["FreeAiCheckToken"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed: show share_removed (x-wording-keys of FreeAiCheckView). */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getFreeAiCheckConfirm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The emailed, signed confirm code. */
+                code: components["parameters"]["FreeAiCheckCode"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The code is good. Draw the page with its button (confirm_button). */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FreeAiCheckConfirm"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    confirmFreeAiCheck: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The emailed, signed confirm code. */
+                code: components["parameters"]["FreeAiCheckCode"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Confirmed. Open the result with `viewToken`. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FreeAiCheckStartedToken"];
+                };
+            };
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getSharedFreeAiCheck: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description What its maker chose to show. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SharedFreeAiCheck"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getPartner: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The partner page's state. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartnerView"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    applyPartner: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description A fresh random key per checkout attempt (16 to 64 of A-Z a-z 0-9 _ -), reused on a retry of the same press.
+                 *     The same key with the same body within 24 hours answers the first answer again (with the header
+                 *     `Idempotent-Replayed: true`); with another body, 422 `idempotency_key_reused` (the IETF Idempotency-Key draft's
+                 *     answer). Only a success is kept: a refusal may be sent again with the same key. A missing or malformed key is 422
+                 *     `invalid_state`. (The backend also reuses an unpaid order or subscription of the last 60 minutes.)
+                 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PartnerApplyRequest"];
+            };
+        };
+        responses: {
+            /** @description Applied (or the partner as it is). */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartnerApplied"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            413: components["responses"]["TooLarge"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    uploadPartnerLogo: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description A fresh random key per checkout attempt (16 to 64 of A-Z a-z 0-9 _ -), reused on a retry of the same press.
+                 *     The same key with the same body within 24 hours answers the first answer again (with the header
+                 *     `Idempotent-Replayed: true`); with another body, 422 `idempotency_key_reused` (the IETF Idempotency-Key draft's
+                 *     answer). Only a success is kept: a refusal may be sent again with the same key. A missing or malformed key is 422
+                 *     `invalid_state`. (The backend also reuses an unpaid order or subscription of the last 60 minutes.)
+                 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PartnerLogoRequest"];
+            };
+        };
+        responses: {
+            /** @description Saved. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartnerLogo"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            413: components["responses"]["TooLarge"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getPartnerLanding: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A partner's code (8 letters and digits). */
+                code: components["parameters"]["PartnerCode"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The partner's name, the disclosure and the two links. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartnerLanding"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    startPartnerReferral: {
+        parameters: {
+            query?: {
+                to?: "report" | "monitoring";
+            };
+            header?: never;
+            path: {
+                /** @description A partner's code (8 letters and digits). */
+                code: components["parameters"]["PartnerCode"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Go to `path`. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartnerStart"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getPause: {
+        parameters: {
+            query: {
+                subscription: components["schemas"]["Uuid"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The page's state. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PauseView"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    pauseMonitoring: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description A fresh random key per checkout attempt (16 to 64 of A-Z a-z 0-9 _ -), reused on a retry of the same press.
+                 *     The same key with the same body within 24 hours answers the first answer again (with the header
+                 *     `Idempotent-Replayed: true`); with another body, 422 `idempotency_key_reused` (the IETF Idempotency-Key draft's
+                 *     answer). Only a success is kept: a refusal may be sent again with the same key. A missing or malformed key is 422
+                 *     `invalid_state`. (The backend also reuses an unpaid order or subscription of the last 60 minutes.)
+                 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PauseRequest"];
+            };
+        };
+        responses: {
+            /** @description Paused. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PauseStarted"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            413: components["responses"]["TooLarge"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listBenchmarks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The list. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BenchmarkList"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getBenchmark: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The page. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BenchmarkPageView"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listIndexPages: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The list. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndexList"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getIndexPage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                place: string;
+                month: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The page. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndexPageView"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getMethodology: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The page's sentences in order. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Methodology"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The settings. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Settings"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            409: components["responses"]["Conflict"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    renameOrganisation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RenameOrganisationRequest"];
+            };
+        };
+        responses: {
+            /** @description The organisation as it now stands. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RenamedOrganisation"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    setDoNotSell: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DoNotSellRequest"];
+            };
+        };
+        responses: {
+            /** @description The choice now saved. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DoNotSell"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    setLanguage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LanguageRequest"];
+            };
+        };
+        responses: {
+            /** @description The language now saved. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LanguageRequest"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    deleteAccount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeleteAccountRequest"];
+            };
+        };
+        responses: {
+            /** @description Deleted; signed out. */
+            204: {
+                headers: {
+                    "Set-Cookie": components["headers"]["ClearSessionCookie"];
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getTeam: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The team. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Team"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            409: components["responses"]["Conflict"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    inviteMember: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description A fresh random key per checkout attempt (16 to 64 of A-Z a-z 0-9 _ -), reused on a retry of the same press.
+                 *     The same key with the same body within 24 hours answers the first answer again (with the header
+                 *     `Idempotent-Replayed: true`); with another body, 422 `idempotency_key_reused` (the IETF Idempotency-Key draft's
+                 *     answer). Only a success is kept: a refusal may be sent again with the same key. A missing or malformed key is 422
+                 *     `invalid_state`. (The backend also reuses an unpaid order or subscription of the last 60 minutes.)
+                 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InviteRequest"];
+            };
+        };
+        responses: {
+            /** @description The invitation (pending). */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Invitation"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    revokeInvitation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Revoked. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    changeMemberRole: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoleRequest"];
+            };
+        };
+        responses: {
+            /** @description Changed. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    removeMember: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listSessions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The sessions. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Sessions"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    revokeSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The session's handle (`id` of GET /sessions). */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Ended. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    signOutEverywhere: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Signed out everywhere (send the visitor to /signin). */
+            204: {
+                headers: {
+                    "Set-Cookie": components["headers"]["ClearSessionCookie"];
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getGoogleConnect: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The cards, or hidden. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoogleConnect"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            409: components["responses"]["Conflict"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    startGoogleConnect: {
+        parameters: {
+            query: {
+                /** @description The business's domain, among the session organisation's own. */
+                b: components["parameters"]["BusinessDomainRequired"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Where to go next. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoogleConnectStart"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getProgress: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The progress. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Progress"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            409: components["responses"]["Conflict"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getShare: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The share page. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Share"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            409: components["responses"]["Conflict"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    createReferralLink: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The link. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReferralLink"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listShareLinks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The links, or hidden. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShareLinks"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    createShareLink: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShareLinkRequest"];
+            };
+        };
+        responses: {
+            /** @description The new link. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShareLinkCreated"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    revokeShareLink: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Revoked. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getVisibilityBadge: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The badges, or hidden. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VisibilityBadge"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            409: components["responses"]["Conflict"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    optInVisibilityBadge: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BadgeOptInRequest"];
+            };
+        };
+        responses: {
+            /** @description The badge is on (GET /visibility-badge has its code). */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    optOutVisibilityBadge: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BadgeBusinessRef"];
+            };
+        };
+        responses: {
+            /** @description Off; the image and the public page stop at once. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    setVisibilityBadgeShowBusiness: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BadgeShowBusinessRequest"];
+            };
+        };
+        responses: {
+            /** @description Saved. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getOnboarding: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The state. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Onboarding"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getChat: {
+        parameters: {
+            query: {
+                /** @description The business's domain, among the session organisation's own. */
+                b: components["parameters"]["BusinessDomainRequired"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The chat's state, or hidden. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatState"] | components["schemas"]["ChatHidden"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listChatMessages: {
+        parameters: {
+            query: {
+                /** @description The business's domain, among the session organisation's own. */
+                b: components["parameters"]["BusinessDomainRequired"];
+                /** @description The `nextCursor` of the page before; leave out for the first page. Opaque. */
+                cursor?: components["parameters"]["Cursor"];
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A page of the conversation, or hidden. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatPage"] | components["schemas"]["ChatHidden"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    sendChatQuestion: {
+        parameters: {
+            query: {
+                /** @description The business's domain, among the session organisation's own. */
+                b: components["parameters"]["BusinessDomainRequired"];
+            };
+            header: {
+                /**
+                 * @description A fresh random key per checkout attempt (16 to 64 of A-Z a-z 0-9 _ -), reused on a retry of the same press.
+                 *     The same key with the same body within 24 hours answers the first answer again (with the header
+                 *     `Idempotent-Replayed: true`); with another body, 422 `idempotency_key_reused` (the IETF Idempotency-Key draft's
+                 *     answer). Only a success is kept: a refusal may be sent again with the same key. A missing or malformed key is 422
+                 *     `invalid_state`. (The backend also reuses an unpaid order or subscription of the last 60 minutes.)
+                 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChatQuestion"];
+            };
+        };
+        responses: {
+            /** @description The answer (done), a refusal, or hidden. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatAsk"] | components["schemas"]["ChatHidden"];
+                };
+            };
+            /** @description A replay of a press another instance is still answering. Poll GET /chat/messages/{id}. */
+            202: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatAsk"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            413: components["responses"]["TooLarge"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getChatMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Settled (done, refused or failed), or hidden; as `text/event-stream` with that Accept. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatAsk"] | components["schemas"]["ChatHidden"];
+                    "text/event-stream": string;
+                };
+            };
+            /** @description Still being written. */
+            202: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatAsk"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    rateChatMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChatThumbsRequest"];
+            };
+        };
+        responses: {
+            /** @description The thumbs as they now stand, or hidden. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatThumbs"] | components["schemas"]["ChatHidden"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            413: components["responses"]["TooLarge"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    reportChatProblem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChatProblemRequest"];
+            };
+        };
+        responses: {
+            /** @description Hidden (nothing kept). */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatHidden"];
+                };
+            };
+            /** @description Kept. */
+            204: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            413: components["responses"]["TooLarge"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    listFixes: {
+        parameters: {
+            query?: {
+                /** @description The business's domain, among the session organisation's own. Missing or empty means the first (Monitoring first, then Full Report, then Free); any other domain that is not one of the organisation's own (another organisation's included) is 404 `not_found`, the same answer as a domain that does not exist, never the first business's data. */
+                b?: components["parameters"]["BusinessDomain"];
+                /** @description One of the eight modules; leave out for all of them. */
+                module?: components["parameters"]["FixModuleQuery"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The fixes, or hidden. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FixList"] | components["schemas"]["FixersHidden"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getFix: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The fix, or hidden. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FixDetail"] | components["schemas"]["FixersHidden"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    editFix: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description A fresh random key per checkout attempt (16 to 64 of A-Z a-z 0-9 _ -), reused on a retry of the same press.
+                 *     The same key with the same body within 24 hours answers the first answer again (with the header
+                 *     `Idempotent-Replayed: true`); with another body, 422 `idempotency_key_reused` (the IETF Idempotency-Key draft's
+                 *     answer). Only a success is kept: a refusal may be sent again with the same key. A missing or malformed key is 422
+                 *     `invalid_state`. (The backend also reuses an unpaid order or subscription of the last 60 minutes.)
+                 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FixEditRequest"];
+            };
+        };
+        responses: {
+            /** @description The fix as it now stands. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FixStepDone"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            413: components["responses"]["TooLarge"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    approveFix: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description A fresh random key per checkout attempt (16 to 64 of A-Z a-z 0-9 _ -), reused on a retry of the same press.
+                 *     The same key with the same body within 24 hours answers the first answer again (with the header
+                 *     `Idempotent-Replayed: true`); with another body, 422 `idempotency_key_reused` (the IETF Idempotency-Key draft's
+                 *     answer). Only a success is kept: a refusal may be sent again with the same key. A missing or malformed key is 422
+                 *     `invalid_state`. (The backend also reuses an unpaid order or subscription of the last 60 minutes.)
+                 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FixApproveRequest"];
+            };
+        };
+        responses: {
+            /** @description The fix as it now stands. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FixStepDone"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            413: components["responses"]["TooLarge"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    rejectFix: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description A fresh random key per checkout attempt (16 to 64 of A-Z a-z 0-9 _ -), reused on a retry of the same press.
+                 *     The same key with the same body within 24 hours answers the first answer again (with the header
+                 *     `Idempotent-Replayed: true`); with another body, 422 `idempotency_key_reused` (the IETF Idempotency-Key draft's
+                 *     answer). Only a success is kept: a refusal may be sent again with the same key. A missing or malformed key is 422
+                 *     `invalid_state`. (The backend also reuses an unpaid order or subscription of the last 60 minutes.)
+                 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FixEmptyRequest"];
+            };
+        };
+        responses: {
+            /** @description The fix as it now stands. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FixStepDone"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            413: components["responses"]["TooLarge"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getFixRemeasure: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The re-measure, or hidden. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FixRemeasure"] | components["schemas"]["FixersHidden"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    startFixRemeasure: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description A fresh random key per checkout attempt (16 to 64 of A-Z a-z 0-9 _ -), reused on a retry of the same press.
+                 *     The same key with the same body within 24 hours answers the first answer again (with the header
+                 *     `Idempotent-Replayed: true`); with another body, 422 `idempotency_key_reused` (the IETF Idempotency-Key draft's
+                 *     answer). Only a success is kept: a refusal may be sent again with the same key. A missing or malformed key is 422
+                 *     `invalid_state`. (The backend also reuses an unpaid order or subscription of the last 60 minutes.)
+                 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                id: components["parameters"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FixEmptyRequest"];
+            };
+        };
+        responses: {
+            /** @description The fix as it now stands. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FixStepDone"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            413: components["responses"]["TooLarge"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    requestPageDraft: {
+        parameters: {
+            query: {
+                /** @description The business's domain, among the session organisation's own. */
+                b: components["parameters"]["BusinessDomainRequired"];
+            };
+            header: {
+                /**
+                 * @description A fresh random key per checkout attempt (16 to 64 of A-Z a-z 0-9 _ -), reused on a retry of the same press.
+                 *     The same key with the same body within 24 hours answers the first answer again (with the header
+                 *     `Idempotent-Replayed: true`); with another body, 422 `idempotency_key_reused` (the IETF Idempotency-Key draft's
+                 *     answer). Only a success is kept: a refusal may be sent again with the same key. A missing or malformed key is 422
+                 *     `invalid_state`. (The backend also reuses an unpaid order or subscription of the last 60 minutes.)
+                 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PageDraftRequest"];
+            };
+        };
+        responses: {
+            /** @description The fix made for it. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PageDraftMade"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            413: components["responses"]["TooLarge"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["Unavailable"];
+        };
+    };
+    markFactUpdated: {
+        parameters: {
+            query: {
+                /** @description The business's domain, among the session organisation's own. */
+                b: components["parameters"]["BusinessDomainRequired"];
+            };
+            header: {
+                /**
+                 * @description A fresh random key per checkout attempt (16 to 64 of A-Z a-z 0-9 _ -), reused on a retry of the same press.
+                 *     The same key with the same body within 24 hours answers the first answer again (with the header
+                 *     `Idempotent-Replayed: true`); with another body, 422 `idempotency_key_reused` (the IETF Idempotency-Key draft's
+                 *     answer). Only a success is kept: a refusal may be sent again with the same key. A missing or malformed key is 422
+                 *     `invalid_state`. (The backend also reuses an unpaid order or subscription of the last 60 minutes.)
+                 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FactStepRequest"];
+            };
+        };
+        responses: {
+            /** @description The row's fix as it now stands. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FixStepDone"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            413: components["responses"]["TooLarge"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    markFactNotNeeded: {
+        parameters: {
+            query: {
+                /** @description The business's domain, among the session organisation's own. */
+                b: components["parameters"]["BusinessDomainRequired"];
+            };
+            header: {
+                /**
+                 * @description A fresh random key per checkout attempt (16 to 64 of A-Z a-z 0-9 _ -), reused on a retry of the same press.
+                 *     The same key with the same body within 24 hours answers the first answer again (with the header
+                 *     `Idempotent-Replayed: true`); with another body, 422 `idempotency_key_reused` (the IETF Idempotency-Key draft's
+                 *     answer). Only a success is kept: a refusal may be sent again with the same key. A missing or malformed key is 422
+                 *     `invalid_state`. (The backend also reuses an unpaid order or subscription of the last 60 minutes.)
+                 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FactStepRequest"];
+            };
+        };
+        responses: {
+            /** @description The row's fix as it now stands. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FixStepDone"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            413: components["responses"]["TooLarge"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getFairUse: {
+        parameters: {
+            query?: {
+                /** @description The business's domain, among the session organisation's own. Missing or empty means the first (Monitoring first, then Full Report, then Free); any other domain that is not one of the organisation's own (another organisation's included) is 404 `not_found`, the same answer as a domain that does not exist, never the first business's data. */
+                b?: components["parameters"]["BusinessDomain"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The limits, or hidden. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FairUse"] | components["schemas"]["FixersHidden"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getDashboardReviews: {
+        parameters: {
+            query?: {
+                /** @description The business's domain, among the session organisation's own. Missing or empty means the first (Monitoring first, then Full Report, then Free); any other domain that is not one of the organisation's own (another organisation's included) is 404 `not_found`, the same answer as a domain that does not exist, never the first business's data. */
+                b?: components["parameters"]["BusinessDomain"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The reviews page. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewsPageData"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getDashboardListing: {
+        parameters: {
+            query?: {
+                /** @description The business's domain, among the session organisation's own. Missing or empty means the first (Monitoring first, then Full Report, then Free); any other domain that is not one of the organisation's own (another organisation's included) is 404 `not_found`, the same answer as a domain that does not exist, never the first business's data. */
+                b?: components["parameters"]["BusinessDomain"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The listing page. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListingPageData"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getReviewCard: {
+        parameters: {
+            query?: {
+                /** @description The business's domain, among the session organisation's own. Missing or empty means the first (Monitoring first, then Full Report, then Free); any other domain that is not one of the organisation's own (another organisation's included) is 404 `not_found`, the same answer as a domain that does not exist, never the first business's data. */
+                b?: components["parameters"]["BusinessDomain"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The review card. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewCardPage"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getAskForReviews: {
+        parameters: {
+            query?: {
+                /** @description The business's domain, among the session organisation's own. Missing or empty means the first (Monitoring first, then Full Report, then Free); any other domain that is not one of the organisation's own (another organisation's included) is 404 `not_found`, the same answer as a domain that does not exist, never the first business's data. */
+                b?: components["parameters"]["BusinessDomain"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The page, or why it is hidden. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AskForReviewsPage"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    sendReviewRequests: {
+        parameters: {
+            query: {
+                /** @description The business's domain, among the session organisation's own. */
+                b: components["parameters"]["BusinessDomainRequired"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SendReviewRequestsRequest"];
+            };
+        };
+        responses: {
+            /** @description Sent (some or none), or the form's refusal. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewRequestsSent"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            413: components["responses"]["TooLarge"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getReviewsToAnswer: {
+        parameters: {
+            query?: {
+                /** @description The business's domain, among the session organisation's own. Missing or empty means the first (Monitoring first, then Full Report, then Free); any other domain that is not one of the organisation's own (another organisation's included) is 404 `not_found`, the same answer as a domain that does not exist, never the first business's data. */
+                b?: components["parameters"]["BusinessDomain"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The queue, or why it is hidden. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewsToAnswerPage"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getServicePages: {
+        parameters: {
+            query?: {
+                /** @description The business's domain, among the session organisation's own. Missing or empty means the first (Monitoring first, then Full Report, then Free); any other domain that is not one of the organisation's own (another organisation's included) is 404 `not_found`, the same answer as a domain that does not exist, never the first business's data. */
+                b?: components["parameters"]["BusinessDomain"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The board, or why it is hidden or locked. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServicePagesPage"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getMonitoringModules: {
+        parameters: {
+            query?: {
+                /** @description The business's domain, among the session organisation's own. Missing or empty means the first (Monitoring first, then Full Report, then Free); any other domain that is not one of the organisation's own (another organisation's included) is 404 `not_found`, the same answer as a domain that does not exist, never the first business's data. */
+                b?: components["parameters"]["BusinessDomain"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The board, or hidden. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringModules"] | components["schemas"]["MonitoringHidden"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getMonitoringWeekly: {
+        parameters: {
+            query?: {
+                /** @description The business's domain, among the session organisation's own. Missing or empty means the first (Monitoring first, then Full Report, then Free); any other domain that is not one of the organisation's own (another organisation's included) is 404 `not_found`, the same answer as a domain that does not exist, never the first business's data. */
+                b?: components["parameters"]["BusinessDomain"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The weekly check. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringWeekly"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getMonitoringEmail: {
+        parameters: {
+            query?: {
+                /** @description The business's domain, among the session organisation's own. Missing or empty means the first (Monitoring first, then Full Report, then Free); any other domain that is not one of the organisation's own (another organisation's included) is 404 `not_found`, the same answer as a domain that does not exist, never the first business's data. */
+                b?: components["parameters"]["BusinessDomain"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The block, or hidden. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringEmail"] | components["schemas"]["MonitoringHidden"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    saveMonitoringEmail: {
+        parameters: {
+            query: {
+                /** @description The business's domain, among the session organisation's own. */
+                b: components["parameters"]["BusinessDomainRequired"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveMonitoringEmailRequest"];
+            };
+        };
+        responses: {
+            /** @description The block after the save. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringEmail"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            413: components["responses"]["TooLarge"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    resubscribeMonitoringWeekly: {
+        parameters: {
+            query: {
+                /** @description The business's domain, among the session organisation's own. */
+                b: components["parameters"]["BusinessDomainRequired"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The block after it. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringEmail"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getMonitoringRivals: {
+        parameters: {
+            query?: {
+                /** @description The business's domain, among the session organisation's own. Missing or empty means the first (Monitoring first, then Full Report, then Free); any other domain that is not one of the organisation's own (another organisation's included) is 404 `not_found`, the same answer as a domain that does not exist, never the first business's data. */
+                b?: components["parameters"]["BusinessDomain"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The page, hidden or locked. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringRivals"] | components["schemas"]["MonitoringHidden"] | components["schemas"]["MonitoringLocked"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getMonitoringWatch: {
+        parameters: {
+            query?: {
+                /** @description The business's domain, among the session organisation's own. Missing or empty means the first (Monitoring first, then Full Report, then Free); any other domain that is not one of the organisation's own (another organisation's included) is 404 `not_found`, the same answer as a domain that does not exist, never the first business's data. */
+                b?: components["parameters"]["BusinessDomain"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The page, hidden or locked. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringWatch"] | components["schemas"]["MonitoringHidden"] | components["schemas"]["MonitoringLocked"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getMonitoringSiteWatch: {
+        parameters: {
+            query?: {
+                /** @description The business's domain, among the session organisation's own. Missing or empty means the first (Monitoring first, then Full Report, then Free); any other domain that is not one of the organisation's own (another organisation's included) is 404 `not_found`, the same answer as a domain that does not exist, never the first business's data. */
+                b?: components["parameters"]["BusinessDomain"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The card, or hidden. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringSiteWatch"] | components["schemas"]["MonitoringHidden"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getDashboardTasks: {
+        parameters: {
+            query?: {
+                /** @description The business's domain, among the session organisation's own. Missing or empty means the first (Monitoring first, then Full Report, then Free); any other domain that is not one of the organisation's own (another organisation's included) is 404 `not_found`, the same answer as a domain that does not exist, never the first business's data. */
+                b?: components["parameters"]["BusinessDomain"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The list, or null. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TasksPage"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+        };
+    };
+    getDashboardQuickWins: {
+        parameters: {
+            query?: {
+                /** @description The business's domain, among the session organisation's own. Missing or empty means the first (Monitoring first, then Full Report, then Free); any other domain that is not one of the organisation's own (another organisation's included) is 404 `not_found`, the same answer as a domain that does not exist, never the first business's data. */
+                b?: components["parameters"]["BusinessDomain"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The checklist, or null. */
+            200: {
+                headers: {
+                    "Cache-Control": components["headers"]["NoStore"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuickWinsPage"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
         };
     };
 }

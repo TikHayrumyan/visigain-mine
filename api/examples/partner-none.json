@@ -1,0 +1,19 @@
+{
+  "summary": "No partner yet: the application",
+  "value": {
+    "state": "none",
+    "message": null,
+    "apply": {
+      "commissionPercent": 20,
+      "commissionMonths": 12,
+      "terms": {
+        "key": "site.partner.partners_earn_of_what_a_referred",
+        "params": {
+          "percent": 20,
+          "months": 12
+        }
+      }
+    },
+    "partner": null
+  }
+}

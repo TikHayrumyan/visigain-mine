@@ -1,0 +1,8 @@
+{
+  "summary": "The address, the required box ticked",
+  "value": {
+    "email": "owner@example-dental-studio.test",
+    "consent": true,
+    "marketing": false
+  }
+}

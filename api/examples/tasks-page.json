@@ -1,0 +1,39 @@
+{
+  "summary": "The to-do list of a Monitoring business (cut to three)",
+  "value": {
+    "plan": "monitoring",
+    "tasks": {
+      "reportDate": "2026-08-09T18:30:00.000Z",
+      "lastScan": "2026-10-05T18:30:00.000Z",
+      "total": 9,
+      "left": 5,
+      "items": [
+        {
+          "rank": 3,
+          "title": "Correct the phone number on your Yelp page so it matches your Google listing.",
+          "effort": "medium",
+          "state": "reopened",
+          "stateDate": "2026-09-28T18:30:00.000Z",
+          "thisWeek": true
+        },
+        {
+          "rank": 6,
+          "title": "Add prices to the three most visited service pages.",
+          "effort": "medium",
+          "state": "open",
+          "stateDate": null,
+          "thisWeek": false
+        },
+        {
+          "rank": 7,
+          "title": "Add a booking button to the top of every service page.",
+          "effort": "low",
+          "state": "open",
+          "stateDate": null,
+          "thisWeek": false
+        }
+      ],
+      "tickable": true
+    }
+  }
+}

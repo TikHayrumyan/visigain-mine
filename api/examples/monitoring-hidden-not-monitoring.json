@@ -1,0 +1,7 @@
+{
+  "summary": "Hidden: the business has no live Monitoring",
+  "value": {
+    "availability": "hidden",
+    "reason": "not_monitoring"
+  }
+}

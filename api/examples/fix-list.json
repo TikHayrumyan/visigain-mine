@@ -1,0 +1,102 @@
+{
+  "summary": "A Monitoring business on day 34: a reply waiting for its owner, an approved service page",
+  "value": {
+    "hidden": false,
+    "business": {
+      "domain": "sunset-glow-medspa.test"
+    },
+    "role": "owner",
+    "day": 34,
+    "paused": null,
+    "modules": [
+      {
+        "module": "grade",
+        "on": false,
+        "unlocked": true,
+        "unlockDay": 0,
+        "early": false
+      },
+      {
+        "module": "ai_answers",
+        "on": false,
+        "unlocked": true,
+        "unlockDay": 14,
+        "early": false
+      },
+      {
+        "module": "guardian",
+        "on": false,
+        "unlocked": true,
+        "unlockDay": 0,
+        "early": false
+      },
+      {
+        "module": "listings",
+        "on": false,
+        "unlocked": false,
+        "unlockDay": 60,
+        "early": false
+      },
+      {
+        "module": "reviews",
+        "on": true,
+        "unlocked": true,
+        "unlockDay": 0,
+        "early": false
+      },
+      {
+        "module": "pages",
+        "on": true,
+        "unlocked": true,
+        "unlockDay": 30,
+        "early": false
+      },
+      {
+        "module": "rivals",
+        "on": false,
+        "unlocked": false,
+        "unlockDay": 60,
+        "early": false
+      },
+      {
+        "module": "results",
+        "on": false,
+        "unlocked": false,
+        "unlockDay": 90,
+        "early": false
+      }
+    ],
+    "items": [
+      {
+        "id": "6f1c2a4e-8b3d-4e5f-9a10-2b3c4d5e6f70",
+        "module": "reviews",
+        "kind": "review_reply",
+        "state": "awaiting_owner",
+        "createdAt": "2026-11-09T17:02:11.000Z",
+        "updatedAt": "2026-11-09T17:02:14.000Z",
+        "expiresAt": "2026-11-23T17:02:14.000Z",
+        "steps": {
+          "edit": true,
+          "approve": true,
+          "reject": true,
+          "remeasure": false
+        }
+      },
+      {
+        "id": "7a2d3b5f-9c4e-4f60-8b21-3c4d5e6f7081",
+        "module": "pages",
+        "kind": "service_page",
+        "state": "approved",
+        "createdAt": "2026-11-02T16:40:00.000Z",
+        "updatedAt": "2026-11-03T09:12:00.000Z",
+        "expiresAt": null,
+        "steps": {
+          "edit": false,
+          "approve": false,
+          "reject": false,
+          "remeasure": true
+        }
+      }
+    ]
+  }
+}

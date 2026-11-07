@@ -1,0 +1,32 @@
+{
+  "summary": "An owner's team: two members and one pending invitation",
+  "value": {
+    "role": "owner",
+    "members": [
+      {
+        "userId": "0b8f6a2c-5d4e-4f3a-8b1c-9e7d6c5b4a31",
+        "email": "owner@sunset-glow-medspa.test",
+        "role": "owner",
+        "you": true,
+        "canChangeRole": false,
+        "canRemove": true
+      },
+      {
+        "userId": "1c9e7b3d-6e5f-4a4b-9c2d-0f8e7d6c5b42",
+        "email": "frontdesk@sunset-glow-medspa.test",
+        "role": "member",
+        "you": false,
+        "canChangeRole": true,
+        "canRemove": true
+      }
+    ],
+    "invitations": [
+      {
+        "id": "2d0f8c4e-7f6a-4b5c-8d3e-1a9f8e7d6c53",
+        "email": "manager@sunset-glow-medspa.test",
+        "role": "member",
+        "expiresAt": "2026-11-14T08:00:00.000Z"
+      }
+    ]
+  }
+}

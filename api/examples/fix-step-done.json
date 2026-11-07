@@ -1,0 +1,20 @@
+{
+  "summary": "Approved",
+  "value": {
+    "fix": {
+      "id": "6f1c2a4e-8b3d-4e5f-9a10-2b3c4d5e6f70",
+      "module": "reviews",
+      "kind": "review_reply",
+      "state": "approved",
+      "createdAt": "2026-11-09T17:02:11.000Z",
+      "updatedAt": "2026-11-09T18:00:00.000Z",
+      "expiresAt": null,
+      "steps": {
+        "edit": false,
+        "approve": false,
+        "reject": false,
+        "remeasure": true
+      }
+    }
+  }
+}

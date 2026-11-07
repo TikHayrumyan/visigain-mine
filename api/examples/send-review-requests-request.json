@@ -1,0 +1,7 @@
+{
+  "summary": "Two customers pasted, the default paragraph, the box ticked",
+  "value": {
+    "list": "dana@customer-invented.test\nLee, lee@customer-invented.test",
+    "permission": true
+  }
+}

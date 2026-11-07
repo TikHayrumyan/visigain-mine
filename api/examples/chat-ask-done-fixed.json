@@ -1,0 +1,36 @@
+{
+  "summary": "A fixed reply instead of the model's answer: by key",
+  "value": {
+    "id": "7a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d",
+    "status": "done",
+    "question": {
+      "id": "5f0c2d3e-8b1a-4c6d-9e2f-1a2b3c4d5e6f",
+      "role": "user",
+      "kind": null,
+      "text": "Can you guarantee I get to the top of Google?",
+      "wording": null,
+      "draft": null,
+      "choices": null,
+      "thumbs": null,
+      "at": "2026-11-08T17:04:12.000Z"
+    },
+    "answer": {
+      "id": "7a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d",
+      "role": "assistant",
+      "kind": "refusal",
+      "text": null,
+      "wording": "dashboard.chat_reply.promise",
+      "draft": null,
+      "choices": null,
+      "thumbs": null,
+      "at": "2026-11-08T17:04:12.001Z"
+    },
+    "usage": {
+      "show": false,
+      "percent": null,
+      "resetsOn": "2026-12-01",
+      "reached": false,
+      "sentence": null
+    }
+  }
+}
