@@ -23,6 +23,7 @@ Nothing is written for the catalogue. It reads the words where pages draw them t
 | `site-copy` | every string of `src/content/site-copy.ts` | approved while `COPY_STATUS` is `APPROVED` and the string is the one `scripts/site-copy-approved.json` records |
 | `about-company` | `src/content/about-company.ts` (the /about drafts) | its row's status |
 | `registry` | the rows of `docs/product-v2/new-wordings.md` that a page shows (the row names a client route) | its row's status |
+| `code` | the live texts pages draw from server code or a `.ts` table (`scripts/catalogue-code.ts` `CODE_SOURCES`: the API's refusals, the plan label, a Move, the statuses, what each plan shows), read from the file's syntax tree word for word, never run | the approval data that holds its words, in order: a registry row, the site copy, a page or `t` text with the same words; else **live**, approved as the client-text guard passes it today (the guard reads only text typed into JSX, never a table's value or server code). `stateFrom` says which |
 
 The Spanish (`es`) comes from `src/content/es`, for an entry whose English it holds. Its state (`esState`) is its own
 row's in "The Spanish site".
@@ -63,6 +64,10 @@ export falls back to English in the frontend.
 - **slug**: the text's first six words, lower case, placeholders and punctuation dropped (`Email me a sign-in link` →
   `email_me_a_sign_in_link`). A registry row with its own key (`` (`done_title`) `` at the end of its first cell) keeps
   that key as its slug.
+- **a code text** keeps the key the API names it by (`api/openapi.yaml`), whatever its parts: `errors.cancel_failed`,
+  `dashboard.plan_shows.grid.report`. A value the code fills is a `{name}` placeholder named from its expression
+  (`up {by}`), or the name the spec's examples already give it. A text whose words the code picks between (a plural, an
+  optional clause) is not read: it stays in the spec's `x-wordings.pending`, with why.
 - **collisions**: a key that would name two different texts gets a short hash suffix (`_1a2b`), once.
 - **stability**: `catalogue-keys.json` maps what an entry is (a page text by its words, a registry row by its section
   and key, a site-copy string by its export and words) to its key. A key, once given, never changes, and a key no

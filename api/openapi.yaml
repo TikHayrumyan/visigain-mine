@@ -68,18 +68,22 @@ x-wordings:
     report_refunded: dashboard.reports.this_report_was_refunded_so_it
     too_large: errors.error.something_went_wrong
     invalid_email: site.free_ai_check.please_enter_a_valid_email_address
+    invalid_email@postContact: errors.contact.invalid_email
     invalid_domain: site.free_ai_check.that_doesn_t_look_like_a
     invalid_name: errors.invalid_name
     invalid_message: errors.invalid_message
     invalid_category: errors.invalid_category
     category_unsupported: dashboard.shared.we_can_t_grade_this_type
     invalid_state: errors.invalid_form
+    invalid_locale: errors.error.something_went_wrong
     consent_required: errors.consent_required
     disposable_email: site.scan.please_use_an_email_address_you
+    disposable_email@postContact: errors.contact.disposable_email
     form_expired: site.scan.this_page_was_open_for_a
     link_invalid: errors.link_invalid
     rate_limited: errors.too_many_requests.try_again_in_a_little_while
     rate_limited@postScan: site.scan.we_can_t_start_another_scan
+    rate_limited@postContact: errors.contact.rate_limited
     checkout_paused: dashboard.shared.payments_are_paused_for_the_moment_2840
     scans_paused: site.scan.the_free_scan_is_paused_for
     scan_busy: site.scan.the_free_scan_is_busy_right
@@ -96,38 +100,19 @@ x-wordings:
       light: common.theme.light
       dark: common.theme.dark
   pending:
-    errors.legal_version_changed: { status: draft needed, for: "409: the legal version in force changed since the buyer saw the terms (new behaviour)" }
-    errors.already_monitored: { status: catalogue gap, for: "409 already_monitored", source: "src/server/monitoring/index.ts ALREADY_MONITORED_WORDS" }
-    errors.payments_unavailable: { status: catalogue gap, for: "503: card payment not available", source: "src/server/monitoring/index.ts PAYMENT_UNAVAILABLE_WORDS" }
-    errors.cancel_failed: { status: catalogue gap, for: "503: Stripe did not answer a cancel", source: "src/app/account/actions.ts CANCEL_FAILED" }
-    errors.invalid_name: { status: catalogue gap, for: "contact form: name missing", source: "src/app/(site)/contact/page.tsx ERRORS.name" }
-    errors.invalid_message: { status: catalogue gap, for: "contact form: message too short", source: "src/app/(site)/contact/page.tsx ERRORS.message" }
-    errors.contact.*: { status: catalogue gap, for: "the contact form's own email, disposable and rate-limit sentences", source: "src/app/(site)/contact/page.tsx ERRORS" }
-    errors.invalid_category: { status: catalogue gap, for: "free scan and checkout: type of business missing", source: "src/app/(site)/scan/page.tsx error texts; src/app/dashboard/actions.ts" }
-    errors.consent_required: { status: catalogue gap, for: "free scan: the consent box not ticked", source: "src/app/(site)/scan/page.tsx error texts" }
-    errors.invalid_form: { status: catalogue gap, for: "a form field not right (state, term)", source: "FORM_NOT_RIGHT (src/app/dashboard/actions.ts)" }
-    errors.link_invalid: { status: catalogue gap, for: "sign-in link expired or used", source: "src/app/signin/page.tsx ERRORS.link" }
-    errors.scan_failed.*: { status: catalogue gap, for: "why a free scan failed, per failure.code", source: "src/server/freescan/index.ts failureReasonText" }
-    common.plan.free: { status: catalogue gap, for: "the plan label Free scan", source: "src/server/engine/v2/view.ts PLAN_LABEL" }
-    common.move.*: { status: catalogue gap, for: "a Move's words (up [by], down [by], no comparison; shares in points)", source: "src/server/engine/v2/view.ts rankMove, gainMove, pointsMove" }
-    dashboard.section.*: { status: catalogue gap, for: "a section's held, not-measured and weekly-empty sentences", source: "src/components/v2/kit.tsx HELD, NO_DATA_WEEKLY; src/server/engine/v2/view.ts NOT_MEASURED_*" }
-    dashboard.plan_shows.*: { status: catalogue gap, for: "Section.shows, per feature and plan (17)", source: "src/server/engine/v2/view.ts FEATURES" }
-    dashboard.rank_type.*: { status: catalogue gap, for: "the 4 result-type labels", source: "src/server/engine/v2/types.ts RANK_TYPE_LABEL" }
-    dashboard.rank_bucket.*: { status: catalogue gap, for: "the position-range headings", source: "src/components/v2/ranks-page.tsx rankBucketHeading, RANK_BUCKET_LABEL" }
-    dashboard.ranks.*: { status: catalogue gap, for: "Not in the first [depth], and [found] of [of] searches found", source: "src/server/v2/load.ts ranks view" }
-    dashboard.order_status.*: { status: catalogue gap, for: "order status labels (refunded is mapped)", source: "src/app/dashboard/orders/status.ts ORDER_STATUS_LABEL" }
-    account.status.*: { status: catalogue gap, for: "the Cancelled, Not paid (yet) and Being prepared badges", source: "src/app/account/page.tsx, src/app/account/invoices/[id]/page.tsx" }
-    dashboard.alert.*: { status: catalogue gap, for: "AlertNote.sentence, per kind", source: "src/server/v2/alerts (the alert email's sentences)" }
-    dashboard.comparison.*: { status: catalogue gap, for: "Comparison lines on the dashboard and reports", source: "src/server/city-averages/view.ts" }
-    site.comparison.*: { status: catalogue gap, for: "Comparison lines on the free grade", source: "src/server/city-averages/view.ts" }
-    site.grade.average_label: { status: catalogue gap, for: "the grade's category-average label", source: "src/server/reports/client-view.ts categoryAverageLabel" }
-    site.scan.directory_count: { status: catalogue gap, for: "the free grade's directory count line", source: "src/server/freescan/directory-count.ts" }
-    dashboard.citations.count: { status: catalogue gap, for: "CitationCount.text", source: "src/server/v2/load.ts citation count" }
-    dashboard.grid.basis.*: { status: catalogue gap, for: "GridNumbers.basis and changeReason", source: "src/server/v2/load.ts grid numbers" }
-    dashboard.v2.*: { status: catalogue gap, for: "other loader sentences (reviews.notAvailable, standardNote and markers, refund why)", source: "src/server/v2/load.ts, standard-change.ts, src/server/orders/refund-shown.ts" }
-    common.customers.*: { status: catalogue gap, for: "CategoryWords: what a kind of business calls its customers", source: "src/server/v2/category-words/wording.ts" }
-    common.theme.*: { status: catalogue gap, for: "the theme names System, Light and Dark (drawn through tr(LABEL[theme]), which the catalogue build doesn't follow)", source: "src/components/theme-toggle.tsx LABEL" }
-    common.customer.*: { status: catalogue gap, for: "CategoryWords (singular)", source: "src/server/v2/category-words/wording.ts" }
+    errors.legal_version_changed: { status: draft needed, for: "409: the legal version in force changed since the buyer saw the terms (new behaviour). Proposed in docs/product-v2/new-wordings.md (the section The API's new sentence), for the strategist; not a table row yet, so it holds no deploy; the starts that answer it stand behind API_CHECKOUT_ENABLED, refused in production" }
+    common.move.points.*: { status: catalogue gap, for: "a share's move said in points (up [by] points, up 1 point): the code picks point or points, so it is no one sentence", source: "src/server/engine/v2/view.ts pointsMove" }
+    dashboard.ranks.found: { status: catalogue gap, for: "[found] of [of] searches found, down or up from [before]: the code picks search or searches, and down or up", source: "src/server/engine/v2/view.ts rankFoundSentence" }
+    dashboard.alert.*: { status: catalogue gap, for: "AlertNote.sentence, per kind: each sentence is built with clauses the code adds or leaves out (the duplicate's name, the review's no-reply line)", source: "src/server/v2/alerts/wording.ts" }
+    dashboard.comparison.figure: { status: catalogue gap, for: "Compared with the [label]: [N], and (you are below it) added by the code", source: "src/server/city-averages/wording.ts comparedLine" }
+    dashboard.comparison.preparing: { status: catalogue gap, for: "the being-prepared line with an estimate: the code picks 1 hour or [N] hours", source: "src/server/city-averages/wording.ts preparingLine, estimateWords" }
+    site.scan.directory_count: { status: catalogue gap, for: "the free grade's directory count line: the code picks directory or directories (plural)", source: "src/server/engine/v2/view.ts directoryCountSentence" }
+    dashboard.citations.count: { status: catalogue gap, for: "CitationCount.text: the same sentence, the same plural", source: "src/server/engine/v2/view.ts directoryCountSentence" }
+    dashboard.grid.basis.*: { status: catalogue gap, for: "GridNumbers.basis and changeReason: built with plurals and clauses the code picks", source: "src/server/engine/v2/view.ts grid numbers (basis)" }
+    dashboard.v2.*: { status: catalogue gap, for: "other loader sentences (reviews.notAvailable, standardNote and markers, refund why): no key named yet", source: "src/server/v2/load.ts, standard-change.ts, src/server/orders/refund-shown.ts" }
+    common.customers.*: { status: catalogue gap, for: "CategoryWords: engine's own word for a profile's customers (clients, patients) is engine's data, not a wording; the core word is served (common.customers.customers)", source: "src/server/v2/category-words/wording.ts" }
+    common.customer.*: { status: catalogue gap, for: "CategoryWords (singular): the same; the core word is served (common.customer.customer)", source: "src/server/v2/category-words/wording.ts" }
+    site.scan.directory_count.*: { status: catalogue gap, for: "the count's other lines: coming_soon, not_in_area, and the hint confirm_hint", source: "src/server/engine/v2/view.ts DIRECTORY_COUNT_COMING_SOON, DIRECTORY_COUNT_NOT_IN_AREA; src/server/freescan/directory-count.ts COUNT_CONFIRM_HINT" }
 
 paths:
   # ---------------------------------------------------------------- public
@@ -306,6 +291,7 @@ paths:
       responses:
         "204": { description: Received (or the honeypot was filled). }
         "403": { $ref: "#/components/responses/Forbidden" }
+        "413": { $ref: "#/components/responses/TooLarge" }
         "422": { $ref: "#/components/responses/Unprocessable" }
         "429": { $ref: "#/components/responses/RateLimited" }
 
@@ -353,6 +339,8 @@ paths:
               examples:
                 started: { $ref: "examples/scan-started.json" }
         "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "413": { $ref: "#/components/responses/TooLarge" }
         "422": { $ref: "#/components/responses/Unprocessable" }
         "429": { $ref: "#/components/responses/RateLimited" }
         "503": { $ref: "#/components/responses/Unavailable" }
@@ -379,6 +367,7 @@ paths:
                 ready: { $ref: "examples/scan-ready.json" }
                 failed: { $ref: "examples/scan-failed.json" }
         "404": { $ref: "#/components/responses/NotFound" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
         "429": { $ref: "#/components/responses/RateLimited" }
 
   /api/v1/scans/confirm/{code}:
@@ -422,6 +411,7 @@ paths:
               schema: { $ref: "#/components/schemas/ClientReport" }
               examples:
                 sample: { $ref: "examples/sample-report.json" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
         "429": { $ref: "#/components/responses/RateLimited" }
 
   /api/v1/faq:
@@ -562,6 +552,7 @@ paths:
       responses:
         "202": { description: "If the address can sign in, a link is on its way. Show the check-your-email page." }
         "403": { $ref: "#/components/responses/Forbidden" }
+        "413": { $ref: "#/components/responses/TooLarge" }
         "422": { $ref: "#/components/responses/Unprocessable" }
         "429": { $ref: "#/components/responses/RateLimited" }
 
@@ -592,6 +583,7 @@ paths:
                 verified: { $ref: "examples/verified.json" }
         "401": { $ref: "#/components/responses/Unauthenticated" }
         "403": { $ref: "#/components/responses/Forbidden" }
+        "413": { $ref: "#/components/responses/TooLarge" }
         "422": { $ref: "#/components/responses/Unprocessable" }
         "429": { $ref: "#/components/responses/RateLimited" }
 
@@ -631,6 +623,8 @@ paths:
         "401": { $ref: "#/components/responses/Unauthenticated" }
         "403": { $ref: "#/components/responses/Forbidden" }
         "404": { $ref: "#/components/responses/NotFound" }
+        "413": { $ref: "#/components/responses/TooLarge" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
         "429": { $ref: "#/components/responses/RateLimited" }
 
   /api/v1/auth/sign-out:
@@ -672,7 +666,9 @@ paths:
                 report: { $ref: "examples/overview-report.json" }
                 free: { $ref: "examples/overview-free.json" }
         "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404": { $ref: "#/components/responses/NotFound" }
         "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
         "429": { $ref: "#/components/responses/RateLimited" }
 
   /api/v1/dashboard/grade-history:
@@ -725,6 +721,7 @@ paths:
         "403": { $ref: "#/components/responses/Forbidden" }
         "404": { $ref: "#/components/responses/NotFound" }
         "409": { $ref: "#/components/responses/Conflict" }
+        "413": { $ref: "#/components/responses/TooLarge" }
         "422": { $ref: "#/components/responses/Unprocessable" }
         "429": { $ref: "#/components/responses/RateLimited" }
 
@@ -755,6 +752,7 @@ paths:
         "403": { $ref: "#/components/responses/Forbidden" }
         "404": { $ref: "#/components/responses/NotFound" }
         "409": { $ref: "#/components/responses/Conflict" }
+        "413": { $ref: "#/components/responses/TooLarge" }
         "422": { $ref: "#/components/responses/Unprocessable" }
         "429": { $ref: "#/components/responses/RateLimited" }
 
@@ -781,7 +779,9 @@ paths:
                 monitoring: { $ref: "examples/grid-monitoring.json" }
                 free: { $ref: "examples/grid-free.json" }
         "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404": { $ref: "#/components/responses/NotFound" }
         "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
         "429": { $ref: "#/components/responses/RateLimited" }
 
   /api/v1/dashboard/grid/map:
@@ -843,7 +843,9 @@ paths:
                 monitoring: { $ref: "examples/ranks-monitoring.json" }
                 free: { $ref: "examples/ranks-free.json" }
         "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404": { $ref: "#/components/responses/NotFound" }
         "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
         "429": { $ref: "#/components/responses/RateLimited" }
 
   /api/v1/dashboard/citations:
@@ -864,7 +866,9 @@ paths:
                 monitoring: { $ref: "examples/citations-monitoring.json" }
                 free: { $ref: "examples/citations-free.json" }
         "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404": { $ref: "#/components/responses/NotFound" }
         "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
         "429": { $ref: "#/components/responses/RateLimited" }
 
   # ---------------------------------------------------------------- reports
@@ -912,6 +916,7 @@ paths:
                 refunded: { $ref: "examples/report-refunded.json" }
         "401": { $ref: "#/components/responses/Unauthenticated" }
         "404": { $ref: "#/components/responses/NotFound" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
         "429": { $ref: "#/components/responses/RateLimited" }
 
   /api/v1/reports/{id}/pdf:
@@ -986,7 +991,9 @@ paths:
       description: |
         Records the refund-terms consent and the legal version. The same buyer, business and price within 60 minutes
         gets the same unpaid order back (`reused: true`). 409 `report_covered`: Monitoring already includes the
-        report (go to `/dashboard/monitoring`). 503 `checkout_paused` when CHECKOUT_ENABLED is off.
+        report (go to `/dashboard/monitoring`). 409 `legal_version_changed`: `legalVersion` was sent and is not the
+        one in force (read `GET /checkout/terms` again). 503 `checkout_paused` when CHECKOUT_ENABLED is off, and while
+        the API's own switch API_CHECKOUT_ENABLED is off (staging only until `errors.legal_version_changed` is approved).
       security: [{ session: [] }]
       parameters:
         - $ref: "#/components/parameters/IdempotencyKey"
@@ -1021,7 +1028,7 @@ paths:
         The credit rule: a paid, unrefunded Full Report for the same business within 14 days counts toward
         Monitoring once (US$99 against US$149 leaves US$50 due today; `credit` shows it). Records the three consents,
         the renewal terms and the legal version. `kind` is `card` only when nothing is due today (a credit of at least
-        the price). 409 `already_monitored`. 503 `checkout_paused`.
+        the price). 409 `already_monitored`, `legal_version_changed`. 503 `checkout_paused` (as for the Full Report).
       security: [{ session: [] }]
       parameters:
         - $ref: "#/components/parameters/IdempotencyKey"
@@ -1224,6 +1231,7 @@ paths:
         "401": { $ref: "#/components/responses/Unauthenticated" }
         "403": { $ref: "#/components/responses/Forbidden" }
         "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
         "422": { $ref: "#/components/responses/Unprocessable" }
         "429": { $ref: "#/components/responses/RateLimited" }
 
@@ -1275,7 +1283,7 @@ components:
     WordingsETag:
       description: The catalogue's version (the body's `version`), quoted; send it back in If-None-Match. The mock always sends this one.
       schema: { type: string }
-      example: '"7449d8e501c28102"'
+      example: '"5b5f657338c2aa30"'
     WordingsCacheControl:
       description: The catalogue may be kept 5 minutes, then checked again with If-None-Match.
       schema: { type: string }
@@ -1314,7 +1322,7 @@ components:
       name: b
       in: query
       required: false
-      description: The business's domain, among the session organisation's own; unknown or missing means the first (Monitoring first, then Full Report, then Free).
+      description: The business's domain, among the session organisation's own. Missing or empty means the first (Monitoring first, then Full Report, then Free); any other domain that is not one of the organisation's own (another organisation's included) is 404 `not_found`, the same answer as a domain that does not exist, never the first business's data.
       schema: { type: string, maxLength: 200, examples: ["sunset-glow-medspa.test"] }
     BusinessDomainRequired:
       name: b
@@ -1356,8 +1364,10 @@ components:
       required: true
       description: |
         A fresh random key per checkout attempt (16 to 64 of A-Z a-z 0-9 _ -), reused on a retry of the same press.
-        The same key with the same body within 24 hours answers the first answer again; with another body, 409
-        `idempotency_key_reused`. (The backend also reuses an unpaid order or subscription of the last 60 minutes.)
+        The same key with the same body within 24 hours answers the first answer again (with the header
+        `Idempotent-Replayed: true`); with another body, 422 `idempotency_key_reused` (the IETF Idempotency-Key draft's
+        answer). Only a success is kept: a refusal may be sent again with the same key. A missing or malformed key is 422
+        `invalid_state`. (The backend also reuses an unpaid order or subscription of the last 60 minutes.)
       schema: { type: string, pattern: "^[A-Za-z0-9_-]{16,64}$" }
 
   responses:
@@ -1501,13 +1511,14 @@ components:
           additionalProperties: { type: string }
     Site:
       type: object
-      required: [holding, holdingPages, checkout, checkoutWallets, aiChat, share, spanish, legalVersion, legalVersionNumber, legalPageVersions]
+      required: [holding, holdingPages, checkout, checkoutWallets, apiCheckout, aiChat, share, spanish, legalVersion, legalVersionNumber, legalPageVersions]
       additionalProperties: false
       properties:
         holding: { type: boolean, description: "SITE_HOLDING, effective (also on while production holds for an unapproved wording)." }
         holdingPages: { type: array, items: { type: string }, description: "HOLDING_PAGES: the only pages served while holding; every other path shows the holding page." }
-        checkout: { type: boolean, description: "CHECKOUT_ENABLED: off pauses payments (the start calls answer 503 checkout_paused)." }
-        checkoutWallets: { type: boolean, description: "CHECKOUT_WALLETS: Apple Pay and Google Pay in the Payment Element." }
+        checkout: { type: boolean, description: "CHECKOUT_ENABLED, effective (also off while holding, when the pay pages are closed): off pauses payments (the start calls answer 503 checkout_paused)." }
+        checkoutWallets: { type: boolean, description: "CHECKOUT_WALLETS (refused in production): Apple Pay and Google Pay in the Payment Element; off whenever checkout is." }
+        apiCheckout: { type: boolean, description: "API_CHECKOUT_ENABLED, effective (staging only; always false in production, and off whenever CHECKOUT_ENABLED is off or the site is holding): whether this API's own starts, POST /checkout/full-report and POST /checkout/monitoring, start a payment now; while it is false they answer 503 checkout_paused. `checkout` keeps meaning the pay pages' switch. Added 7 November 2026." }
         aiChat: { type: boolean, description: "AI_CHAT_ENABLED (the global switch; a business may still be off)." }
         share: { type: boolean, description: "SHARE_REPORT_ENABLED: share links on Full Reports." }
         spanish: { type: boolean, description: "SPANISH_SITE_ENABLED, effective (always off in production while Spanish is not all approved)." }
@@ -1670,6 +1681,7 @@ components:
         seen: { type: string, maxLength: 40 }
         ref: { type: string, maxLength: 500 }
         utm: { $ref: "#/components/schemas/Utm" }
+        locale: { $ref: "#/components/schemas/Locale", description: "Sent from the Spanish site (only while `spanish` is on): the lead's emails then go in Spanish once approved." }
     ScanStarted:
       type: object
       required: [viewToken]
@@ -1720,7 +1732,7 @@ components:
         slow: { type: boolean, description: More than 20 minutes since the scan was asked for. }
         scannedAt: { type: [string, "null"], format: date-time }
         failure:
-          description: "Failed only. Drawn as site.scan.we_couldn_t_grade_it_failure_text, its [failure_text] the code's sentence errors.scan_failed.<code> (catalogue gap)."
+          description: "Failed only. Drawn as site.scan.we_couldn_t_grade_it_failure_text, its [failure_text] the code's sentence errors.scan_failed.<code>."
           oneOf:
             - type: "null"
             - type: object
@@ -1985,6 +1997,7 @@ components:
       properties:
         email: { type: string, format: email, maxLength: 254 }
         next: { type: string, maxLength: 500, pattern: "^/", description: "Where to go after signing in; anything not a same-site path becomes /dashboard." }
+        locale: { $ref: "#/components/schemas/Locale", description: "The Spanish sign-in page's request (the link then opens the Spanish page); `es` is taken only while `spanish` is on in /site." }
     VerifyRequest:
       type: object
       required: [token]
@@ -2074,7 +2087,7 @@ components:
         feature: { $ref: "#/components/schemas/FeatureId" }
         status: { $ref: "#/components/schemas/SectionStatus" }
         shows:
-          description: "What this plan shows of the feature (header line `<plan label>: <shows>`); null when nothing. Keys dashboard.plan_shows.<feature>.<plan>: catalogue gap (see x-wordings.pending)."
+          description: "What this plan shows of the feature (header line `<plan label>: <shows>`); null when nothing. Keys dashboard.plan_shows.<feature>.<plan>."
           oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Wording" }]
         unlockedBy: { $ref: "#/components/schemas/PlanLevel" }
         weekly: { type: boolean, description: "Monitoring: read every week, so the view carries its change." }

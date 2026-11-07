@@ -7,8 +7,5 @@
  * sentence.
  */
 export const AWAITING_BACKEND: readonly string[] = [
-  // The theme names: a catalogue gap in the spec (x-wordings.pending "common.theme.*"; source: the backend's
-  // src/components/theme-toggle.tsx LABEL, drawn through tr()). "Theme" and "Follow my device" are in the catalogue.
-  "common.theme.light",
-  "common.theme.dark",
+  // Empty since the contract of backend main 91506295 (the theme names are served).
 ];
