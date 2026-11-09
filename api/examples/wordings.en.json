@@ -2,7 +2,7 @@
   "summary": "English, every approved entry (the production rule), from api/wordings/catalogue.generated.ts",
   "value": {
     "locale": "en",
-    "version": "594a3c349760c85c",
+    "version": "deb67c9715485cd1",
     "entries": {
       "account.account.amount_due": "{line} Amount due: {next}",
       "account.account.anything_you_d_like_to_add": "Anything you'd like to add (optional)",
@@ -1816,6 +1816,7 @@
       "errors.invalid_message": "Please write a message of at least a sentence.",
       "errors.invalid_name": "Please tell us your name.",
       "errors.last_owner": "An organisation needs at least one owner",
+      "errors.legal_version_changed": "Our Terms were updated after this page opened. Please read the current version and agree again to continue.",
       "errors.link_invalid": "That sign-in link has expired or was already used. Ask for a new one below.",
       "errors.not_found.contact_us": "Contact us",
       "errors.not_found.open_your_dashboard": "Open your dashboard",

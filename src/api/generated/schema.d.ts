@@ -793,7 +793,8 @@ export interface paths {
          *     gets the same unpaid order back (`reused: true`). 409 `report_covered`: Monitoring already includes the
          *     report (go to `/dashboard/monitoring`). 409 `legal_version_changed`: `legalVersion` was sent and is not the
          *     one in force (read `GET /checkout/terms` again). 503 `checkout_paused` when CHECKOUT_ENABLED is off, and while
-         *     the API's own switch API_CHECKOUT_ENABLED is off (staging only until `errors.legal_version_changed` is approved).
+         *     the API's own switch API_CHECKOUT_ENABLED is off (staging only; the 409's sentence `errors.legal_version_changed` was
+         *     approved on 7 November 2026, and lifting the production refusal is Raf's call at the switch).
          */
         post: operations["startFullReportCheckout"];
         delete?: never;
@@ -3197,7 +3198,7 @@ export interface components {
             by: number | null;
             direction: components["schemas"]["Direction"];
         };
-        /** @description A share's move, said in percentage points: its words are `text` (common.move.points.<better|worse>.<one|other> with [by]; the Direction's own key for same and unknown), never the Direction's key alone. */
+        /** @description A share's move, said in percentage points: its words are `text` (common.move.points.<better|worse>.<one|other> with [by]; common.move.same and common.move.unknown), never the Direction's key alone. */
         PointsMove: {
             by: number | null;
             direction: components["schemas"]["Direction"];
@@ -6091,7 +6092,7 @@ export interface components {
     headers: {
         /**
          * @description The catalogue's version (the body's `version`), quoted; send it back in If-None-Match. The mock always sends this one.
-         * @example "0df4c87454729e7a"
+         * @example "594a3c349760c85c"
          */
         WordingsETag: string;
         /**

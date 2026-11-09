@@ -50,8 +50,10 @@ copied in both repositories (no shared package), each synced from the backend an
 
 ## Day 1
 
-You need Git, **Node 22** or newer and **pnpm 8.10.5** (the `packageManager` field of `package.json`; install pnpm
-the way your system prefers, for example from pnpm.io). No key, no secret, no cloud access.
+You need Git, **Node 22** or newer and **pnpm 8.10.5** (the `packageManager` field of `package.json`). The simplest
+way to get exactly that pnpm is Node's own Corepack, once per machine: `corepack enable`, then
+`corepack prepare pnpm@8.10.5 --activate` (or `npm install -g pnpm@8.10.5` if you prefer). Check with `pnpm -v`.
+No key, no secret, no cloud access.
 
 ```bash
 git clone https://github.com/visigain/visigain-frontend.git
