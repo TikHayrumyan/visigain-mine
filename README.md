@@ -32,9 +32,9 @@ copied in both repositories (no shared package), each synced from the backend an
 
 **The links from here to the customer app:**
 
-- **The scan result's buttons.** "Get the Full Report" and "Monitoring" on `/scan/[token]` link to
-  `https://app.visigain.com/checkout/...` with the scan token (the exact entry paths are still to be named in the
-  spec; ask Backend before building the buttons).
+- **The scan result's buttons.** "Get the Full Report" and "Monitoring" on `/scan/[token]` are
+  `ScanResultCheckoutLinks`, linking to `https://app.visigain.com/checkout/report?domain=<domain>` and
+  `/checkout/monitoring?domain=<domain>` (`src/site/checkout-links.ts`; [`docs/frontend-guide.md`](docs/frontend-guide.md)).
 - **The "Dashboard" link.** It shows when the `vg_signed_in=1` hint cookie (on `.visigain.com`, not HttpOnly, no
   secret in it) is present, and links to `https://app.visigain.com/dashboard`. The session cookie itself is
   host-only on app.visigain.com: this app never sees it, so never call a signed-in endpoint from here.
@@ -50,8 +50,10 @@ copied in both repositories (no shared package), each synced from the backend an
 
 ## Day 1
 
-You need Git, **Node 22** or newer and **pnpm 8.10.5** (the `packageManager` field of `package.json`; install pnpm
-the way your system prefers, for example from pnpm.io). No key, no secret, no cloud access.
+You need Git, **Node 22** or newer and **pnpm 8.10.5** (the `packageManager` field of `package.json`). The simplest
+way to get exactly that pnpm is Node's own Corepack, once per machine: `corepack enable`, then
+`corepack prepare pnpm@8.10.5 --activate` (or `npm install -g pnpm@8.10.5` if you prefer). Check with `pnpm -v`.
+No key, no secret, no cloud access.
 
 ```bash
 git clone https://github.com/visigain/visigain-frontend.git
@@ -60,6 +62,9 @@ pnpm i
 pnpm exec playwright install chromium   # once, for the smoke test
 ```
 
+The browser install downloads Chromium into Playwright's own cache, once per machine (on Linux, add `--with-deps`
+for its system libraries, as CI does).
+
 Two terminals:
 
 ```bash
@@ -67,9 +72,15 @@ pnpm mock            # the Prism mock of the API on http://127.0.0.1:4010 (from 
 MOCK=1 pnpm dev      # the app on http://127.0.0.1:3000, with /api/v1/* rewritten to the mock
 ```
 
-The customer app (visigain-app) runs on port 3002 beside this one, and one mock on 4010 serves both.
+The customer app (visigain-app) runs on port 3002 beside this one, and one mock on 4010 serves both: when visigain-app's
+mock already runs, skip `pnpm mock` here (a second one stops with `EADDRINUSE ... 4010`).
 
-On Windows PowerShell, the second is `$env:MOCK="1"; pnpm dev`.
+On Windows PowerShell, the second is `$env:MOCK="1"; pnpm dev` (`MOCK` then stays set in that terminal). Git Bash takes
+the line as written.
+
+The mock's log shows a `NOT_FOUND` error for `exampleKey: <namespace>` (`common`, `site`, `errors` ...) on each wordings call: the
+loader first asks for an example named after the namespace, then falls back to the one English export. It is
+expected; the page still shows every sentence.
 
 Open http://127.0.0.1:3000/example: a few wordings by key and the prices from `GET /api/v1/pricing`. It proves the
 wiring and is not a designed page. A key the mock's catalogue lacks shows as the key itself (for example
@@ -89,6 +100,9 @@ pnpm test           # Vitest: t(), the wordings loader, the client, the keys, th
 pnpm build          # the production build
 pnpm test:e2e       # Playwright smoke: starts the mock and a MOCK=1 build, both themes at 1440 and 375 px
 ```
+
+Stop `pnpm dev` before `pnpm test:e2e`: Playwright reuses whatever already answers on port 3000 (and a mock on
+4010), so with the dev server running the smoke test checks it instead of the build.
 
 CI (`.github/workflows/ci.yml`, GitHub Actions) runs the same, in that order, on every pull request and on `main`.
 

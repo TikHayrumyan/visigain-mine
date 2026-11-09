@@ -172,8 +172,8 @@ x-wordings:
       system: common.theme.system
       light: common.theme.light
       dark: common.theme.dark
-  pending:
-    errors.legal_version_changed: { status: draft needed, for: "409: the legal version in force changed since the buyer saw the terms (new behaviour). Proposed in docs/product-v2/new-wordings.md (the section The API's new sentence), for the strategist; not a table row yet, so it holds no deploy; the starts that answer it stand behind API_CHECKOUT_ENABLED, refused in production" }
+  # None today: errors.legal_version_changed, the last one, was approved on 7 November 2026 (docs/product-v2/new-wordings.md, "The API's new sentence").
+  pending: {}
 
 paths:
   # ---------------------------------------------------------------- public
@@ -1208,7 +1208,8 @@ paths:
         gets the same unpaid order back (`reused: true`). 409 `report_covered`: Monitoring already includes the
         report (go to `/dashboard/monitoring`). 409 `legal_version_changed`: `legalVersion` was sent and is not the
         one in force (read `GET /checkout/terms` again). 503 `checkout_paused` when CHECKOUT_ENABLED is off, and while
-        the API's own switch API_CHECKOUT_ENABLED is off (staging only until `errors.legal_version_changed` is approved).
+        the API's own switch API_CHECKOUT_ENABLED is off (staging only; the 409's sentence `errors.legal_version_changed` was
+        approved on 7 November 2026, and lifting the production refusal is Raf's call at the switch).
       security: [{ session: [] }]
       parameters:
         - $ref: "#/components/parameters/IdempotencyKey"
@@ -4102,7 +4103,7 @@ components:
     WordingsETag:
       description: The catalogue's version (the body's `version`), quoted; send it back in If-None-Match. The mock always sends this one.
       schema: { type: string }
-      example: '"594a3c349760c85c"'
+      example: '"deb67c9715485cd1"'
     WordingsCacheControl:
       description: The catalogue may be kept 5 minutes, then checked again with If-None-Match.
       schema: { type: string }

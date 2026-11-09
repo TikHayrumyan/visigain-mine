@@ -224,9 +224,10 @@ lists every client-facing switch. The switch names are the backend's own (`src/s
 
 **The API's checkout starts: `API_CHECKOUT_ENABLED`** (staging only, refused in production). `POST /checkout/full-report`
 and `POST /checkout/monitoring` answer 503 `checkout_paused` while it is off, as they do with `checkout` off. `/site` reports it
-as `apiCheckout` (added 7 November 2026; `checkout` there is still the pages' switch): their 409 `legal_version_changed` names a sentence that is a
-proposal (`errors.legal_version_changed`), so the API's starts stay off in production until it is approved. On staging,
-deploy with `API_CHECKOUT_ENABLED=true`. Everything else of checkout and account answers whatever it says.
+as `apiCheckout` (added 7 November 2026; `checkout` there is still the pages' switch). The starts no longer wait on any
+sentence: their 409 `legal_version_changed` names `errors.legal_version_changed`, approved on 7 November 2026 and served
+by `/wordings`. The switch is still refused in production; whether to lift that refusal is Raf's call at the switch. On
+staging, deploy with `API_CHECKOUT_ENABLED=true`. Everything else of checkout and account answers whatever it says.
 
 **Every client-facing switch: `switches`** (added 8 November 2026, `src/server/api/v1/switches.ts`). An object keyed
 by the backend's own names, each `true` or `false` as the code obeys it now: after `config()`'s production refusals and
@@ -296,7 +297,8 @@ list of operations behind a switch and checks each names a switch of `/site`. A 
   - **catalogue gap**: the sentence is live on today's pages, but built in server code the catalogue does not read
     yet. None is left: the texts built in code are served (source `code`, scripts/catalogue-code.ts), and so is each
     form of a sentence whose words the code picks (below).
-  - **draft needed**: no approved sentence exists yet (`errors.legal_version_changed`).
+  - **draft needed**: no approved sentence exists yet. None is left: the last one, `errors.legal_version_changed`, was
+    approved on 7 November 2026, so `x-wordings.pending` is empty.
 - **Forms.** A sentence the code builds with a plural or an optional clause has one key per form the code produces,
   each with the code's exact words and `{name}` placeholders: `.one` and `.other` for a plural
   (`site.scan.directory_count.one`: "... of the {total} directory we check ..."), `.with_clause` and `.without_clause`
@@ -307,8 +309,7 @@ list of operations behind a switch and checks each names a switch of `/site`. A 
 - **Engine's words for a business's customers** ("customers", "clients", "patients") are engine's data, not wordings:
   `categoryWords: { customers, customer }`, plain strings, put into the [customers] and [customer] sentences as they
   are. `words` keeps the rest (`storefront`, `held`, `audience`).
-  - **draft needed**: no approved sentence exists yet, so it goes to the strategist's draft round
-    (`errors.legal_version_changed` only, proposed in docs/product-v2/new-wordings.md).
+  - **draft needed**: no approved sentence exists yet, so it goes to the strategist's draft round (none today).
   Until a pending key is served, the frontend shows nothing in its place and Backend is told. `tests/api/contract.test.ts`
   fails when a pending key becomes real (so the spec moves to it) or when an example names an unknown key.
 - **The mock serves the real catalogue:** `api/examples/wordings.en.json` is the English export with the production rule
