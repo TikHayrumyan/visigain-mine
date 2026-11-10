@@ -1,8 +1,8 @@
 # The Visigain API (`/api/v1`)
 
 The contract between the new frontend (`visigain/visigain-frontend`) and this backend is
-[`api/openapi.yaml`](../../api/openapi.yaml) (OpenAPI 3.1). The spec is the authority: this page explains the rules
-around it. The plan is `C:/visigain-handoff/frontend-api-plan-2026-11.md`.
+`api/openapi.yaml` (at the root of each repository that carries it) (OpenAPI 3.1). The spec is the authority: this page explains the rules
+around it. The plan is Backend's frontend and API plan of November 2026 (kept with the owner, outside the repositories).
 
 Status (7 November 2026): **the public part is built** (branch night-api3), **auth, the dashboard, reports and
 orders** (night-api5), and **checkout and account** (night-api6, the starts behind `API_CHECKOUT_ENABLED`): every
@@ -86,7 +86,8 @@ Every 4xx and 5xx has the same shape:
 
 `message_key` is the catalogue key of the sentence the page shows for that case today: show its sentence. The
 table of every code and its key is `x-wordings.errors` at the top of the spec (one code may have an endpoint's own key,
-written `code@operationId`). The client turns an answer that is not this shape (a proxy page, the network) into
+written `code@operationId`). A sentence with placeholders comes with `params` for them, as a `Wording`'s do: only
+`business_paused` today (`{ "date": "<the pause's end, ISO 8601>" }`). The client turns an answer that is not this shape (a proxy page, the network) into
 `errors.global_error.something_went_wrong_on_our_side`.
 
 | status | when | codes |
@@ -371,7 +372,7 @@ I read the links built in `src/server/**` (`config().APP_URL` plus a path, and t
 - **old addresses:** `/med-spas` and `/personal-injury` answer 301 to `/`. The frontend keeps the redirects.
 
 ### The three hosts (APP_ORIGIN, ADMIN_ORIGIN)
-The final shape (`C:/visigain-handoff/frontend-api-plan-2026-11.md`, section 9) puts the website on `visigain.com`
+The final shape (Backend's frontend and API plan, section 9) puts the website on `visigain.com`
 (`APP_URL`), the app on `app.visigain.com` (`APP_ORIGIN`) and the admin on `admin.visigain.com` (`ADMIN_ORIGIN`). The
 paths of each are written once, in `deploy/host-paths.mjs`; `src/server/hosts.ts` builds every link from it, `src/proxy.ts`
 redirects by it, and `deploy/frontend-switch-map.mjs hosts` writes the load balancer's map from it. **While both settings
@@ -648,10 +649,13 @@ Built on night-g2 (the full-API add-on, group 2): the `fixers` tag, 11 operation
 - **The unlock days:** each module's `unlocked`, `unlockDay` and `early`; a draft asked for in a locked module is 409
   `module_locked` (`dashboard.monitoring.state_coming`).
 - **Fair use:** `GET /fixers/fair-use`, used and left per limit; the chat's figure is `enforced: false`.
-- **Words:** no new sentence. Errors use the pages' own keys (`dashboard.monitoring.refused`,
+- **Words:** one new sentence, approved. Errors use the pages' own keys (`dashboard.monitoring.refused`,
   `dashboard.monitoring.needs_change`, `dashboard.monitoring.cap_flash`, `dashboard.monitoring.draft_failed`); the
-  lint's hints are the modules' approved hints as keys. `business_paused` borrows
-  `account.pause_monitoring.while_it_is_paused_there_are` until the strategist writes the draft's own line.
+  lint's hints are the modules' approved hints as keys. `business_paused` names its own line,
+  `dashboard.monitoring.paused_until` ("Monitoring is paused until [date]. Monitoring starts again by itself when the
+  pause ends.", approved by Raf on 9 November 2026), with `params: { date }`, the pause's end in ISO 8601: write it as
+  the pause page writes its dates (the long date in Pacific time, "December 9, 2026"). Until then it borrowed
+  `account.pause_monitoring.while_it_is_paused_there_are`.
 - **Not here:** the page builders' offers (the brief ids a draft is asked for) and the review queue's own view are
   the Monitoring group's read-only views.
 
