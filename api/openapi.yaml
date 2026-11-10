@@ -17,6 +17,7 @@ info:
       and engine's report text, which the backend serves already approved.
     - Lists that grow are paged with `cursor` and `limit`, and answer `{ items, nextCursor }`.
     - Errors are `{ error: { code, message_key } }`; `message_key` is the key of the page's own sentence for that case (`x-wordings.errors`).
+      A sentence with placeholders comes with `params` (`business_paused` only: `date`, the pause's end).
 
     **Mock:** `pnpm api:mock` serves this file on http://127.0.0.1:4010 with the examples. Pick another example with
     the header `Prefer: example=<name>` (for instance `Prefer: example=free` on the overview), or another status with
@@ -160,7 +161,7 @@ x-wordings:
     needs_change: dashboard.monitoring.needs_change
     module_locked: dashboard.monitoring.state_coming
     fair_use_reached: dashboard.monitoring.cap_flash
-    business_paused: account.pause_monitoring.while_it_is_paused_there_are
+    business_paused: dashboard.monitoring.paused_until
     draft_failed: dashboard.monitoring.draft_failed
     unknown: errors.global_error.something_went_wrong_on_our_side
   theme:
@@ -3381,7 +3382,8 @@ paths:
         The page builders' "Write a draft": the brief is read again from engine, one page per real service, a blog
         topic only once the blog is open. 409 `fair_use_reached`: the month's drafts of that kind are used (nothing
         counted); `module_locked`: Pages is not unlocked yet for this business; `business_paused`: a batch draft held
-        by the pause; `fix_refused`: asked already, or the offer is gone; `fixers_hidden`: a switch is off or the
+        by the pause (`params.date`: the pause's end, ISO 8601; write it as the pause page does, the long date in
+        Pacific time); `fix_refused`: asked already, or the offer is gone; `fixers_hidden`: a switch is off or the
         business is not on Monitoring. 503 `draft_failed`: no draft came (nothing counted). `queued`: a batch draft,
         written later (the fix waits in `drafting`).
       x-visigain-availability: behind-switch
@@ -4103,7 +4105,7 @@ components:
     WordingsETag:
       description: The catalogue's version (the body's `version`), quoted; send it back in If-None-Match. The mock always sends this one.
       schema: { type: string }
-      example: '"deb67c9715485cd1"'
+      example: '"6e9bb0adb0200a8b"'
     WordingsCacheControl:
       description: The catalogue may be kept 5 minutes, then checked again with If-None-Match.
       schema: { type: string }
@@ -4252,6 +4254,7 @@ components:
             pdfPreparing: { $ref: "examples/error-pdf-preparing.json" }
             fixersHidden: { $ref: "examples/error-fixers-hidden.json" }
             fairUseReached: { $ref: "examples/error-fair-use-reached.json" }
+            businessPaused: { $ref: "examples/error-business-paused.json" }
     Gone:
       description: Withdrawn for good (a refunded report's PDF).
       content:
@@ -4345,6 +4348,9 @@ components:
             message_key:
               allOf: [{ $ref: "#/components/schemas/WordingKey" }]
               description: The key of the sentence the page shows for this case today (the table in the spec's x-wordings.errors).
+            params:
+              allOf: [{ $ref: "#/components/schemas/WordingParams" }]
+              description: "The values for the sentence's [name] placeholders, when it has any: `business_paused` sends `date` (the pause's end, ISO 8601). Left out otherwise."
     NextCursor: { type: [string, "null"], description: "The cursor for the next page; null on the last." }
 
     # ------------------------------------------------------------ public

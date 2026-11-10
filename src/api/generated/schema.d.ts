@@ -2161,7 +2161,8 @@ export interface paths {
          * @description The page builders' "Write a draft": the brief is read again from engine, one page per real service, a blog
          *     topic only once the blog is open. 409 `fair_use_reached`: the month's drafts of that kind are used (nothing
          *     counted); `module_locked`: Pages is not unlocked yet for this business; `business_paused`: a batch draft held
-         *     by the pause; `fix_refused`: asked already, or the offer is gone; `fixers_hidden`: a switch is off or the
+         *     by the pause (`params.date`: the pause's end, ISO 8601; write it as the pause page does, the long date in
+         *     Pacific time); `fix_refused`: asked already, or the offer is gone; `fixers_hidden`: a switch is off or the
          *     business is not on Monitoring. 503 `draft_failed`: no draft came (nothing counted). `queued`: a batch draft,
          *     written later (the fix waits in `drafting`).
          */
@@ -2661,6 +2662,8 @@ export interface components {
                 code: string;
                 /** @description The key of the sentence the page shows for this case today (the table in the spec's x-wordings.errors). */
                 message_key: components["schemas"]["WordingKey"];
+                /** @description The values for the sentence's [name] placeholders, when it has any: `business_paused` sends `date` (the pause's end, ISO 8601). Left out otherwise. */
+                params?: components["schemas"]["WordingParams"];
             };
         };
         /** @description The cursor for the next page; null on the last. */
@@ -6092,7 +6095,7 @@ export interface components {
     headers: {
         /**
          * @description The catalogue's version (the body's `version`), quoted; send it back in If-None-Match. The mock always sends this one.
-         * @example "594a3c349760c85c"
+         * @example "6e9bb0adb0200a8b"
          */
         WordingsETag: string;
         /**

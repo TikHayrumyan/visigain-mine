@@ -1,0 +1,10 @@
+{
+  "summary": "A draft asked for while the business's Monitoring is paused: the pause's end fills [date]",
+  "value": {
+    "error": {
+      "code": "business_paused",
+      "message_key": "dashboard.monitoring.paused_until",
+      "params": { "date": "2026-12-09T18:30:00.000Z" }
+    }
+  }
+}

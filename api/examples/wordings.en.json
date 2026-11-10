@@ -2,7 +2,7 @@
   "summary": "English, every approved entry (the production rule), from api/wordings/catalogue.generated.ts",
   "value": {
     "locale": "en",
-    "version": "deb67c9715485cd1",
+    "version": "6e9bb0adb0200a8b",
     "entries": {
       "account.account.amount_due": "{line} Amount due: {next}",
       "account.account.anything_you_d_like_to_add": "Anything you'd like to add (optional)",
@@ -1127,6 +1127,7 @@
       "dashboard.monitoring.pages_clear": "No website fixes waiting.",
       "dashboard.monitoring.pages_open": "[N] website fixes from your report.",
       "dashboard.monitoring.pages_open_one": "1 website fix from your report.",
+      "dashboard.monitoring.paused_until": "Monitoring is paused until [date]. Monitoring starts again by itself when the pause ends.",
       "dashboard.monitoring.pay_for_monitoring": "Pay for Monitoring",
       "dashboard.monitoring.payment_failed": "Payment failed",
       "dashboard.monitoring.posts_cap": "You've used this month's [N] blog posts. You can write more from [date].",
