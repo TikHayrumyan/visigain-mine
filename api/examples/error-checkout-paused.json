@@ -1,9 +1,0 @@
-{
-  "summary": "Payments paused (CHECKOUT_ENABLED off)",
-  "value": {
-    "error": {
-      "code": "checkout_paused",
-      "message_key": "dashboard.shared.payments_are_paused_for_the_moment_2840"
-    }
-  }
-}

@@ -1,0 +1,26 @@
+/* The dot matrix: one 36px tile with a dot at its centre, repeated (painted once, not a node per dot). */
+.dots,
+.greenDots {
+  position: absolute;
+  inset: 0;
+  background-size: 36px 36px;
+}
+
+.dots {
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-fg) 42%, transparent) 0.75px,
+    transparent 1.25px
+  );
+}
+
+.greenDots {
+  background-image: radial-gradient(circle, var(--color-green) 1px, transparent 1.5px);
+}
+
+/* A score bar's empty part: the design's hatch over the subtle surface. */
+.track {
+  background:
+    url("/images/hero/track.png") 0 0 / 10.5px 10.5px,
+    var(--color-surface-subtle);
+}

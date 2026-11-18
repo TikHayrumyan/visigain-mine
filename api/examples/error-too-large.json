@@ -1,9 +1,0 @@
-{
-  "summary": "The body is too large",
-  "value": {
-    "error": {
-      "code": "too_large",
-      "message_key": "errors.error.something_went_wrong"
-    }
-  }
-}

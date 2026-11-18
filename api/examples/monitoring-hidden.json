@@ -1,7 +1,0 @@
-{
-  "summary": "Hidden: a switch is off here (FIXERS_ENABLED, the module's switch; always so in production today)",
-  "value": {
-    "availability": "hidden",
-    "reason": "off"
-  }
-}

@@ -1,14 +1,5 @@
-# Copied from the backend as they are (pnpm api:sync): never reformatted here.
-api/
-src/api/client/
-src/api/generated/
-# Generated or installed.
 .next/
 node_modules/
 pnpm-lock.yaml
-playwright-report/
-test-results/
 src/app/globals.css
-docs/api.md
 AGENTS.md
-docs/wordings.md

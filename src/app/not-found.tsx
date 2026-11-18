@@ -1,10 +1,12 @@
-import { getT } from "@/wordings/server";
+import Link from "next/link";
 
-export default async function NotFound() {
-  const t = await getT();
+export default function NotFound() {
   return (
-    <main id="main" tabIndex={-1} className="mx-auto max-w-site px-4 pb-section">
-      <h1 className="text-title">{t("errors.not_found.we_can_t_find_that_page")}</h1>
-    </main>
+    <div className="mx-auto box-content max-w-content px-4 py-section lg:px-6">
+      <h1 className="text-title">We can&apos;t find that page</h1>
+      <Link href="/" className="mt-stack inline-block">
+        Back to home
+      </Link>
+    </div>
   );
 }

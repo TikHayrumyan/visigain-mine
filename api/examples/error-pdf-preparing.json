@@ -1,9 +1,0 @@
-{
-  "summary": "The PDF is being prepared",
-  "value": {
-    "error": {
-      "code": "pdf_preparing",
-      "message_key": "dashboard.reports.the_pdf_is_being_prepared"
-    }
-  }
-}

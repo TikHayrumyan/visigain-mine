@@ -1,9 +1,0 @@
-{
-  "summary": "Free scans paused",
-  "value": {
-    "error": {
-      "code": "scans_paused",
-      "message_key": "site.scan.the_free_scan_is_paused_for"
-    }
-  }
-}

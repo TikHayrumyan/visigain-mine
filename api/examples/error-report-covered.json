@@ -1,9 +1,0 @@
-{
-  "summary": "Monitoring already includes the report",
-  "value": {
-    "error": {
-      "code": "report_covered",
-      "message_key": "dashboard.monitoring.monitoring_includes_the_full_report_we"
-    }
-  }
-}

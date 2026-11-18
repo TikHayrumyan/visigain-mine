@@ -1,9 +1,0 @@
-{
-  "summary": "Not a valid email address",
-  "value": {
-    "error": {
-      "code": "invalid_email",
-      "message_key": "site.free_ai_check.please_enter_a_valid_email_address"
-    }
-  }
-}

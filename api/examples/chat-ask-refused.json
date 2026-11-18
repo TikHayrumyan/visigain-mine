@@ -1,9 +1,0 @@
-{
-  "summary": "Refused: another question is out, or 30 this hour (the panel's error line)",
-  "value": {
-    "id": "7a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d",
-    "status": "refused",
-    "reason": "busy",
-    "message": "dashboard.chat.error"
-  }
-}

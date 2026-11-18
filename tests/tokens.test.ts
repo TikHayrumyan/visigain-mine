@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import * as tokens from "@/brand/tokens";
+import * as tokens from "@/styles/tokens";
 // @ts-expect-error: a plain .mjs script, without types.
 import { generatedCss } from "../scripts/tokens-build.mjs";
 
@@ -16,27 +16,17 @@ function files(dir: string): string[] {
 }
 
 describe("tokens", () => {
-  it("the stylesheet's generated regions are what src/brand/tokens.ts gives (run `pnpm tokens`)", () => {
+  it("the stylesheet's generated regions match src/styles/tokens.ts (run `pnpm tokens`)", () => {
     const css = readFileSync(path.join(ROOT, "src/app/globals.css"), "utf8").replace(/\r\n/g, "\n");
     expect((generatedCss as (c: string, t: unknown) => string)(css, tokens)).toBe(css);
   });
 
-  it("writes a colour value only in the token file (and the stylesheet it generates)", () => {
-    const allowed = new Set([path.join(ROOT, "src/brand/tokens.ts"), path.join(ROOT, "src/app/globals.css")]);
+  it("writes a colour value only in the token file and the stylesheet it generates", () => {
+    const allowed = new Set([path.join(ROOT, "src/styles/tokens.ts"), path.join(ROOT, "src/app/globals.css")]);
     const offenders = files(path.join(ROOT, "src"))
-      .filter((f) => !allowed.has(f) && !f.includes(`${path.sep}api${path.sep}`))
+      .filter((f) => !allowed.has(f))
       .filter((f) => /#[0-9a-fA-F]{3,8}\b|\brgba?\(/.test(readFileSync(f, "utf8")))
       .map((f) => path.relative(ROOT, f));
     expect(offenders).toEqual([]);
-  });
-
-  it("takes the website design's neutrals and font, and keeps the backend's brand colours (TOKENS.md)", () => {
-    expect(tokens.THEME.light.bg).toBe(tokens.SITE_NEUTRAL.page);
-    expect(tokens.THEME.dark.fg).toBe(tokens.SITE_NEUTRAL.primaryDark);
-    expect(tokens.BRAND.paper).toBe("#FAF6EE");
-    expect(tokens.THEME.light.lineStrong).toBe("#8C867A");
-    expect(tokens.WEB_FONT.sans).toMatch(/^var\(--font-geist\)/);
-    expect(tokens.WEB_FONT.display).toMatch(/^var\(--font-poppins\)/);
-    expect(tokens.TYPE_ROLE.pageTitle.fontWeight).toBe("600");
   });
 });

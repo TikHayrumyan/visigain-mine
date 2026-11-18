@@ -1,9 +1,0 @@
-{
-  "summary": "Only an owner may do this",
-  "value": {
-    "error": {
-      "code": "owner_only",
-      "message_key": "account.account.only_an_owner_of_this_organisation"
-    }
-  }
-}

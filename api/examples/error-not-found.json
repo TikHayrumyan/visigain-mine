@@ -1,9 +1,0 @@
-{
-  "summary": "Unknown, or not yours",
-  "value": {
-    "error": {
-      "code": "not_found",
-      "message_key": "errors.not_found.we_can_t_find_that_page"
-    }
-  }
-}

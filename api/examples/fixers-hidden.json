@@ -1,7 +1,0 @@
-{
-  "summary": "The fixers are off here (FIXERS_ENABLED or the module's switch): the app hides the page",
-  "value": {
-    "hidden": true,
-    "reason": "off"
-  }
-}

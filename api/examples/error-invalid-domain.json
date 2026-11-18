@@ -1,9 +1,0 @@
-{
-  "summary": "Not a website address",
-  "value": {
-    "error": {
-      "code": "invalid_domain",
-      "message_key": "site.free_ai_check.that_doesn_t_look_like_a"
-    }
-  }
-}

@@ -1,9 +1,0 @@
-{
-  "summary": "The organisation has no business yet",
-  "value": {
-    "error": {
-      "code": "no_business",
-      "message_key": "dashboard.overview.no_businesses_yet_buy_a_full"
-    }
-  }
-}

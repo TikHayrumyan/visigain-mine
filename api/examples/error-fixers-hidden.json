@@ -1,9 +1,0 @@
-{
-  "summary": "The fixers are off here: nothing was done (the app hides the page)",
-  "value": {
-    "error": {
-      "code": "fixers_hidden",
-      "message_key": "dashboard.monitoring.refused"
-    }
-  }
-}
