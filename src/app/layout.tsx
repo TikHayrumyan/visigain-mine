@@ -69,13 +69,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className={poppins.variable} {...(theme === "system" ? {} : { "data-theme": theme })}>
       <body className="min-h-dvh bg-bg text-fg antialiased">
-        {site.holding ? null : (
+        {/* {site.holding ? null : (
           <header className="mx-auto flex max-w-site justify-end px-4 py-4">
             <ThemeSwitch theme={theme} back={path} t={t} />
           </header>
-        )}
+        )} */}
         {held ? <HoldingPage t={t} /> : children}
-        <PrivacyFooter t={t} />
+        {/* <PrivacyFooter t={t} /> */}
       </body>
     </html>
   );
