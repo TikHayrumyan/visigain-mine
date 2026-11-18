@@ -1,14 +1,17 @@
-import Link from "next/link";
+import { SiteHeader } from "@/components/site/site-header";
+import { loadSite } from "@/site/server";
 import { getT } from "@/wordings/server";
 
-/** The home page's place: no design yet. It shows one wording and links to the wiring proof (/example). */
+/**
+ * The home page: the header on the hero's dark panel (dark in both themes). The hero and the sections below it are
+ * still to be built.
+ */
 export default async function HomePage() {
-  const t = await getT();
+  const [t, site] = await Promise.all([getT(), loadSite()]);
   return (
-    <main id="main" tabIndex={-1} className="mx-auto max-w-site px-4 pb-section">
-      {/* <h1 className="text-display">
-        <Link href="/example">{t("site.home.get_your_free_grade")}</Link>
-      </h1> */}
-    </main>
+    <div data-theme="dark" className="mx-2 mt-2 rounded-panel-sm bg-ink text-fg lg:mx-4 lg:mt-0 lg:rounded-panel">
+      <SiteHeader t={t} holding={site.holding} />
+      <main id="main" tabIndex={-1} />
+    </div>
   );
 }

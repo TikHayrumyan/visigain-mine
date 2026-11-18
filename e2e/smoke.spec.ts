@@ -44,8 +44,8 @@ for (const scheme of ["light", "dark"] as const) {
       const fg = await page.evaluate(() => getComputedStyle(document.body).color);
       expect(fg).toBe(rgb(THEME[scheme].fg));
 
-      // Self-hosted Poppins (next/font names it after the family), and no sideways scroll.
-      expect(await page.evaluate(() => getComputedStyle(document.body).fontFamily)).toMatch(/poppins/i);
+      // Self-hosted Geist (next/font names it after the family), and no sideways scroll.
+      expect(await page.evaluate(() => getComputedStyle(document.body).fontFamily)).toMatch(/geist/i);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     });
   }

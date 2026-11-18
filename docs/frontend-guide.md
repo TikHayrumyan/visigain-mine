@@ -106,8 +106,8 @@ checkout and account paths as the frontend's: they are visigain-app's now.
   `common.legal_links.your_privacy_choices` and `common.legal_links.cookie_settings`, both to `/privacy-choices` (the
   backend's `LEGAL_LINKS`). The Cookie Policy (legal v3.18 draft) says one consent choice covers visigain.com,
   app.visigain.com and admin.visigain.com and can be changed on any of them, so the app links to this site's page and
-  this site must build it. The root layout draws them today (`src/components/privacy-footer.tsx`, held pages too;
-  `e2e/smoke.spec.ts` checks them by key); the designed footer keeps both.
+  this site must build it. The root layout's designed footer draws them (`src/components/site/site-footer.tsx`,
+  `LEGAL_LINKS` in `src/components/site/links.ts`, held pages too; `e2e/smoke.spec.ts` checks them by key).
 - **`/privacy-choices` is built here, on the API only**, as the backend's page does today: `GET /site` (the root
   layout's switches and `legalVersion`), `GET /wordings` (its words, `site.privacy_choices.*`), `GET /legal/lines`
   (the notice's legal words, shown exactly as given) and `POST /consent?event=agree|opt_out` (the choice: 204, sets

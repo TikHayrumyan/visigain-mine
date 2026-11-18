@@ -6,26 +6,29 @@ light and dark theme rules). Never edit those regions by hand: `pnpm lint` and `
 are stale. Components use the token classes only (`bg-bg`, `text-fg`, `bg-surface`, `border-line`, `rounded-card`,
 `text-card-title` …), never a raw colour or a square-bracket value, and both themes follow.
 
-**Today's values are the backend's** (brand v1.2, locked; the backend's `src/brand/tokens.ts` of 6 November 2026),
-ported unchanged, with the same generator (`scripts/tokens-build.mjs`). Poppins is self-hosted from the
-`@fontsource/poppins` package (weights 400 to 800) through `next/font/local`: no request goes to Google.
+**The brand colours are the backend's** (brand v1.2, locked; the backend's `src/brand/tokens.ts` of 6 November 2026),
+ported unchanged, with the same generator (`scripts/tokens-build.mjs`). **The theme's neutrals, the web font and the
+site's text styles are the website design's** (Figma "Visigain (Website)", adopted 18 November 2026): `SITE_NEUTRAL`
+feeds the surface roles, `WEB_FONT.sans` is Geist and `WEB_FONT.display` Poppins, and `SITE_TYPE` holds Label/S,
+Label/M, Label/L, Body/S and Headline/S. Both fonts are self-hosted from the `@fontsource/geist` (400, 500) and
+`@fontsource/poppins` (400 to 800) packages through `next/font/local`: no request goes to Google.
 
-## Open: Illia's design against ours
+## Illia's design against ours
 
 The design hand-off ([`docs/design-handoff.md`](docs/design-handoff.md), section 6) lists questions that Illia and Raf
-answer. **Until they do, our values stay the defaults**, and none of Illia's values that depend on them is adopted.
+answer.
 
-| #   | question                                                                                | our value until answered                                                                                               | Illia's value (not adopted)                                                                                             |
-| --- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| 1   | **Geist** for body and labels? Brand v1.2 is Poppins only                               | Poppins for everything (`WEB_FONT.sans`)                                                                               | Geist 87 % of text, Poppins 500 for headings                                                                            |
-| 2   | **Heading weight**: Poppins 500 everywhere?                                             | 600 UI and page titles, 700 subheads and card titles, 800 display (`TYPE_ROLE`, `WEB_TYPE`)                            | 500                                                                                                                     |
-| 3   | **Page colour** #EFEEE9 instead of paper, in the dashboard only or the public site too? | `bg` = paper #FAF6EE light, ink #0E0F0F dark                                                                           | #EFEEE9 / #0F0F0E                                                                                                       |
-| 4   | **Contrast**: may the failing tones be darkened, and to what?                           | `muted` = `faint` #5C5F5F (6.0:1 on paper) / #9A9D9D; `lineStrong` #8C867A / #6E7272 (3:1 or better for field borders) | Tertiary #9B9C98 (2.4 to 2.8:1, fails AA), Secondary #686A67 (4.7:1 on the page colour), Border Darken #D8D6CF (1.45:1) |
+| #   | question                                                                                | state                                                                                                                                  |
+| --- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Geist** for body and labels? Brand v1.2 is Poppins only                               | adopted: Geist for text (`WEB_FONT.sans`), Poppins for display (`WEB_FONT.display`)                                                    |
+| 2   | **Heading weight**: Poppins 500 everywhere?                                             | open: 600 UI and page titles, 700 subheads and card titles, 800 display (`TYPE_ROLE`, `WEB_TYPE`)                                      |
+| 3   | **Page colour** #EFEEE9 instead of paper, in the dashboard only or the public site too? | adopted for the public site: the website file's page #FAF9F4 / #0F0F0E (`SITE_NEUTRAL`); paper stays a brand colour                    |
+| 4   | **Contrast**: may the failing tones be darkened, and to what?                           | open: `faint` is the design's Tertiary #9B9C98 / #75756F, below 4.5:1 for small text (the footer's column headings and copyright line) |
 
 The other questions of section 6 (the green short logo, duplicate variable names, the Typography sheet, the by-area bar
 colours, card radius 28 and panel radius 20, missing screens, switched-off features, review texts, sample data, the
-`Tag / h2 skipped` component) are open too. Card and panel radii stay 16 (`WEB_RADIUS.card`) until question 9 is
-answered.
+`Tag / h2 skipped` component) are open too. Card radii stay 16 (`WEB_RADIUS.card`) until question 9 is answered; the
+website's dark panel under the header is 32 and 24 on a phone (`WEB_RADIUS.panel`, `panelSm`).
 
 ## Changing a value
 

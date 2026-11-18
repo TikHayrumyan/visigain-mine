@@ -7,5 +7,14 @@
  * sentence.
  */
 export const AWAITING_BACKEND: readonly string[] = [
-  // Empty since the contract of backend main 91506295 (the theme names are served).
+  // The header, the top bar and the open menu (Figma "Visigain (Website)", Home, 18 November 2026).
+  "common.nav.get_your_free_scan", // "Get Your Free Scan"
+  "common.nav.help_center", // "Help center"
+  "common.nav.blog", // "Blog" (also the footer's Company column)
+  "common.nav.already_a_customer", // "Already a customer?"
+  "common.nav.free_no_call_results_in_about", // "Free · No call · Results in about 15 minutes"
+  // The footer.
+  "common.footer_columns.free_scan", // "Free Scan"
+  "common.footer_columns.full_visibility_grade_report", // "Full Visibility Grade Report"
+  "common.footer.copyright", // "© {year} {company}"
 ];

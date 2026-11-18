@@ -2,8 +2,9 @@
  * Visigain brand tokens v1.2: THE ONE PLACE IN THIS REPOSITORY WHERE A TOKEN VALUE IS WRITTEN.
  *
  * Ported from the backend's src/brand/tokens.ts (visigain-backend, 6 November 2026), keeping only what a web page
- * reads: the backend keeps the PDF, email, badge and share-card scales for what it draws itself. The values are the
- * backend's, unchanged. Illia's Figma values are NOT adopted while their questions are open (TOKENS.md).
+ * reads: the backend keeps the PDF, email, badge and share-card scales for what it draws itself. The brand colours are
+ * the backend's, unchanged. The theme's neutrals, the web font and the site's type styles are the website design's
+ * (Figma "Visigain (Website)", adopted 18 November 2026; TOKENS.md).
  *
  * Who reads it:
  * - the stylesheet: the token blocks of src/app/globals.css (Tailwind's @theme and the theme rules, light and dark)
@@ -25,9 +26,6 @@ export const BRAND = {
   text2: "#5C5F5F",
   /** Secondary text on ink (7.0:1). */
   text2Dark: "#9A9D9D",
-  /** Derived neutrals (not in the brand pack): hairlines on paper and on ink. */
-  line: "#DDD7CA",
-  lineDark: "#2F3232",
   /** Form-field borders (6 October 2026, WCAG 1.4.11): the hairline's own tone, taken to 3:1 or better on white, paper and paper 2 (light) and on ink, raised ink and surface 2 (dark). */
   lineStrong: "#8C867A",
   lineStrongDark: "#6E7272",
@@ -54,6 +52,23 @@ export const STATUS = { danger: "#B42318", ok: "#067647", warn: "#B54708" } as c
 export const STAGING = { bg: "#F59E0B", fg: "#1C1917" } as const;
 
 /**
+ * The website design's neutrals (Figma "Visigain (Website)": its Elements, Borders and Surfaces variables, and the
+ * page's own fill). The theme's surface roles below take them.
+ */
+export const SITE_NEUTRAL = {
+  page: "#FAF9F4",
+  pageDark: "#0F0F0E",
+  primaryDark: "#F3F2EE",
+  secondary: "#686A67",
+  secondaryDark: "#9D9D97",
+  tertiary: "#9B9C98",
+  tertiaryDark: "#75756F",
+  border: "#EBE9E3",
+  borderDark: "#2C2C29",
+  surfaceDark: "#1A1A18",
+} as const;
+
+/**
  * What follows the theme on a page: the surface roles and the status colours, light and dark. The stylesheet's three
  * theme rules (forced dark, a device set to dark, forced light) and the light values in @theme are generated from this
  * one table, in this order. A role that is a brand colour names it; the others are derived neutrals and status tones
@@ -61,11 +76,11 @@ export const STAGING = { bg: "#F59E0B", fg: "#1C1917" } as const;
  */
 export const THEME = {
   light: {
-    bg: BRAND.paper,
+    bg: SITE_NEUTRAL.page,
     fg: BRAND.ink,
-    muted: BRAND.text2,
-    faint: BRAND.text2,
-    line: BRAND.line,
+    muted: SITE_NEUTRAL.secondary,
+    faint: SITE_NEUTRAL.tertiary,
+    line: SITE_NEUTRAL.border,
     lineStrong: BRAND.lineStrong,
     surface: BRAND.white,
     surface2: BRAND.paper2,
@@ -77,13 +92,13 @@ export const THEME = {
     warnSoft: "#FEF4E6",
   },
   dark: {
-    bg: BRAND.ink,
-    fg: BRAND.white,
-    muted: BRAND.text2Dark,
-    faint: BRAND.text2Dark,
-    line: BRAND.lineDark,
+    bg: SITE_NEUTRAL.pageDark,
+    fg: SITE_NEUTRAL.primaryDark,
+    muted: SITE_NEUTRAL.secondaryDark,
+    faint: SITE_NEUTRAL.tertiaryDark,
+    line: SITE_NEUTRAL.borderDark,
     lineStrong: BRAND.lineStrongDark,
-    surface: BRAND.ink2,
+    surface: SITE_NEUTRAL.surfaceDark,
     surface2: "#252828",
     danger: "#F97066",
     dangerSoft: "#3A1512",
@@ -104,13 +119,14 @@ export const FONT_STACK = '"Poppins", "Segoe UI", system-ui, -apple-system, Helv
 export const RADIUS = { card: 16, input: 10, button: 999 } as const;
 
 /*
- * The web's own tokens (the stylesheet's @theme block is generated from them). Poppins reaches a page as the
- * --font-poppins variable (src/app/layout.tsx), so the web's font stack is not the emails' FONT_STACK.
+ * The web's own tokens (the stylesheet's @theme block is generated from them). Geist (the website design's text face)
+ * and Poppins (its display face) reach a page as the --font-geist and --font-poppins variables (src/app/layout.tsx),
+ * so the web's font stack is not the emails' FONT_STACK.
  */
 export const WEB_FONT = {
-  sans: 'var(--font-poppins), "Segoe UI", system-ui, sans-serif',
+  sans: 'var(--font-geist), "Segoe UI", system-ui, sans-serif',
   mono: 'ui-monospace, "SF Mono", Menlo, Consolas, monospace',
-  display: "var(--font-sans)",
+  display: 'var(--font-poppins), "Segoe UI", system-ui, sans-serif',
 } as const;
 /**
  * The radius list: a number is CSS pixels, a string is written as it is. Each is the class `rounded-<name>`
@@ -139,6 +155,9 @@ export const WEB_RADIUS = {
   siteCard: 18,
   /** The logo's icon on its tile: a share of the tile's side, the brand pack's shape. */
   logo: "22%",
+  /** The dark panel the header sits on (the homepage's hero), on a wide screen; `panelSm` on a phone and the open menu. */
+  panel: 32,
+  panelSm: 24,
 } as const;
 /** No shadows except on floating elements: ink at 28%. */
 export const SHADOW = { float: "0 24px 60px rgb(14 15 15 / 0.28)" } as const;
@@ -206,12 +225,16 @@ export const TYPE_ROLE = {
 } as const satisfies Record<string, TypeRole>;
 /**
  * The public site's own type sizes, and the large grade tile's letter (named on 15 October 2026 with the value each
- * place had that day; before, each was written in square brackets). Like a role, a value left out is inherited: none
- * of them sets a line height or a weight, because none of the places did (a `leading-*` or `font-*` class beside it
- * still sets those). Whether the public site keeps a scale of its own or takes the dashboard's roles is the designer's
- * decision (TOKENS.md); either way it is a change of values here.
+ * place had that day; before, each was written in square brackets). Like a role, a value left out is inherited (a
+ * `leading-*` or `font-*` class beside it still sets it). The first five are the website design's text styles, by
+ * their Figma names (Label/S 12|16 and so on), with the line height and weight Figma gives them.
  */
 export const SITE_TYPE = {
+  labelS: { size: "12px", lineHeight: "16px", fontWeight: "500" },
+  labelM: { size: "14px", lineHeight: "20px", fontWeight: "500" },
+  labelL: { size: "15px", lineHeight: "20px", fontWeight: "500" },
+  bodyS: { size: "13px", lineHeight: "18px", fontWeight: "400" },
+  headlineS: { size: "22px", lineHeight: "28px", fontWeight: "500", letterSpacing: "-0.02em" },
   /** The small line above a hero's title. */
   siteEyebrow: { size: "13px" },
   /** The small line under each of the three figures of the strip under the hero. */
@@ -259,4 +282,5 @@ export const SPACING = {
   /** Above and below a hero's content on a wide screen. */
   hero: "4.5rem",
 } as const;
-export const CONTAINER = { site: "72rem", prose: "42rem" } as const;
+/** `content` is the website design's 1200px column (the header, the top bar and the footer line up on it). */
+export const CONTAINER = { site: "72rem", prose: "42rem", content: "75rem" } as const;

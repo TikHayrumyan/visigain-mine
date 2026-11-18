@@ -30,12 +30,13 @@ describe("tokens", () => {
     expect(offenders).toEqual([]);
   });
 
-  it("keeps the backend's values until the design questions are answered (TOKENS.md)", () => {
-    expect(tokens.THEME.light.bg).toBe(tokens.BRAND.paper);
+  it("takes the website design's neutrals and font, and keeps the backend's brand colours (TOKENS.md)", () => {
+    expect(tokens.THEME.light.bg).toBe(tokens.SITE_NEUTRAL.page);
+    expect(tokens.THEME.dark.fg).toBe(tokens.SITE_NEUTRAL.primaryDark);
     expect(tokens.BRAND.paper).toBe("#FAF6EE");
-    expect(tokens.THEME.light.faint).toBe(tokens.BRAND.text2);
     expect(tokens.THEME.light.lineStrong).toBe("#8C867A");
-    expect(tokens.WEB_FONT.sans).toMatch(/^var\(--font-poppins\)/);
+    expect(tokens.WEB_FONT.sans).toMatch(/^var\(--font-geist\)/);
+    expect(tokens.WEB_FONT.display).toMatch(/^var\(--font-poppins\)/);
     expect(tokens.TYPE_ROLE.pageTitle.fontWeight).toBe("600");
   });
 });
