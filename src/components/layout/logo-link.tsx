@@ -10,7 +10,7 @@ const LOGO_SRC = { light: "/icons/logo.svg", dark: "/icons/logo-dark.svg" } as c
 export function LogoLink({ tone = "light", className = "w-41" }: { tone?: keyof typeof LOGO_SRC; className?: string }) {
   return (
     <Link href="/" aria-label="Visigain home" className="shrink-0">
-      <Image src={LOGO_SRC[tone]} alt="" width={164} height={32} className={`h-auto ${className}`} />
+      <Image src={LOGO_SRC[tone]} alt="" width={164} height={32} className={`h-auto ${className} `} />
     </Link>
   );
 }

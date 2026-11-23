@@ -20,7 +20,7 @@ export function MenuButton({ tone = "light" }: { tone?: keyof typeof MENU_ICON }
       onClick={open}
       className={`${ICON_BUTTON} size-10.5 lg:hidden`}
     >
-      <Image src={MENU_ICON[tone]} alt="" width={20} height={20} />
+      <Image src={MENU_ICON[tone]} alt="Menu icon" width={20} height={20} />
     </button>
   );
 }
@@ -52,7 +52,7 @@ export function MobileMenu({ children }: { children: ReactNode }) {
         onClick={close}
         className={`${ICON_BUTTON} absolute top-5 right-4 size-10.5`}
       >
-        <Image src="/icons/close.svg" alt="" width={24} height={24} />
+        <Image src="/icons/close.svg" alt="Close icon" width={24} height={24} />
       </button>
     </dialog>
   );
