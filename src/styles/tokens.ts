@@ -197,6 +197,8 @@ export const SHADOW = {
   field: "0 12px 16px rgb(0 0 0 / 0.25)",
   /** The business-type search pill sitting on the category marquee. */
   search: "0 12px 16px rgb(23 20 13 / 0.1)",
+  /** A feature card lifting off the one behind it. */
+  lift: "0 -8px 40px rgb(23 20 13 / 0.06)",
 } as const;
 /** The web type scale: Poppins 400 body, 600 UI, 700 subheads, 800 display. */
 export const WEB_TYPE: Record<
