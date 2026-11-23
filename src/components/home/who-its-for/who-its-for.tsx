@@ -16,7 +16,7 @@ export function WhoItsFor() {
 
   return (
     <section aria-labelledby="who-its-for-title" className="pt-16 lg:pt-30">
-      <div className="mx-auto flex w-full max-w-300 flex-col gap-4 px-5 lg:flex-row lg:items-end lg:justify-between lg:px-0">
+      <div className="mx-auto flex w-full max-w-360 flex-col gap-4 px-5 lg:flex-row lg:items-end lg:justify-between lg:px-30">
         <div className="flex flex-col gap-4">
           <p className="font-display text-title-s text-muted">Who it’s for</p>
           <h2 id="who-its-for-title" className="font-display text-headline-m text-fg lg:w-130 lg:text-headline-l">
@@ -31,7 +31,7 @@ export function WhoItsFor() {
 
       <div className="mt-7 flex flex-col gap-3 lg:mt-12 lg:gap-8">
         <div
-          className={`flex gap-3 overflow-x-auto px-5 lg:mx-auto lg:w-full lg:max-w-300 lg:gap-5 lg:overflow-visible lg:px-0 ${styles.scroll}`}
+          className={`flex gap-3 overflow-x-auto px-5 lg:mx-auto lg:w-full lg:max-w-360 lg:gap-5 lg:overflow-visible lg:px-30 ${styles.scroll}`}
         >
           {BUSINESS_GROUPS.map((group, index) => (
             <motion.article
@@ -46,7 +46,7 @@ export function WhoItsFor() {
             >
               <Image
                 src={group.image}
-                alt=""
+                alt={`${group.name} business group`}
                 width={group.width}
                 height={group.height}
                 sizes="(min-width: 64rem) 285px, 260px"

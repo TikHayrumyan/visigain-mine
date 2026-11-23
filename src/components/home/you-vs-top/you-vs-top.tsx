@@ -85,7 +85,7 @@ export function YouVsTop() {
         <div
           ref={scroller}
           onScroll={moveThumb}
-          className="mt-4 overflow-x-auto px-3 [scrollbar-width:none] lg:px-6 [&::-webkit-scrollbar]:hidden"
+          className="mt-4 overflow-x-auto px-3 scrollbar-none lg:px-6 [&::-webkit-scrollbar]:hidden"
         >
           <motion.div
             className="w-max min-w-full px-3 lg:px-0"
