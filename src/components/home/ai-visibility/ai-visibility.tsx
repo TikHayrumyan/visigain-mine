@@ -47,17 +47,17 @@ export function AiVisibility() {
           </div>
 
           <div className="relative mx-auto mt-10 w-full max-w-277 lg:mt-16">
-            <div className="h-115 overflow-hidden lg:h-130 lg:overflow-x-visible lg:overflow-y-hidden">
-              <div className="relative h-[626px] w-[689px] lg:h-auto lg:w-full">
+            <div className="h-76 overflow-hidden lg:h-130 lg:overflow-x-visible lg:overflow-y-hidden">
+              <div className=" relative h-156.5 w-172.25 lg:h-auto lg:w-full">
                 <div
-                  className={`absolute top-0 left-2.5 w-[1108px] origin-top-left lg:static lg:left-auto lg:w-full ${styles.phone}`}
+                  className={`absolute top-0 left-2.5 w-277 origin-top-left lg:static lg:left-auto lg:w-full ${styles.phone}`}
                   style={{ "--phone-scale": PHONE_SCALE } as React.CSSProperties}
                 >
                   <Reveal
                     y={60}
                     duration={0.8}
                     delay={0.3}
-                    className="min-h-[1019px] w-[1108px] rounded-panel bg-surface p-7 text-fg lg:w-full"
+                    className="lg:min-h-254.75 w-277 rounded-panel bg-surface p-7 text-fg lg:w-full"
                     theme="light"
                   >
                     <div className="flex h-7.5 items-center gap-1.5">
