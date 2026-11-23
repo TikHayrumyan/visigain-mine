@@ -20,8 +20,8 @@ export function ProductPreview() {
           <Image
             src="/images/hero/dashboard.png"
             alt="The Visigain dashboard: the visibility grade, the key numbers and the fixes to do first"
-            width={2880}
-            height={1800}
+            width={3000}
+            height={2000}
             sizes="(width >= 64rem) 1200px, 200px"
             preload
             className="h-75 w-full object-cover object-top-left lg:h-auto"
