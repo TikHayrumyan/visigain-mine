@@ -30,7 +30,7 @@ export function WhoItsFor() {
 
       <div className="mt-7 flex flex-col gap-3 lg:mt-12 lg:gap-8">
         <div
-          className="scrollbar-none flex gap-3 overflow-x-auto px-5 lg:mx-auto lg:w-full lg:max-w-360 lg:gap-5 lg:overflow-visible lg:px-30"
+          className="scrollbar-none flex gap-3 overflow-x-auto overflow-y-hidden px-5 lg:mx-auto lg:w-full lg:max-w-360 lg:gap-5 lg:overflow-visible lg:px-30"
         >
           {BUSINESS_GROUPS.map((group, index) => (
             <motion.article
@@ -38,7 +38,7 @@ export function WhoItsFor() {
               className="relative h-90 w-65 shrink-0 overflow-hidden rounded-card lg:h-100 lg:w-auto lg:flex-1"
               initial={reduceMotion ? false : { opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.4 }}
+              viewport={{ once: true, amount: 0.15 }}
               transition={
                 reduceMotion ? { duration: 0 } : { duration: TILE_RISE, delay: index * TILE_STAGGER, ease: "easeOut" }
               }
