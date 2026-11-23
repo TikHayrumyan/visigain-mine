@@ -9,8 +9,8 @@
 .dots {
   background-image: radial-gradient(
     circle,
-    color-mix(in srgb, var(--color-fg) 42%, transparent) 0.75px,
-    transparent 1.25px
+    color-mix(in srgb, var(--color-fg) 30%, transparent) 0.75px,
+    transparent 1px
   );
 }
 

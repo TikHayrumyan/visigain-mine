@@ -7,7 +7,7 @@ import { AreaScoresCard } from "./area-scores-card";
  */
 export function ProductPreview() {
   return (
-    <div className="relative mt-9 h-75 lg:mt-16 lg:h-180 lg:overflow-hidden lg:px-10">
+    <div className="relative mt-9 h-75 lg:mt-16 lg:h-180 lg:overflow-hidden lg:px-10 ">
       <div data-theme="light" className="relative ml-4 w-120 lg:mx-auto lg:w-auto lg:max-w-300">
         <div className="overflow-hidden rounded-lg border border-line bg-surface shadow-window-sm lg:rounded-card lg:shadow-window">
           <div className="flex h-6 items-center justify-between border-b border-line bg-surface-subtle px-2.5 lg:h-11 lg:px-4">
