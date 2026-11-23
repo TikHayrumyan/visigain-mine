@@ -192,6 +192,8 @@ export const SHADOW = {
   compare: "0 16px 24px rgb(14 15 15 / 0.06)",
   compareSm: "0 16px 48px rgb(14 15 15 / 0.06)",
   field: "0 12px 16px rgb(0 0 0 / 0.25)",
+  /** The business-type search pill sitting on the category marquee. */
+  search: "0 12px 16px rgb(23 20 13 / 0.1)",
 } as const;
 /** The web type scale: Poppins 400 body, 600 UI, 700 subheads, 800 display. */
 export const WEB_TYPE: Record<
@@ -272,6 +274,8 @@ export const SITE_TYPE = {
   headlineL: { size: "40px", lineHeight: "44px", fontWeight: "500", letterSpacing: "-0.035em" },
   /** Title/L 20|26, a card's title. */
   titleL: { size: "20px", lineHeight: "26px", fontWeight: "500", letterSpacing: "-0.015em" },
+  /** Title/S 16|22, an eyebrow and a tile name. */
+  titleS: { size: "16px", lineHeight: "22px", fontWeight: "500", letterSpacing: "-0.01em" },
   displayS: { size: "36px", lineHeight: "36px", fontWeight: "500", letterSpacing: "-0.035em" },
   displayM: { size: "56px", lineHeight: "64px", fontWeight: "500", letterSpacing: "-0.04em" },
   /** The address in the phone's small browser window mockup. */
