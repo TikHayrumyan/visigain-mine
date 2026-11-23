@@ -109,6 +109,8 @@ export const THEME = {
     gridWash: "#F0F2FF",
     /** The tile under the rank dots, before the map image. */
     map: "#EEF0EA",
+    /** The pale panel behind the reviews card. */
+    reviewWash: "#FDEBDC",
   },
   dark: {
     bg: SITE_NEUTRAL.pageDark,
@@ -133,6 +135,7 @@ export const THEME = {
     ringTrack: "#E6E4DD",
     gridWash: "#1C2033",
     map: "#1C211C",
+    reviewWash: "#3A2A1C",
   },
 } as const;
 

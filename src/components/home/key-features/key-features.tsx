@@ -27,6 +27,7 @@ export function KeyFeatures() {
 function FeatureRow({ feature }: { feature: Feature }) {
   if (feature.icon === "grid") return <GradeCard />;
   if (feature.icon === "pin") return <MapCard />;
+  if (feature.icon === "chat") return <ReviewsCard />;
 
   return (
     <article className="flex flex-col overflow-hidden rounded-panel border border-line bg-surface shadow-card lg:h-133 lg:flex-row">
@@ -53,7 +54,6 @@ function FeatureRow({ feature }: { feature: Feature }) {
 }
 
 function Visual({ feature }: { feature: Feature }) {
-  if (feature.icon === "chat") return <ReviewsVisual />;
   if (feature.icon === "search") return <CitationsVisual />;
   if (feature.icon === "check") return <FixesVisual />;
   return <AlertsVisual />;
@@ -281,17 +281,75 @@ function MapScene() {
   );
 }
 
-function ReviewsVisual() {
+const SOURCES = [
+  { name: "Google", detail: "4.8 from 340 reviews" },
+  { name: "Yelp", detail: "4.6 from 53 reviews" },
+] as const;
+
+const REVIEWS = [
+  { stars: "★★★★★", when: "Oct 3 · Google", text: "Dr. Lee and the whole team made me feel so comfortable." },
+  { stars: "★★★★★", when: "Sep 26 · Yelp", text: "Before and after my second session. So happy with how natural it looks." },
+  { stars: "★★★★", when: "Sep 21 · Google", text: "Rating only, no written review." },
+] as const;
+
+function ReviewsCard() {
   return (
-    <div className="relative h-full min-h-72 rounded-card bg-surface-subtle">
-      <div className="absolute top-6 left-6 w-72 rounded-card border border-line bg-surface p-5 shadow-card">
-        <p className="font-display text-display-s">4.8</p>
-        <p className="text-body-s text-muted">412 reviews · 86% replied</p>
+    <article className="flex flex-col items-center overflow-hidden rounded-[28px] bg-surface p-2 shadow-lift outline outline-1 -outline-offset-1 outline-line lg:h-133 lg:flex-row lg:gap-12 lg:rounded-[40px] lg:p-4">
+      <div className="flex w-full flex-col gap-6 px-4 pt-5 pb-6 lg:h-full lg:w-95 lg:justify-between lg:gap-0 lg:pt-8 lg:pr-0 lg:pb-12 lg:pl-8">
+        <span className="grid size-14 place-items-center rounded-full bg-ink">
+          <Image src="/icons/message-square-more.svg" alt="" width={24} height={24} />
+        </span>
+        <div className="flex w-full flex-col gap-5">
+          <h3 className="font-display text-headline-s text-fg lg:text-display-s">Reviews and replies</h3>
+          <p className="text-body-l text-muted">Your rating, new reviews and how many you’ve answered.</p>
+        </div>
       </div>
-      <div className="absolute right-4 bottom-6 w-80 rounded-card border border-line bg-surface p-4 shadow-card">
-        <p className="text-label-m">Newest reviews</p>
-        <p className="pt-2 text-body-s text-muted">“Booked the same day. Clear about the price.”</p>
-        <p className="pt-2 text-body-s text-muted">“Came up first when I asked for a med spa.”</p>
+      <div className="@container w-full lg:w-155 lg:shrink-0">
+        <div className="relative h-[calc(500px*100cqw/620px)] w-full overflow-hidden rounded-[13.239px] bg-review-wash lg:h-125 lg:rounded-panel-sm">
+          <div className="absolute top-0 left-0 h-125 w-155 origin-top-left scale-[calc(100cqw/620px)] lg:scale-100">
+            <ReviewsScene />
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function ReviewsScene() {
+  return (
+    <div className="relative h-125 w-155">
+      <div className="absolute top-8 left-8 flex w-80 flex-col gap-4 rounded-[20px] border border-line bg-surface px-6 pt-6 pb-4">
+        <div className="flex items-baseline gap-2">
+          <span className="font-display text-[32px] leading-9 tracking-[-0.03em] text-grade-c">★</span>
+          <span className="font-display text-display-s text-fg">4.8</span>
+          <span className="text-body-s text-faint">Google rating</span>
+        </div>
+        <p className="text-label-m text-muted">Where we read reviews</p>
+        <div>
+          {SOURCES.map((source) => (
+            <div key={source.name} className="flex items-center justify-between border-t border-line py-2.5">
+              <span className="text-label-m text-fg">{source.name}</span>
+              <span className="text-body-s text-fg">{source.detail}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="absolute top-48 left-61.5 flex w-85 flex-col gap-3 rounded-[20px] border border-line bg-surface p-5 shadow-card">
+        <p className="font-display text-title-s text-fg">Newest Google and Yelp reviews</p>
+        {REVIEWS.map((review) => (
+          <div key={review.when} className="flex flex-col gap-1 border-t border-line pt-2.5">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <span className="text-label-s text-grade-c">{review.stars}</span>
+                <span className="text-body-s text-faint">{review.when}</span>
+              </span>
+              <span className="inline-flex h-6.5 items-center rounded-pill bg-chip-warn px-2.5 text-label-s text-chip-warn-text">
+                No reply yet
+              </span>
+            </div>
+            <p className="truncate text-body-s text-fg">{review.text}</p>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -374,42 +432,14 @@ function AlertsVisual() {
 
 function Icon({ name }: { name: Feature["icon"] }) {
   const src = {
-    pin: "/icons/map-pin-area.svg",
     search: "/icons/search.svg",
     check: "/icons/check.svg",
-  }[name as "pin" | "search" | "check"];
+  }[name as "search" | "check"];
 
   return (
     <span className="grid size-14 place-items-center rounded-full bg-ink text-white">
-      {src ? (
-        <Image src={src} alt="" width={24} height={24} className="brightness-0 invert" />
-      ) : name === "mail" ? (
-        <MailIcon />
-      ) : name === "chat" ? (
-        <ChatIcon />
-      ) : (
-        <GridIcon />
-      )}
+      {src ? <Image src={src} alt="" width={24} height={24} className="brightness-0 invert" /> : <MailIcon />}
     </span>
-  );
-}
-
-function GridIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <rect x="4" y="4" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
-      <rect x="14" y="4" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
-      <rect x="4" y="14" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
-      <rect x="14" y="14" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
-    </svg>
-  );
-}
-
-function ChatIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M6 16.5 4 20l4.2-1.4A8 8 0 1 0 6 16.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-    </svg>
   );
 }
 
