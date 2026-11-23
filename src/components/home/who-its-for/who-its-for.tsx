@@ -4,7 +4,6 @@ import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
 import { Marquee } from "@/components/ui/marquee";
 import { BUSINESS_GROUPS, CATEGORY_ROWS } from "./categories";
-import styles from "./who-its-for.module.css";
 
 /** Each tile fades and rises 40px; the next starts 0.08s later (the page timeline's 6.5–10.6s window). */
 const TILE_RISE = 0.8;
@@ -31,7 +30,7 @@ export function WhoItsFor() {
 
       <div className="mt-7 flex flex-col gap-3 lg:mt-12 lg:gap-8">
         <div
-          className={`flex gap-3 overflow-x-auto px-5 lg:mx-auto lg:w-full lg:max-w-360 lg:gap-5 lg:overflow-visible lg:px-30 ${styles.scroll}`}
+          className="scrollbar-none flex gap-3 overflow-x-auto px-5 lg:mx-auto lg:w-full lg:max-w-360 lg:gap-5 lg:overflow-visible lg:px-30"
         >
           {BUSINESS_GROUPS.map((group, index) => (
             <motion.article
@@ -81,7 +80,7 @@ export function WhoItsFor() {
           <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 bg-linear-to-r from-bg to-transparent lg:w-60" />
           <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-20 bg-linear-to-l from-bg to-transparent lg:w-60" />
           <div
-            className={`pointer-events-none absolute top-5 left-1/2 z-10 h-30 w-[calc(100%-2.5rem)] -translate-x-1/2 lg:h-37.5 lg:w-190 ${styles.glow}`}
+            className="pointer-events-none absolute top-5 left-1/2 z-10 h-30 w-[calc(100%-2.5rem)] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,var(--color-bg)_35%,transparent_70%)] lg:h-37.5 lg:w-190"
           />
           <form
             role="search"
