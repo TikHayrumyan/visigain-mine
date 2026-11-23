@@ -5,17 +5,17 @@ import { FEATURES, type Feature } from "./features";
 /** Six feature rows, shown in full. The scroll stack comes later, from the card-stack animation. */
 export function KeyFeatures() {
   return (
-    <section className="bg-bg pt-16 lg:pt-35">
+    <section className="bg-bg pt-18 lg:pt-35">
       <div className="mx-auto flex max-w-160 flex-col items-center gap-4 px-5 text-center lg:px-0">
-        <h2 className="font-display text-headline-m text-fg lg:text-headline-l">
+        <h2 className="font-display text-headline-m text-fg lg:w-160 lg:text-headline-l">
           Everything that decides whether you get the call
         </h2>
-        <p className="max-w-140 text-body-l text-muted">
+        <p className="text-body-l text-muted lg:w-140">
           One grade, the fixes behind it, and weekly checks to keep it moving. We apply the same standard to every
           business, and each finding comes with its evidence.
         </p>
       </div>
-      <div className="mx-auto mt-10 flex w-full max-w-270 flex-col gap-10 px-4 lg:px-0">
+      <div className="mx-auto mt-8 flex w-full max-w-270 flex-col gap-5 px-4 lg:mt-10 lg:gap-10 lg:px-0">
         {FEATURES.map((feature) => (
           <FeatureRow key={feature.title} feature={feature} />
         ))}
