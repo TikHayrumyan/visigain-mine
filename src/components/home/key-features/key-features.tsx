@@ -29,13 +29,14 @@ function FeatureRow({ feature }: { feature: Feature }) {
   if (feature.icon === "pin") return <MapCard />;
   if (feature.icon === "chat") return <ReviewsCard />;
   if (feature.icon === "search") return <CitationsCard />;
+  if (feature.icon === "check") return <FixesCard />;
 
   return (
     <article className="flex flex-col overflow-hidden rounded-panel border border-line bg-surface shadow-card lg:h-133 lg:flex-row">
       <div
         className={`flex flex-col justify-between gap-8 p-6 lg:h-full lg:w-95 lg:p-8 lg:pb-12 ${feature.visualFirst ? "lg:order-2" : ""}`}
       >
-        <Icon name={feature.icon} />
+        <Icon />
         <div className="flex flex-col gap-5">
           <h3 className="font-display text-title-l text-fg lg:text-display-s">{feature.title}</h3>
           <p className="text-body-l text-muted">{feature.body}</p>
@@ -48,16 +49,12 @@ function FeatureRow({ feature }: { feature: Feature }) {
         </div>
       </div>
       <div className={`min-h-64 flex-1 p-4 lg:min-h-0 lg:p-4 ${feature.visualFirst ? "lg:order-1" : ""}`}>
-        <Visual feature={feature} />
+        <AlertsVisual />
       </div>
     </article>
   );
 }
 
-function Visual({ feature }: { feature: Feature }) {
-  if (feature.icon === "check") return <FixesVisual />;
-  return <AlertsVisual />;
-}
 
 const NEARBY = [
   { grade: "A", name: "Veda Med Spa", score: "88.4", bar: "90.14%", tone: "bg-green", yours: false },
@@ -431,17 +428,103 @@ function CitationsScene() {
   );
 }
 
-function FixesVisual() {
-  const fixes = ["Add a booking link that loads", "Reply to reviews from this month", "Match your name on Yelp"];
+const FIXES: { text: string; effort: string; help: boolean; tall?: boolean }[] = [
+  {
+    text: "Link every active profile from the website footer, ensure each profile links back, and declare them in sameAs schema.",
+    effort: "Low",
+    help: false,
+  },
+  {
+    text: "State qualifications, licence numbers and issuing bodies on practitioner biographies. Specificity is what makes a credential a credential.",
+    effort: "Low",
+    help: false,
+  },
+  {
+    text: "Install the relevant pixels and build audiences from service page visitors. Retargeting is the cheapest paid traffic available and most practices leave it unused. For a med spa, keep advertising pixels off booking, intake and patient-portal pages, where they can send a patient’s appointment or health details to the ad platform.",
+    effort: "Medium",
+    help: true,
+    tall: true,
+  },
+  {
+    text: "Build a consented before-and-after library covering each core treatment. Consistent lighting and angles matter more than volume.",
+    effort: "Medium",
+    help: false,
+  },
+  {
+    text: "Attribute every testimonial with at least a first name and, where possible, the source platform so it can be verified.",
+    effort: "Low",
+    help: false,
+  },
+];
+
+function FixesCard() {
   return (
-    <div className="flex h-full min-h-72 flex-col gap-3 rounded-card bg-surface-subtle p-6">
-      <p className="font-display text-title-s">What to fix first</p>
-      {fixes.map((fix, index) => (
-        <div key={fix} className="flex items-center gap-3 rounded-card bg-surface px-4 py-3">
-          <span className="grid size-7 place-items-center rounded-full bg-ink text-label-s text-white">{index + 1}</span>
-          <span className="text-label-m">{fix}</span>
+    <article className="flex flex-col items-center overflow-hidden rounded-[28px] bg-surface p-2 shadow-lift outline outline-1 -outline-offset-1 outline-line lg:h-133 lg:flex-row lg:gap-12 lg:rounded-[40px] lg:p-4">
+      <div className="flex w-full flex-col gap-6 px-4 pt-5 pb-6 lg:h-full lg:w-95 lg:justify-between lg:gap-0 lg:pt-8 lg:pr-0 lg:pb-12 lg:pl-8">
+        <span className="grid size-14 place-items-center rounded-full bg-ink">
+          <Image src="/icons/check-24.svg" alt="" width={24} height={24} />
+        </span>
+        <div className="flex w-full flex-col gap-5">
+          <h3 className="font-display text-headline-s text-fg lg:text-display-s">The fixes, in order</h3>
+          <p className="text-body-l text-muted">
+            Every finding comes with its evidence and the exact fix, ranked by what to do first.
+          </p>
+          <Link href="/sample-report" className="inline-flex items-center gap-1.5 pt-2 text-label-l text-fg no-underline">
+            See what a full report includes
+            <Image src="/icons/arrow-right-ink.svg" alt="" width={20} height={20} />
+          </Link>
         </div>
-      ))}
+      </div>
+      <div className="@container w-full lg:w-155 lg:shrink-0">
+        <div className="relative h-[calc(500px*100cqw/620px)] w-full overflow-hidden rounded-[13.239px] bg-grid-wash outline outline-[1.103px] -outline-offset-1 outline-grid-wash lg:h-125 lg:rounded-panel-sm lg:outline-2">
+          <div className="absolute top-0 left-0 h-125 w-155 origin-top-left scale-[calc(100cqw/620px)] lg:scale-100">
+            <FixesScene />
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function FixesScene() {
+  return (
+    <div className="relative h-125 w-155">
+      <div className="absolute top-11.5 left-7.5 w-277 rounded-[28px] bg-surface p-7">
+        <div className="flex flex-col gap-1">
+          <p className="font-display text-headline-s text-fg">What to fix first</p>
+          <p className="text-body-m text-muted">35 fixes in order: the ones that move your grade the most come first.</p>
+        </div>
+        <div className="grid grid-cols-[56px_minmax(0,1fr)_110px_180px] pt-5">
+          {["#", "Fix", "Effort", "Do it yourself?"].map((label) => (
+            <span
+              key={label}
+              className={`border-b border-line px-2 pt-1 pb-[18px] text-label-m text-fg ${label === "Do it yourself?" ? "text-center" : ""}`}
+            >
+              {label}
+            </span>
+          ))}
+          {FIXES.map((fix, index) => (
+            <div key={fix.text} className="contents">
+              <span className={`flex items-center border-b border-line px-2 text-label-m text-fg ${fix.tall ? "h-[100px]" : "h-[60px]"}`}>
+                {index + 1}
+              </span>
+              <span className={`flex items-center border-b border-line px-2 text-label-m text-fg ${fix.tall ? "h-[100px]" : "h-[60px]"}`}>
+                {fix.text}
+              </span>
+              <span className={`flex items-center border-b border-line px-2 text-body-m text-fg ${fix.tall ? "h-[100px]" : "h-[60px]"}`}>
+                {fix.effort}
+              </span>
+              <span className={`flex items-center justify-center border-b border-line px-2 ${fix.tall ? "h-[100px]" : "h-[60px]"}`}>
+                <span
+                  className={`inline-flex h-6.5 items-center rounded-pill px-2.5 text-label-s ${fix.help ? "bg-chip-neutral text-muted" : "bg-chip-ok text-ok"}`}
+                >
+                  {fix.help ? "Usually needs help" : "Yes"}
+                </span>
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -481,12 +564,10 @@ function AlertsVisual() {
   );
 }
 
-function Icon({ name }: { name: Feature["icon"] }) {
-  const src = name === "check" ? "/icons/check.svg" : undefined;
-
+function Icon() {
   return (
     <span className="grid size-14 place-items-center rounded-full bg-ink text-white">
-      {src ? <Image src={src} alt="" width={24} height={24} className="brightness-0 invert" /> : <MailIcon />}
+      <MailIcon />
     </span>
   );
 }

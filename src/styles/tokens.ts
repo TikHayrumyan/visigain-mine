@@ -111,6 +111,8 @@ export const THEME = {
     map: "#EEF0EA",
     /** The pale panel behind the reviews card. */
     reviewWash: "#FDEBDC",
+    /** The neutral pill on a white card: "Usually needs help". */
+    chipNeutral: "#F4F3EF",
   },
   dark: {
     bg: SITE_NEUTRAL.pageDark,
@@ -136,6 +138,7 @@ export const THEME = {
     gridWash: "#1C2033",
     map: "#1C211C",
     reviewWash: "#3A2A1C",
+    chipNeutral: "#2A2A28",
   },
 } as const;
 
