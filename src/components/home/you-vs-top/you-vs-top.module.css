@@ -1,0 +1,8 @@
+/* The phone scrolls the table sideways; the design draws its own thumb, so the browser bar stays hidden. */
+.scroll {
+  scrollbar-width: none;
+}
+
+.scroll::-webkit-scrollbar {
+  display: none;
+}

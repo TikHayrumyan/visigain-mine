@@ -6,6 +6,7 @@ import { useRef, type ReactNode, type UIEvent } from "react";
 import { PRIMARY_BUTTON } from "@/components/ui/button-styles";
 import { FREE_SCAN } from "@/config/navigation";
 import { COMPARISON } from "./comparison";
+import styles from "./you-vs-top.module.css";
 
 /** Reveal lengths from the page timeline, played when each part enters the screen. */
 const EASE = "easeOut" as const;
@@ -66,7 +67,7 @@ export function YouVsTop() {
           <p className="font-display text-title-l text-fg">{COMPARISON.title}</p>
           <p className="text-body-s text-muted">{COMPARISON.caption}</p>
         </div>
-        <div ref={scroller} onScroll={moveThumb} className="mt-4 overflow-x-auto lg:overflow-visible">
+        <div ref={scroller} onScroll={moveThumb} className={`mt-4 overflow-x-auto lg:overflow-visible ${styles.scroll}`}>
           <motion.div
             className="w-146.25 lg:w-full"
             initial={reduceMotion ? false : "hidden"}
