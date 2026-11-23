@@ -57,19 +57,23 @@ export function YouVsTop() {
       </div>
 
       <motion.div
-        className="w-full overflow-hidden rounded-panel-sm border border-line bg-surface px-6 pt-6 pb-4 shadow-compare-sm lg:min-w-0 lg:flex-1 lg:overflow-visible lg:shadow-compare"
+        className="w-full overflow-hidden rounded-panel-sm border border-line bg-surface pt-6 pb-4 shadow-compare-sm lg:min-w-0 lg:flex-1 lg:overflow-visible lg:shadow-compare"
         initial={reduceMotion ? false : { opacity: 0, y: 36 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.3 }}
         transition={reduceMotion ? { duration: 0 } : { duration: 0.75, ease: EASE }}
       >
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 px-6">
           <p className="font-display text-title-l text-fg">{COMPARISON.title}</p>
           <p className="text-body-s text-muted">{COMPARISON.caption}</p>
         </div>
-        <div ref={scroller} onScroll={moveThumb} className={`mt-4 overflow-x-auto lg:overflow-visible ${styles.scroll}`}>
+        <div
+          ref={scroller}
+          onScroll={moveThumb}
+          className={`mt-4 overflow-x-auto px-3 lg:overflow-visible lg:px-6 ${styles.scroll}`}
+        >
           <motion.div
-            className="w-146.25 lg:w-full"
+            className="w-146.25 px-3 lg:w-full lg:px-0"
             initial={reduceMotion ? false : "hidden"}
             whileInView={reduceMotion ? undefined : "show"}
             viewport={{ once: true, amount: 0.4 }}
@@ -85,16 +89,15 @@ export function YouVsTop() {
             {COMPARISON.rows.map((item, index) => (
               <Row
                 key={item.name}
-                className={`py-4 ${index < COMPARISON.rows.length - 2 ? "border-b border-line" : ""}`}
+                className={`py-4 ${index < COMPARISON.rows.length - 2 ? "border-b border-line" : ""} ${
+                  item.named ? "" : "-mx-3 rounded-icon bg-danger-soft px-3"
+                }`}
               >
-                {item.named ? null : (
-                  <span className="absolute inset-y-0 -right-3 -left-3 rounded-icon bg-danger-soft" />
-                )}
-                <span className="relative min-w-0 flex-1 truncate text-label-m text-fg">{item.name}</span>
-                <span className="relative w-21 shrink-0 text-right text-body-m text-fg">{item.rank}</span>
-                <span className="relative w-21 shrink-0 text-right text-body-m text-fg">{item.reviews}</span>
-                <span className="relative w-16 shrink-0 text-right text-body-m text-fg">{item.rating}</span>
-                <span className="relative flex w-28 shrink-0 justify-end">
+                <span className="min-w-0 flex-1 truncate text-label-m text-fg">{item.name}</span>
+                <span className="w-21 shrink-0 text-right text-body-m text-fg">{item.rank}</span>
+                <span className="w-21 shrink-0 text-right text-body-m text-fg">{item.reviews}</span>
+                <span className="w-16 shrink-0 text-right text-body-m text-fg">{item.rating}</span>
+                <span className="flex w-28 shrink-0 justify-end">
                   <span
                     className={`inline-flex h-6.5 items-center rounded-pill px-2.5 text-label-s ${
                       item.named ? "bg-chip-ok text-ok" : "bg-chip-warn text-chip-warn-text"
@@ -107,7 +110,7 @@ export function YouVsTop() {
             ))}
           </motion.div>
         </div>
-        <div className="mt-4 h-1.5 overflow-hidden rounded-pill lg:hidden">
+        <div className="mx-6 mt-4 h-1.5 overflow-hidden rounded-pill lg:hidden">
           <div ref={thumb} className="h-1.5 w-44.25 rounded-pill bg-line" />
         </div>
       </motion.div>
