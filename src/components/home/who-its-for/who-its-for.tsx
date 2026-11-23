@@ -94,9 +94,9 @@ export function WhoItsFor() {
                 name="category"
                 type="search"
                 placeholder=" "
-                className="peer w-full bg-transparent text-body-l text-fg outline-none"
+                className="peer w-full bg-transparent text-body-l text-fg outline-none!"
               />
-              <span className="pointer-events-none absolute inset-0 flex items-center truncate text-body-l text-faint peer-[:not(:placeholder-shown)]:hidden">
+              <span className="pointer-events-none absolute inset-0 flex items-center truncate text-body-l text-faint peer-not-placeholder-shown:hidden">
                 <span className="lg:hidden">Search your business type</span>
                 <span className="hidden lg:inline">Search your business type, e.g. “roofing contractor”</span>
               </span>
