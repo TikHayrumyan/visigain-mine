@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperClass } from "swiper";
 import "swiper/css";
@@ -10,10 +10,37 @@ import { TESTIMONIALS, type Testimonial } from "./quotes";
 /** One card per click, the same 0.6s ease-in-out the track and the progress bar share. */
 const SLIDE_MS = 600;
 
+/** The design frame: 1440 wide, 120px side inset, a 1200px card. On a phone, 390 wide, 20px inset, a 330px card. */
+function trackSize(width: number) {
+  const desktop = window.matchMedia("(min-width: 64rem)").matches;
+  if (desktop) return { offset: 120, gap: 40, slide: width - 240 };
+  return { offset: 20, gap: 12, slide: width - 60 };
+}
+
 export function Testimonials() {
+  const frame = useRef<HTMLDivElement>(null);
   const [swiper, setSwiper] = useState<SwiperClass | null>(null);
   const [index, setIndex] = useState(0);
   const [edges, setEdges] = useState({ prev: false, next: true });
+  const [track, setTrack] = useState({ offset: 20, gap: 12, slide: 330 });
+
+  useEffect(() => {
+    const element = frame.current;
+    if (!element) return;
+    const apply = () => setTrack(trackSize(element.clientWidth));
+    apply();
+    const observer = new ResizeObserver(apply);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!swiper) return;
+    swiper.params.spaceBetween = track.gap;
+    swiper.params.slidesOffsetBefore = track.offset;
+    swiper.params.slidesOffsetAfter = track.offset;
+    swiper.update();
+  }, [swiper, track]);
 
   const sync = (instance: SwiperClass) => {
     setIndex(instance.activeIndex);
@@ -49,32 +76,31 @@ export function Testimonials() {
         </div>
       </div>
 
-      <Swiper
-        slidesPerView="auto"
-        speed={SLIDE_MS}
-        spaceBetween={12}
-        slidesOffsetBefore={20}
-        slidesOffsetAfter={20}
-        watchOverflow
-        breakpoints={{
-          1024: { spaceBetween: 40, slidesOffsetBefore: 120, slidesOffsetAfter: 120 },
-        }}
-        style={{ "--swiper-wrapper-transition-timing-function": "ease-in-out" } as CSSProperties}
-        onSwiper={(instance) => {
-          setSwiper(instance);
-          sync(instance);
-        }}
-        onSlideChange={sync}
-        className="w-full"
-      >
-        {TESTIMONIALS.map((item) => (
-          <SwiperSlide key={item.name} className="w-82.5! lg:w-300! ">
-            <TestimonialCard item={item} />
-          </SwiperSlide>
-        ))}
-      </Swiper>
+      <div ref={frame} className="mx-auto w-full max-w-360">
+        <Swiper
+          slidesPerView="auto"
+          speed={SLIDE_MS}
+          spaceBetween={track.gap}
+          slidesOffsetBefore={track.offset}
+          slidesOffsetAfter={track.offset}
+          watchOverflow
+          style={{ "--swiper-wrapper-transition-timing-function": "ease-in-out" } as CSSProperties}
+          onSwiper={(instance) => {
+            setSwiper(instance);
+            sync(instance);
+          }}
+          onSlideChange={sync}
+          className="w-full"
+        >
+          {TESTIMONIALS.map((item) => (
+            <SwiperSlide key={item.name} style={{ width: track.slide }}>
+              <TestimonialCard item={item} />
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
 
-      <div className="pl-5 lg:pl-30">
+      <div className="mx-auto w-full max-w-360 pl-5 lg:pl-30">
         <div
           className="relative h-1 w-30 overflow-hidden rounded-pill bg-line"
           role="progressbar"
@@ -98,7 +124,7 @@ export function Testimonials() {
 
 function TestimonialCard({ item }: { item: Testimonial }) {
   return (
-    <article className="flex w-82.5 flex-col gap-2 lg:h-105 lg:w-300 lg:flex-row">
+    <article className="flex w-full flex-col gap-2 lg:h-105 lg:flex-row">
       <div className="flex flex-col gap-10 rounded-card-lg bg-ink p-6 lg:h-full lg:min-w-0 lg:flex-1 lg:justify-between lg:gap-0 lg:px-10 lg:py-9">
         <div className="flex items-center gap-2.5">
           <span className="grid size-8 place-items-center rounded-lg bg-white font-display text-title-s text-ink">
@@ -125,7 +151,7 @@ function TestimonialCard({ item }: { item: Testimonial }) {
         </div>
       </div>
       <div
-        className={`flex flex-col gap-2 rounded-card-lg p-6 text-ink lg:h-full lg:w-96 lg:shrink-0 lg:justify-between lg:gap-0 lg:p-9 ${item.tone}`}
+        className={`flex flex-col gap-2 rounded-card-lg p-6 text-ink lg:h-full lg:w-[calc(100%*384/1200)] lg:shrink-0 lg:justify-between lg:gap-0 lg:p-9 ${item.tone}`}
       >
         <p className="font-display text-[48px] leading-20 tracking-[-0.04em] whitespace-nowrap lg:text-[80px]">
           {item.metric}

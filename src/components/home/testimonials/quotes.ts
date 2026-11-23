@@ -8,7 +8,7 @@ export type Testimonial = {
   metric: string
   metricLabel: string
   /** The panel beside the quote. */
-  tone: "bg-chip-ok" | "bg-grid-wash" | "bg-review-wash"
+  tone: "bg-chip-ok" | "bg-review-wash"
 }
 
 export const TESTIMONIALS: Testimonial[] = [
@@ -32,7 +32,7 @@ export const TESTIMONIALS: Testimonial[] = [
     photo: "/images/testimonials/michael.png",
     metric: "7 of 8",
     metricLabel: "AI answers that now name the firm",
-    tone: "bg-grid-wash",
+    tone: "bg-chip-ok",
   },
   {
     company: "Pacific Smile Studio",
