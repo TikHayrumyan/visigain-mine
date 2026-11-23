@@ -15,7 +15,7 @@ export function ScanForm() {
           required
           autoComplete="organization"
           placeholder="Enter your business name"
-          className="min-w-0 flex-1 bg-transparent text-body-l text-fg outline-none placeholder:text-faint"
+          className="min-w-0 flex-1 bg-transparent border-none focus:ring-0 focus:ring-offset-0 focus:border-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none! text-body-l text-fg outline-none placeholder:text-faint"
         />
       </label>
       <button type="submit" className={`${PRIMARY_BUTTON} h-13 px-6 lg:absolute lg:right-1.5 lg:bottom-1.5 lg:h-12`}>
