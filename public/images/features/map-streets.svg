@@ -1,0 +1,15 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="312" height="312" viewBox="0 0 312 312" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Map streets" clip-path="url(#clip0_0_62)">
+<path id="Vector" d="M0 93.5209C78 87.2809 124.8 124.721 187.2 106.001C249.6 87.2809 280.8 68.5609 312 81.0409" stroke-width="3" stroke="white"/>
+<path id="Vector_2" d="M93.9469 0C100.187 93.6 81.4669 187.2 106.427 312" stroke-width="2.4" stroke="white"/>
+<path id="Vector_3" d="M0 224.24C93.6 218 187.2 242.96 312 218" stroke-width="2" stroke="white"/>
+<path id="Vector_4" d="M225.019 0C218.779 124.8 243.739 218.4 231.259 312" stroke-width="2" stroke="white"/>
+<path id="Vector_5" d="M178.16 137H128C126.343 137 125 138.343 125 140V171.44C125 173.097 126.343 174.44 128 174.44H178.16C179.817 174.44 181.16 173.097 181.16 171.44V140C181.16 138.343 179.817 137 178.16 137Z" fill="#E2E6DC"/>
+<path id="Vector_6" d="M65.68 250H28C26.3431 250 25 251.343 25 253V278.2C25 279.857 26.3431 281.2 28 281.2H65.68C67.3369 281.2 68.68 279.857 68.68 278.2V253C68.68 251.343 67.3369 250 65.68 250Z" fill="#E2E6DC"/>
+</g>
+<defs>
+<clipPath id="clip0_0_62">
+<rect width="312" height="312" fill="white"/>
+</clipPath>
+</defs>
+</svg>

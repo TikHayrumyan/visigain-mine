@@ -105,6 +105,10 @@ export const THEME = {
     chipWarnText: "#7A4D00",
     /** The empty part of an assistant's share ring. */
     ringTrack: "#E6E4DD",
+    /** The pale panel behind the map-rank grid. */
+    gridWash: "#F0F2FF",
+    /** The tile under the rank dots, before the map image. */
+    map: "#EEF0EA",
   },
   dark: {
     bg: SITE_NEUTRAL.pageDark,
@@ -127,6 +131,8 @@ export const THEME = {
     chipWarn: "#33220F",
     chipWarnText: "#FDB022",
     ringTrack: "#E6E4DD",
+    gridWash: "#1C2033",
+    map: "#1C211C",
   },
 } as const;
 

@@ -26,6 +26,7 @@ export function KeyFeatures() {
 
 function FeatureRow({ feature }: { feature: Feature }) {
   if (feature.icon === "grid") return <GradeCard />;
+  if (feature.icon === "pin") return <MapCard />;
 
   return (
     <article className="flex flex-col overflow-hidden rounded-panel border border-line bg-surface shadow-card lg:h-133 lg:flex-row">
@@ -52,7 +53,6 @@ function FeatureRow({ feature }: { feature: Feature }) {
 }
 
 function Visual({ feature }: { feature: Feature }) {
-  if (feature.icon === "pin") return <MapVisual />;
   if (feature.icon === "chat") return <ReviewsVisual />;
   if (feature.icon === "search") return <CitationsVisual />;
   if (feature.icon === "check") return <FixesVisual />;
@@ -152,19 +152,130 @@ function GradeScene() {
   );
 }
 
-function MapVisual() {
-  const cells = ["bg-grade-b", "bg-grade-c", "bg-grade-d", "bg-line", "bg-grade-b", "bg-grade-c"];
+const KEYWORDS = ["med spa", "botox", "lip filler", "laser hair removal", "HydraFacial"] as const;
+
+const LEGEND: { name: string; note?: string; count: string; bar: string; tone: string }[] = [
+  { name: "High", note: "rank 1–3", count: "24", bar: "w-[88px]", tone: "bg-green" },
+  { name: "Mid", note: "rank 4–10", count: "6", bar: "w-[22px]", tone: "bg-grade-c" },
+  { name: "Low", note: "rank 11–20", count: "2", bar: "w-[7px]", tone: "bg-grade-d" },
+  { name: "Not in top 20", count: "17", bar: "w-[62px]", tone: "bg-line-darken" },
+];
+
+const RANKS = [
+  ["–", "–", "–", "–", "–", "–", "–"],
+  ["9", "8", "5", "3", "4", "3", "14"],
+  ["5", "4", "2", "1", "2", "1", "17"],
+  ["1", "1", "2", "1", "2", "2", "–"],
+  ["1", "1", "1", "1", "2", "1", "–"],
+  ["1", "1", "1", "1", "1", "1", "–"],
+  ["–", "–", "–", "–", "–", "–", "–"],
+] as const;
+
+function rankTone(label: string) {
+  if (label === "–") return "border border-dashed border-line-darken bg-surface text-muted";
+  const rank = Number(label);
+  if (rank <= 3) return "bg-green text-ink";
+  if (rank <= 10) return "bg-grade-c text-ink";
+  return "bg-grade-d text-ink";
+}
+
+function MapCard() {
   return (
-    <div className="flex h-full min-h-72 flex-col gap-4 rounded-card bg-surface-subtle p-6">
-      <div className="flex items-center justify-between">
-        <p className="font-display text-title-s">Local Search Grid</p>
-        <span className="text-label-s text-muted">Open the grid</span>
+    <article className="flex flex-col items-center overflow-hidden rounded-[28px] bg-surface p-2 shadow-lift outline outline-1 -outline-offset-1 outline-line lg:h-133 lg:flex-row-reverse lg:gap-12 lg:rounded-[40px] lg:p-4">
+      <div className="flex w-full flex-col gap-6 px-4 pt-5 pb-6 lg:h-full lg:w-95 lg:justify-between lg:gap-0 lg:pt-8 lg:pr-8 lg:pb-12 lg:pl-0">
+        <span className="grid size-14 place-items-center rounded-full bg-ink">
+          <Image src="/icons/map-pin-area-24.svg" alt="" width={24} height={24} />
+        </span>
+        <div className="flex w-full flex-col gap-5">
+          <h3 className="font-display text-headline-s text-fg lg:text-display-s">Your map rank, block by block</h3>
+          <p className="text-body-l text-muted">Where you show up on Google Maps at the locations around your business.</p>
+        </div>
       </div>
-      <p className="text-body-s text-muted">Average rank for “med spa”</p>
-      <div className="grid flex-1 grid-cols-6 gap-1.5">
-        {Array.from({ length: 30 }, (_, index) => (
-          <div key={index} className={`rounded-sm ${cells[index % cells.length]}`} />
-        ))}
+      <div className="@container w-full lg:w-155 lg:shrink-0">
+        <div className="relative h-[calc(500px*100cqw/620px)] w-full overflow-hidden rounded-[13.239px] bg-grid-wash outline outline-[1.103px] -outline-offset-1 outline-grid-wash lg:h-125 lg:rounded-panel-sm lg:outline-2">
+          <div className="absolute top-0 left-0 h-125 w-155 origin-top-left scale-[calc(100cqw/620px)] lg:scale-100">
+            <MapScene />
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function MapScene() {
+  return (
+    <div className="relative h-125 w-155">
+      <div className="absolute top-12 left-8 flex h-124 w-136 flex-col rounded-[28px] bg-surface p-7">
+        <div className="flex h-16 items-center justify-between pb-5">
+          <p className="font-display text-headline-s text-fg">Local Search Grid</p>
+          <span className="inline-flex h-11 items-center px-1 text-label-m text-fg">Open the grid</span>
+        </div>
+        <div className="flex h-11 items-center">
+          <div className="flex gap-0.5 rounded-pill bg-surface-subtle p-1">
+            {KEYWORDS.map((word, index) => (
+              <span
+                key={word}
+                className={`inline-flex h-9 items-center rounded-pill px-3.5 text-label-s ${index === 0 ? "bg-surface text-fg shadow-[0_0_0_1px_var(--color-line)]" : "text-muted"}`}
+              >
+                {word}
+              </span>
+            ))}
+          </div>
+        </div>
+        <div className="flex items-start gap-7 pt-5">
+          <div className="flex w-37 shrink-0 flex-col gap-5">
+            <div>
+              <p className="whitespace-nowrap text-body-s text-muted">Average rank for “med spa”</p>
+              <div className="flex h-10 items-center gap-2.5 pt-1">
+                <p className="font-display text-display-s text-fg">3.1</p>
+                <span className="inline-flex h-7 items-center gap-1 rounded-pill bg-chip-ok pr-2.5 pl-2 text-label-s text-ok">
+                  <Image src="/icons/spark.svg" alt="" width={14} height={14} />
+                  0.4
+                </span>
+              </div>
+            </div>
+            <ul className="flex flex-col gap-5">
+              {LEGEND.map((item) => (
+                <li key={item.name} className="flex flex-col gap-2">
+                  <div className="flex h-[13px] items-center justify-between">
+                    <p className="whitespace-nowrap">
+                      <span className="text-label-m text-fg">{item.name}</span>
+                      {item.note && <span className="text-label-s text-muted"> {item.note}</span>}
+                    </p>
+                    <span className="text-label-m text-fg">{item.count}</span>
+                  </div>
+                  <div className="h-3.25 overflow-hidden rounded-pill bg-surface-subtle bg-[url('/images/features/track.png')] bg-size-[7px_7px]">
+                    <div className={`h-full rounded-pill ${item.tone} ${item.bar}`} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="relative size-78 shrink-0 overflow-hidden rounded-[22px] bg-map">
+            <Image src="/images/features/map-streets.svg" alt="" width={312} height={312} className="absolute top-0 left-0.5 max-w-none" />
+            <Image
+              src="/images/features/map.png"
+              alt=""
+              width={425}
+              height={359}
+              className="absolute top-[-18px] left-[-89px] h-[359px] w-[425px] max-w-none object-cover"
+            />
+            <div className="absolute top-[17px] left-[17px] flex flex-col gap-[7px]">
+              {RANKS.map((row, rowIndex) => (
+                <div key={rowIndex} className="flex gap-[7px]">
+                  {row.map((label, column) => (
+                    <span
+                      key={`${label}-${column}`}
+                      className={`grid size-8.5 place-items-center rounded-full text-label-s ${rankTone(label)} ${rowIndex === 3 && column === 3 ? "shadow-[0_0_0_3px_var(--color-surface),0_0_0_5px_var(--color-ink)]" : ""}`}
+                    >
+                      {label}
+                    </span>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
