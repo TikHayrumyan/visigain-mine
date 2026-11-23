@@ -45,11 +45,13 @@ export function HeroSurface({ panelClassName, className = "", children, ...props
       onPointerMove={(event) => track(event, false)}
     >
       <div ref={panelRef} data-hero aria-hidden data-theme="dark" className={panelClassName}>
-        <div className={styles.dots} />
-        <motion.div
-          className={`${styles.greenDots} opacity-0 transition-opacity duration-500 ease-reveal group-hover:opacity-100`}
-          style={{ maskImage: mask }}
-        />
+        <div className={styles.fade}>
+          <div className={styles.dots} />
+          <motion.div
+            className={`${styles.greenDots} opacity-0 transition-opacity duration-500 ease-reveal group-hover:opacity-100`}
+            style={{ maskImage: mask }}
+          />
+        </div>
       </div>
       {children}
     </section>

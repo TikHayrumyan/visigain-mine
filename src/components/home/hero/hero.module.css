@@ -1,3 +1,10 @@
+/* Both dot layers fade out toward the bottom of the panel. */
+.fade {
+  position: absolute;
+  inset: 0;
+  mask-image: linear-gradient(to bottom, black 10%, transparent);
+}
+
 /* The dot matrix: one 36px tile with a dot at its centre, repeated (painted once, not a node per dot). */
 .dots,
 .greenDots {

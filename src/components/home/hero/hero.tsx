@@ -9,7 +9,7 @@ export function Hero() {
     <HeroSurface
       aria-labelledby="hero-title"
       className="relative mx-2 mt-2 overflow-hidden rounded-panel-sm bg-ink lg:m-0 lg:overflow-x-clip lg:overflow-y-visible lg:rounded-none lg:bg-transparent"
-      panelClassName="absolute inset-0 overflow-hidden lg:inset-x-4 lg:bottom-auto lg:h-237 lg:rounded-panel lg:bg-ink"
+      panelClassName="absolute inset-0 overflow-hidden lg:inset-x-4 lg:bottom-auto lg:h-237 lg:rounded-panel lg:bg-ink bg-linear-to-t from-black/70 via-black/20 to-black/0"
     >
       <div
         data-theme="dark"
