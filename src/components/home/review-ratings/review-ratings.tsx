@@ -25,7 +25,7 @@ export function ReviewRatings() {
           <span className="flex flex-col gap-1 lg:gap-0.75">
             <Image src={rating.starsSrc} alt="" width={90} height={18} className="h-3.5 w-17.5 lg:h-4.5 lg:w-22.5" />
             <span className="flex items-center gap-1.5 text-label-m lg:gap-2 lg:text-label-l">
-              <span className="text-fg underline decoration-dotted decoration-from-font">{rating.score}</span>
+              <span className="text-fg underline decoration-dotted underline-offset-2 decoration-from-font">{rating.score}</span>
               <span className="h-3 w-px bg-line-darken lg:h-4" />
               <span className="text-faint">{rating.reviewCount} Reviews</span>
             </span>
