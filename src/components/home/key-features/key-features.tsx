@@ -1,22 +1,11 @@
-"use client";
-
-import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState, type ReactNode } from "react";
 import { FEATURES, type Feature } from "./features";
 
-/** How far a card behind the active one peeks out. Desktop 24, phone 16. */
-const PEEK_DESKTOP = 24;
-const PEEK_PHONE = 16;
-
-/** The front card sticks below the compact header, leaving room for two peeks. */
-const STICKY = "top-25 lg:top-34.5";
-
-/** Six feature rows. Each sticks; the next slides over it. At most three stay visible. */
+/** Six feature rows, shown in full. The scroll stack comes later, from the card-stack animation. */
 export function KeyFeatures() {
   return (
-    <section className="bg-bg pt-16 pb-[30vh] lg:pt-35">
+    <section className="bg-bg pt-16 lg:pt-35">
       <div className="mx-auto flex max-w-160 flex-col items-center gap-4 px-5 text-center lg:px-0">
         <h2 className="font-display text-headline-m text-fg lg:text-headline-l">
           Everything that decides whether you get the call
@@ -26,72 +15,21 @@ export function KeyFeatures() {
           business, and each finding comes with its evidence.
         </p>
       </div>
-      <div className="mt-10 flex flex-col lg:mt-10">
-        {FEATURES.map((feature, index) => (
-          <StackedRow key={feature.title} index={index} count={FEATURES.length}>
-            <FeatureRow feature={feature} />
-          </StackedRow>
+      <div className="mx-auto mt-10 flex w-full max-w-270 flex-col gap-10 px-4 lg:px-0">
+        {FEATURES.map((feature) => (
+          <FeatureRow key={feature.title} feature={feature} />
         ))}
       </div>
     </section>
   );
 }
 
-function StackedRow({ index, count, children }: { index: number; count: number; children: ReactNode }) {
-  const reduceMotion = useReducedMotion();
-  const probe = useRef<HTMLDivElement>(null);
-  const behind = count - 1 - index;
-  const { scrollYProgress } = useScroll({ target: probe, offset: ["start start", "end start"] });
-  const peek = usePeek();
-  const scale = useTransform(scrollYProgress, behind >= 2 ? [0, 0.5, 1] : [0, 1], behind >= 2 ? [1, 0.96, 0.92] : [1, 0.96]);
-  const y = useTransform(
-    scrollYProgress,
-    behind >= 2 ? [0, 0.5, 1] : [0, 1],
-    behind >= 2 ? [0, -peek, -peek * 2] : [0, -peek],
-  );
-
-  return (
-    <div className="relative">
-      <div ref={probe} aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[200%]" />
-      <motion.div
-        style={reduceMotion || behind === 0 ? { zIndex: index + 1 } : { scale, y, zIndex: index + 1 }}
-        className={`sticky ${STICKY} origin-top px-4 lg:px-0`}
-      >
-        <div className="mx-auto w-full max-w-270">{children}</div>
-      </motion.div>
-    </div>
-  );
-}
-
-function usePeek() {
-  const [peek, setPeek] = useState(PEEK_DESKTOP);
-  useEffect(() => {
-    const query = window.matchMedia("(min-width: 64rem)");
-    const apply = () => setPeek(query.matches ? PEEK_DESKTOP : PEEK_PHONE);
-    apply();
-    query.addEventListener("change", apply);
-    return () => query.removeEventListener("change", apply);
-  }, []);
-  return peek;
-}
-
 function FeatureRow({ feature }: { feature: Feature }) {
   if (feature.icon === "grid") return <GradeCard />;
-  const reduceMotion = useReducedMotion();
-  const fade = (delay: number) =>
-    reduceMotion
-      ? {}
-      : {
-          initial: { opacity: 0, y: 16 },
-          whileInView: { opacity: 1, y: 0 },
-          viewport: { once: true, amount: 0.5 },
-          transition: { duration: 0.6, delay, ease: "easeOut" as const },
-        };
 
   return (
     <article className="flex flex-col overflow-hidden rounded-panel border border-line bg-surface shadow-card lg:h-133 lg:flex-row">
-      <motion.div
-        {...fade(0)}
+      <div
         className={`flex flex-col justify-between gap-8 p-6 lg:h-full lg:w-95 lg:p-8 lg:pb-12 ${feature.visualFirst ? "lg:order-2" : ""}`}
       >
         <Icon name={feature.icon} />
@@ -105,13 +43,10 @@ function FeatureRow({ feature }: { feature: Feature }) {
             </Link>
           )}
         </div>
-      </motion.div>
-      <motion.div
-        {...fade(0.15)}
-        className={`min-h-64 flex-1 p-4 lg:min-h-0 lg:p-4 ${feature.visualFirst ? "lg:order-1" : ""}`}
-      >
+      </div>
+      <div className={`min-h-64 flex-1 p-4 lg:min-h-0 lg:p-4 ${feature.visualFirst ? "lg:order-1" : ""}`}>
         <Visual feature={feature} />
-      </motion.div>
+      </div>
     </article>
   );
 }
