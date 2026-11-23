@@ -52,6 +52,7 @@ export function AiVisibility() {
                     y={60}
                     duration={0.8}
                     delay={0.3}
+                    amount={0.05}
                     className="min-h-254.75 w-277 rounded-panel bg-surface p-7 text-fg"
                     theme="light"
                   >
@@ -188,6 +189,7 @@ function Reveal({
   y,
   duration,
   delay = 0,
+  amount = 0.3,
   className = "",
   theme,
   children,
@@ -195,6 +197,7 @@ function Reveal({
   y: number;
   duration: number;
   delay?: number;
+  amount?: number;
   className?: string;
   theme?: "light";
   children: React.ReactNode;
@@ -206,7 +209,7 @@ function Reveal({
       className={className}
       initial={reduceMotion ? false : { opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.3 }}
+      viewport={{ once: true, amount }}
       transition={reduceMotion ? { duration: 0 } : { duration, delay, ease: EASE }}
     >
       {children}
