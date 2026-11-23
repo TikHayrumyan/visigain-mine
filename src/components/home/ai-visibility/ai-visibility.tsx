@@ -47,7 +47,7 @@ export function AiVisibility() {
           </div>
 
           <div className="relative mx-auto mt-10 w-full max-w-277 lg:mt-16">
-            <div className="h-115 overflow-x-auto overflow-y-hidden lg:h-130 lg:overflow-x-visible lg:overflow-y-hidden">
+            <div className="h-115 overflow-hidden lg:h-130 lg:overflow-x-visible lg:overflow-y-hidden">
               <div className="relative h-[626px] w-[689px] lg:h-auto lg:w-full">
                 <div
                   className={`absolute top-0 left-2.5 w-[1108px] origin-top-left lg:static lg:left-auto lg:w-full ${styles.phone}`}
@@ -125,7 +125,7 @@ export function AiVisibility() {
               y={30}
               duration={0.7}
               delay={0.7}
-              className="mx-5 mt-4 mb-10 rounded-[20px] bg-chip-ok p-7 text-fg shadow-card lg:absolute lg:top-37 lg:-right-26.25 lg:mx-0 lg:mt-0 lg:mb-0 lg:w-113"
+              className="hidden rounded-[20px] bg-chip-ok p-7 text-fg shadow-card lg:absolute lg:top-37 lg:block lg:-right-26.25 lg:w-113"
               theme="light"
             >
               <h3 className="font-display text-title-l">Named most often</h3>
