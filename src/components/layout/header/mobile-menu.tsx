@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useRef, type MouseEvent, type ReactNode } from "react";
+import styles from "@/components/home/hero/hero.module.css";
 
 const MENU_ID = "mobile-menu";
 const ICON_BUTTON = "inline-flex shrink-0 items-center justify-center rounded-button border border-line";
@@ -45,6 +46,7 @@ export function MobileMenu({ children }: { children: ReactNode }) {
       onClick={closeOnLink}
       className="fixed inset-2 m-0 size-auto max-h-none max-w-none flex-col overflow-y-auto rounded-panel-sm border-0 bg-ink p-0 text-fg opacity-0 transition-[opacity,display,overlay] transition-discrete duration-300 ease-reveal  backdrop:opacity-0 backdrop:transition-[opacity,display,overlay] backdrop:transition-discrete backdrop:duration-300 backdrop:ease-reveal open:flex open:opacity-100 open:backdrop:opacity-100 starting:open:opacity-0 starting:open:backdrop:opacity-0"
     >
+      <div aria-hidden  className={`pointer-events-none  ${styles.dots}`} />
       {children}
       <button
         type="button"
