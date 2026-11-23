@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
+import { CardStack } from "./card-stack";
 import { FEATURES, type Feature } from "./features";
 
-/** Six feature rows, shown in full. The scroll stack comes later, from the card-stack animation. */
+/** Six feature rows. They stay in this list, then stack under the header as the page scrolls. */
 export function KeyFeatures() {
   return (
     <section className="bg-bg pt-hero lg:pt-35">
@@ -15,11 +16,11 @@ export function KeyFeatures() {
           business, and each finding comes with its evidence.
         </p>
       </div>
-      <div className="mx-auto mt-8 flex w-full max-w-270 flex-col gap-5 px-4 lg:mt-10 lg:gap-10 lg:px-0">
+      <CardStack>
         {FEATURES.map((feature) => (
           <FeatureRow key={feature.title} feature={feature} />
         ))}
-      </div>
+      </CardStack>
     </section>
   );
 }
