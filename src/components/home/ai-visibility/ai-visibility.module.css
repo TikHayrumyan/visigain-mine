@@ -1,0 +1,10 @@
+/* The phone frame crops the desktop card. Wide screens show it at full size. */
+.phone {
+  transform: scale(var(--phone-scale));
+}
+
+@media (min-width: 64rem) {
+  .phone {
+    transform: none;
+  }
+}

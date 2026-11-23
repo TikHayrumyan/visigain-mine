@@ -103,6 +103,8 @@ export const THEME = {
     chipOk: "#E3F6E9",
     chipWarn: "#FDF3DC",
     chipWarnText: "#7A4D00",
+    /** The empty part of an assistant's share ring. */
+    ringTrack: "#E6E4DD",
   },
   dark: {
     bg: SITE_NEUTRAL.pageDark,
@@ -124,6 +126,7 @@ export const THEME = {
     chipOk: "#0F2A1B",
     chipWarn: "#33220F",
     chipWarnText: "#FDB022",
+    ringTrack: "#E6E4DD",
   },
 } as const;
 

@@ -177,6 +177,7 @@
   --color-chip-ok: #e3f6e9;
   --color-chip-warn: #fdf3dc;
   --color-chip-warn-text: #7a4d00;
+  --color-ring-track: #e6e4dd;
 
   /* Status colours: semantic, separate from the brand green (admin pills, alerts). */
   --color-danger: #b42318;
@@ -282,6 +283,7 @@
     --color-chip-ok: #0f2a1b;
     --color-chip-warn: #33220f;
     --color-chip-warn-text: #fdb022;
+    --color-ring-track: #e6e4dd;
     --color-chart-1: #ffffff;
     --color-chart-2: #2ed3b7;
     --color-chart-3: #fbbf24;
@@ -312,6 +314,7 @@
       --color-chip-ok: #0f2a1b;
       --color-chip-warn: #33220f;
       --color-chip-warn-text: #fdb022;
+      --color-ring-track: #e6e4dd;
       --color-chart-1: #ffffff;
       --color-chart-2: #2ed3b7;
       --color-chart-3: #fbbf24;
@@ -341,6 +344,7 @@
     --color-chip-ok: #e3f6e9;
     --color-chip-warn: #fdf3dc;
     --color-chip-warn-text: #7a4d00;
+    --color-ring-track: #e6e4dd;
     --color-chart-1: #0e0f0f;
     --color-chart-2: #0e9384;
     --color-chart-3: #d97706;

@@ -10,6 +10,10 @@ const SPRING = { stiffness: 400, damping: 40, mass: 0.4 };
 interface HeroSurfaceProps extends ComponentProps<"section"> {
   /** The dark dotted panel's size and shape. */
   panelClassName: string;
+  /** The compact header watches `[data-hero]`. Only the home hero sets it. */
+  markHero?: boolean;
+  /** The hero fades its dots toward the bottom of the panel. */
+  fadeDots?: boolean;
 }
 
 /**
@@ -17,7 +21,14 @@ interface HeroSurfaceProps extends ComponentProps<"section"> {
  * section, the dots turn green in a soft circle that follows it. The dots are one tiled background, and the circle moves
  * through motion values, so following the pointer never re-renders React.
  */
-export function HeroSurface({ panelClassName, className = "", children, ...props }: HeroSurfaceProps) {
+export function HeroSurface({
+  panelClassName,
+  className = "",
+  markHero = true,
+  fadeDots = true,
+  children,
+  ...props
+}: HeroSurfaceProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const x = useSpring(useMotionValue(0), SPRING);
   const y = useSpring(useMotionValue(0), SPRING);
@@ -44,8 +55,14 @@ export function HeroSurface({ panelClassName, className = "", children, ...props
       onPointerEnter={(event) => track(event, true)}
       onPointerMove={(event) => track(event, false)}
     >
-      <div ref={panelRef} data-hero aria-hidden data-theme="dark" className={panelClassName}>
-        <div className={styles.fade}>
+      <div
+        ref={panelRef}
+        {...(markHero ? { "data-hero": true } : {})}
+        aria-hidden
+        data-theme="dark"
+        className={panelClassName}
+      >
+        <div className={fadeDots ? styles.fade : "absolute inset-0"}>
           <div className={styles.dots} />
           <motion.div
             className={`${styles.greenDots} opacity-0 transition-opacity duration-500 ease-reveal group-hover:opacity-100`}
