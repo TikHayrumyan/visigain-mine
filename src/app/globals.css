@@ -45,6 +45,8 @@
   --shadow-window: 0 24px 64px rgb(14 15 15 / 0.08);
   --shadow-windowSm: 0 12px 32px rgb(14 15 15 / 0.08);
   --shadow-card: 0 16px 48px rgb(14 15 15 / 0.12);
+  --shadow-compare: 0 16px 24px rgb(14 15 15 / 0.06);
+  --shadow-compareSm: 0 16px 48px rgb(14 15 15 / 0.06);
   --shadow-field: 0 12px 16px rgb(0 0 0 / 0.25);
 
   /* Type: Poppins 400 body, 600 UI, 700 subheads, 800 display. */
@@ -86,6 +88,18 @@
   --text-headline-s--line-height: 28px;
   --text-headline-s--letter-spacing: -0.02em;
   --text-headline-s--font-weight: 500;
+  --text-headline-m: 28px;
+  --text-headline-m--line-height: 34px;
+  --text-headline-m--letter-spacing: -0.025em;
+  --text-headline-m--font-weight: 500;
+  --text-headline-l: 40px;
+  --text-headline-l--line-height: 44px;
+  --text-headline-l--letter-spacing: -0.035em;
+  --text-headline-l--font-weight: 500;
+  --text-title-l: 20px;
+  --text-title-l--line-height: 26px;
+  --text-title-l--letter-spacing: -0.015em;
+  --text-title-l--font-weight: 500;
   --text-display-s: 36px;
   --text-display-s--line-height: 36px;
   --text-display-s--letter-spacing: -0.035em;
@@ -126,7 +140,9 @@
 
   /* Brand colours: identical in light and dark. */
   --color-green: #19c865;
+  --color-green-hover: #3fd47f;
   --color-green-dark: #15ac57;
+  --color-green-pressed: #0f8f47;
   --color-green-tint: #dff7e9;
   --color-paper: #faf6ee;
   --color-paper-2: #f2eee5;
@@ -153,6 +169,9 @@
   --color-surface: #ffffff;
   --color-surface-2: #f2eee5;
   --color-surface-subtle: #f8f7f3;
+  --color-chip-ok: #e3f6e9;
+  --color-chip-warn: #fdf3dc;
+  --color-chip-warn-text: #7a4d00;
 
   /* Status colours: semantic, separate from the brand green (admin pills, alerts). */
   --color-danger: #b42318;
@@ -255,6 +274,9 @@
     --color-ok-soft: #0f2a1b;
     --color-warn: #fdb022;
     --color-warn-soft: #33220f;
+    --color-chip-ok: #0f2a1b;
+    --color-chip-warn: #33220f;
+    --color-chip-warn-text: #fdb022;
     --color-chart-1: #ffffff;
     --color-chart-2: #2ed3b7;
     --color-chart-3: #fbbf24;
@@ -282,6 +304,9 @@
       --color-ok-soft: #0f2a1b;
       --color-warn: #fdb022;
       --color-warn-soft: #33220f;
+      --color-chip-ok: #0f2a1b;
+      --color-chip-warn: #33220f;
+      --color-chip-warn-text: #fdb022;
       --color-chart-1: #ffffff;
       --color-chart-2: #2ed3b7;
       --color-chart-3: #fbbf24;
@@ -308,6 +333,9 @@
     --color-ok-soft: #e7f6ec;
     --color-warn: #b54708;
     --color-warn-soft: #fef4e6;
+    --color-chip-ok: #e3f6e9;
+    --color-chip-warn: #fdf3dc;
+    --color-chip-warn-text: #7a4d00;
     --color-chart-1: #0e0f0f;
     --color-chart-2: #0e9384;
     --color-chart-3: #d97706;

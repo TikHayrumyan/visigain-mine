@@ -84,7 +84,9 @@ ${lines(
   /* Brand colours: identical in light and dark. */
 ${lines("  ", [
   ["color-green", colour(B.green)],
+  ["color-green-hover", colour(B.greenHover)],
   ["color-green-dark", colour(B.greenDark)],
+  ["color-green-pressed", colour(B.greenPressed)],
   ["color-green-tint", colour(B.greenTint)],
   ["color-paper", colour(B.paper)],
   ["color-paper-2", colour(B.paper2)],

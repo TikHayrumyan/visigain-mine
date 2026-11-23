@@ -13,7 +13,10 @@
  */
 export const BRAND = {
   green: "#19C865",
+  /** Filled button: hovered is lighter, focused is greenDark, pressed is darker still. */
+  greenHover: "#3FD47F",
   greenDark: "#15AC57",
+  greenPressed: "#0F8F47",
   greenTint: "#DFF7E9",
   paper: "#FAF6EE",
   paper2: "#F2EEE5",
@@ -96,6 +99,10 @@ export const THEME = {
     okSoft: "#E7F6EC",
     warn: STATUS.warn,
     warnSoft: "#FEF4E6",
+    /** The website design's answer chips: "Named" and "Not named". */
+    chipOk: "#E3F6E9",
+    chipWarn: "#FDF3DC",
+    chipWarnText: "#7A4D00",
   },
   dark: {
     bg: SITE_NEUTRAL.pageDark,
@@ -114,6 +121,9 @@ export const THEME = {
     okSoft: "#0F2A1B",
     warn: "#FDB022",
     warnSoft: "#33220F",
+    chipOk: "#0F2A1B",
+    chipWarn: "#33220F",
+    chipWarnText: "#FDB022",
   },
 } as const;
 
@@ -178,6 +188,9 @@ export const SHADOW = {
   window: "0 24px 64px rgb(14 15 15 / 0.08)",
   windowSm: "0 12px 32px rgb(14 15 15 / 0.08)",
   card: "0 16px 48px rgb(14 15 15 / 0.12)",
+  /** The "You vs top 3" card: tighter on a wide screen, taller on a phone. */
+  compare: "0 16px 24px rgb(14 15 15 / 0.06)",
+  compareSm: "0 16px 48px rgb(14 15 15 / 0.06)",
   field: "0 12px 16px rgb(0 0 0 / 0.25)",
 } as const;
 /** The web type scale: Poppins 400 body, 600 UI, 700 subheads, 800 display. */
@@ -253,6 +266,12 @@ export const SITE_TYPE = {
   bodyM: { size: "14px", lineHeight: "20px", fontWeight: "400" },
   bodyL: { size: "15px", lineHeight: "22px", fontWeight: "400" },
   headlineS: { size: "22px", lineHeight: "28px", fontWeight: "500", letterSpacing: "-0.02em" },
+  /** Headline/M 28|34, the phone's section title. */
+  headlineM: { size: "28px", lineHeight: "34px", fontWeight: "500", letterSpacing: "-0.025em" },
+  /** Display/M 40|44, a wide screen's section title. */
+  headlineL: { size: "40px", lineHeight: "44px", fontWeight: "500", letterSpacing: "-0.035em" },
+  /** Title/L 20|26, a card's title. */
+  titleL: { size: "20px", lineHeight: "26px", fontWeight: "500", letterSpacing: "-0.015em" },
   displayS: { size: "36px", lineHeight: "36px", fontWeight: "500", letterSpacing: "-0.035em" },
   displayM: { size: "56px", lineHeight: "64px", fontWeight: "500", letterSpacing: "-0.04em" },
   /** The address in the phone's small browser window mockup. */
