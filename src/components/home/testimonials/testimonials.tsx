@@ -19,7 +19,7 @@ function trackSize(width: number) {
 
 export function Testimonials() {
   const frame = useRef<HTMLDivElement>(null);
-  const [swiper, setSwiper] = useState<SwiperClass | null>(null);
+  const swiper = useRef<SwiperClass | null>(null);
   const [index, setIndex] = useState(0);
   const [edges, setEdges] = useState({ prev: false, next: true });
   const [track, setTrack] = useState({ offset: 20, gap: 12, slide: 330 });
@@ -33,14 +33,6 @@ export function Testimonials() {
     observer.observe(element);
     return () => observer.disconnect();
   }, []);
-
-  useEffect(() => {
-    if (!swiper) return;
-    swiper.params.spaceBetween = track.gap;
-    swiper.params.slidesOffsetBefore = track.offset;
-    swiper.params.slidesOffsetAfter = track.offset;
-    swiper.update();
-  }, [swiper, track]);
 
   const sync = (instance: SwiperClass) => {
     setIndex(instance.activeIndex);
@@ -59,7 +51,7 @@ export function Testimonials() {
             type="button"
             aria-label="Previous testimonial"
             disabled={!edges.prev}
-            onClick={() => swiper?.slidePrev()}
+            onClick={() => swiper.current?.slidePrev()}
             className="grid size-12 place-items-center rounded-full border border-line bg-surface disabled:opacity-45"
           >
             <Image src="/icons/arrow-right-ink.svg" alt="" width={20} height={20} className="rotate-180" />
@@ -68,7 +60,7 @@ export function Testimonials() {
             type="button"
             aria-label="Next testimonial"
             disabled={!edges.next}
-            onClick={() => swiper?.slideNext()}
+            onClick={() => swiper.current?.slideNext()}
             className="grid size-12 place-items-center rounded-full border border-line bg-surface disabled:opacity-45"
           >
             <Image src="/icons/arrow-right-ink.svg" alt="" width={20} height={20} />
@@ -86,14 +78,14 @@ export function Testimonials() {
           watchOverflow
           style={{ "--swiper-wrapper-transition-timing-function": "ease-in-out" } as CSSProperties}
           onSwiper={(instance) => {
-            setSwiper(instance);
+            swiper.current = instance;
             sync(instance);
           }}
           onSlideChange={sync}
           className="w-full"
         >
           {TESTIMONIALS.map((item) => (
-            <SwiperSlide key={item.name} style={{ width: track.slide }}>
+            <SwiperSlide key={item.name} className="flex! h-auto!" style={{ width: track.slide }}>
               <TestimonialCard item={item} />
             </SwiperSlide>
           ))}
@@ -124,8 +116,8 @@ export function Testimonials() {
 
 function TestimonialCard({ item }: { item: Testimonial }) {
   return (
-    <article className="flex w-full flex-col gap-2 lg:h-105 lg:flex-row">
-      <div className="flex flex-col gap-10 rounded-card-lg bg-ink p-6 lg:h-full lg:min-w-0 lg:flex-1 lg:justify-between lg:gap-0 lg:px-10 lg:py-9">
+    <article className="flex h-full w-full flex-col gap-2 lg:h-105 lg:flex-row">
+      <div className="flex flex-1 flex-col justify-between gap-10 rounded-card-lg bg-ink p-6 lg:h-full lg:min-w-0 lg:gap-0 lg:px-10 lg:py-9">
         <div className="flex items-center gap-2.5">
           <span className="grid size-8 place-items-center rounded-lg bg-white font-display text-title-s text-ink">
             {item.letter}
