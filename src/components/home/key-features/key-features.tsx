@@ -30,29 +30,7 @@ function FeatureRow({ feature }: { feature: Feature }) {
   if (feature.icon === "chat") return <ReviewsCard />;
   if (feature.icon === "search") return <CitationsCard />;
   if (feature.icon === "check") return <FixesCard />;
-
-  return (
-    <article className="flex flex-col overflow-hidden rounded-panel border border-line bg-surface shadow-card lg:h-133 lg:flex-row">
-      <div
-        className={`flex flex-col justify-between gap-8 p-6 lg:h-full lg:w-95 lg:p-8 lg:pb-12 ${feature.visualFirst ? "lg:order-2" : ""}`}
-      >
-        <Icon />
-        <div className="flex flex-col gap-5">
-          <h3 className="font-display text-title-l text-fg lg:text-display-s">{feature.title}</h3>
-          <p className="text-body-l text-muted">{feature.body}</p>
-          {feature.link && (
-            <Link href={feature.link.href} className="inline-flex items-center gap-1.5 text-label-m text-fg no-underline">
-              {feature.link.label}
-              <Image src="/icons/arrow-right.svg" alt="" width={20} height={20} />
-            </Link>
-          )}
-        </div>
-      </div>
-      <div className={`min-h-64 flex-1 p-4 lg:min-h-0 lg:p-4 ${feature.visualFirst ? "lg:order-1" : ""}`}>
-        <AlertsVisual />
-      </div>
-    </article>
-  );
+  return <AlertsCard />;
 }
 
 
@@ -529,54 +507,106 @@ function FixesScene() {
   );
 }
 
-function AlertsVisual() {
-  const bars = ["h-8", "h-10", "h-12", "h-14", "h-16", "h-20", "h-24"];
+const WEEK_BARS = ["h-[57px]", "h-[63px]", "h-[73px]", "h-[78px]", "h-[90px]", "h-[95px]", "h-[103px]"] as const;
+
+function AlertsCard() {
   return (
-    <div className="relative h-full min-h-72 rounded-card bg-warn-soft">
-      <div className="absolute top-6 left-6 right-16 rounded-card border border-line bg-surface p-5">
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="font-display text-title-s">Your grade, week by week</p>
-            <p className="text-body-s text-muted">Checked every Tuesday</p>
+    <article className="flex flex-col items-center overflow-hidden rounded-[28px] bg-surface p-2 shadow-lift outline outline-1 -outline-offset-1 outline-line lg:h-133 lg:flex-row-reverse lg:gap-12 lg:rounded-[40px] lg:p-4">
+      <div className="flex w-full flex-col gap-6 px-4 pt-5 pb-6 lg:h-full lg:w-95 lg:justify-between lg:gap-0 lg:pt-8 lg:pr-8 lg:pb-12 lg:pl-0">
+        <span className="grid size-14 place-items-center rounded-full bg-ink">
+          <Image src="/icons/mail-24.svg" alt="" width={24} height={24} />
+        </span>
+        <div className="flex w-full flex-col gap-5">
+          <h3 className="font-display text-headline-s text-fg lg:text-display-s">Weekly checks, instant alerts</h3>
+          <p className="text-body-l text-muted">
+            A full re-check every week, a quick check every day, and an alert at once if your site or booking link breaks.
+          </p>
+        </div>
+      </div>
+      <div className="@container w-full lg:w-155 lg:shrink-0">
+        <div className="relative h-[calc(500px*100cqw/620px)] w-full overflow-hidden rounded-[13.239px] bg-review-wash lg:h-125 lg:rounded-panel-sm">
+          <div className="absolute top-0 left-0 h-125 w-155 origin-top-left scale-[calc(100cqw/620px)] lg:scale-100">
+            <AlertsScene />
           </div>
-          <span className="rounded-pill bg-chip-ok px-2 py-1 text-label-s text-ok">↑ 1.2</span>
         </div>
-        <div className="mt-4 flex h-24 items-end gap-2">
-          {bars.map((height) => (
-            <div key={height} className={`flex-1 rounded-sm bg-line ${height}`} />
+      </div>
+    </article>
+  );
+}
+
+function AlertsScene() {
+  return (
+    <div className="relative h-125 w-155">
+      <div className="absolute top-10 left-10 flex w-100 flex-col gap-4 rounded-[20px] border border-line bg-surface p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-0.5">
+            <p className="font-display text-title-s text-fg">Your grade, week by week</p>
+            <p className="text-body-s text-faint">Checked every Tuesday</p>
+          </div>
+          <span className="inline-flex h-7 items-center gap-1 rounded-pill bg-chip-ok pr-2.5 pl-2 text-label-s text-ok">
+            <Image src="/icons/spark.svg" alt="" width={14} height={14} />
+            1.2
+          </span>
+        </div>
+        <div className="flex h-[126px] items-end gap-2.5">
+          {WEEK_BARS.map((height) => (
+            <span key={height} className="flex min-w-0 flex-1 flex-col justify-end">
+              <span
+                className={`w-full rounded-pill bg-surface-subtle bg-[url('/images/features/track.png')] bg-size-[10.5px_10.5px] ${height}`}
+              />
+            </span>
           ))}
-          <div className="h-full w-6 rounded-sm bg-green" />
+          <span className="flex min-w-0 flex-1 flex-col justify-end">
+            <span className="h-[111px] w-full rounded-pill bg-green" />
+          </span>
         </div>
-        <div className="mt-2 flex justify-between text-body-s text-muted">
+        <div className="flex justify-between text-body-s text-faint">
           <span>Aug 18</span>
           <span>Oct 6</span>
         </div>
       </div>
-      <div className="absolute right-6 bottom-16 w-72 rounded-card border border-line bg-surface px-4 py-3 shadow-card">
-        <p className="text-label-m">Booking link is down</p>
-        <p className="text-body-s text-muted">Daily check · 8:02 AM</p>
-      </div>
-      <div className="absolute bottom-4 left-10 w-72 rounded-card border border-line bg-surface px-4 py-3 shadow-card">
-        <p className="text-label-m">Your grade went up to B</p>
-        <p className="text-body-s text-muted">Weekly check · Tuesday</p>
-      </div>
+      <Alert
+        className="top-78.5 left-44.5"
+        icon="/icons/alert-warn.svg"
+        tone="bg-danger-soft"
+        title="Booking link is down"
+        detail="Daily check · 8:02 AM"
+      />
+      <Alert
+        className="top-99 left-51.5"
+        icon="/icons/alert-up.svg"
+        tone="bg-chip-ok"
+        title="Your grade went up to B"
+        detail="Weekly check · Tuesday"
+      />
     </div>
   );
 }
 
-function Icon() {
+function Alert({
+  className,
+  icon,
+  tone,
+  title,
+  detail,
+}: {
+  className: string;
+  icon: string;
+  tone: string;
+  title: string;
+  detail: string;
+}) {
   return (
-    <span className="grid size-14 place-items-center rounded-full bg-ink text-white">
-      <MailIcon />
-    </span>
-  );
-}
-
-function MailIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <rect x="3.5" y="5.5" width="17" height="13" rx="2" stroke="currentColor" strokeWidth="1.5" />
-      <path d="m4 7 8 6 8-6" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-    </svg>
+    <div
+      className={`absolute flex w-95 items-center gap-3 rounded-card border border-line bg-surface py-3.5 pr-4 pl-3.5 shadow-card ${className}`}
+    >
+      <span className={`grid size-9 shrink-0 place-items-center rounded-full ${tone}`}>
+        <Image src={icon} alt="" width={20} height={20} />
+      </span>
+      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="truncate text-label-m text-fg">{title}</span>
+        <span className="truncate text-body-s text-faint">{detail}</span>
+      </span>
+    </div>
   );
 }
