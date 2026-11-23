@@ -5,11 +5,8 @@ import Image from "next/image";
 import { PRIMARY_BUTTON } from "@/components/ui/button-styles";
 import { HeroSurface } from "../hero/hero-surface";
 import { ANSWER_TOTAL, ASSISTANTS, BAR_TRACK, LEADERBOARD, QUESTIONS } from "./answers";
-import styles from "./ai-visibility.module.css";
 
 const EASE = "easeOut" as const;
-/** The phone frame shows the desktop card scaled to 679px and cropped. */
-const PHONE_SCALE = 679 / 1108;
 
 /** Share of answers, the question table, and who the assistants name most. */
 export function AiVisibility() {
@@ -46,18 +43,16 @@ export function AiVisibility() {
             </Reveal>
           </div>
 
-          <div className="relative mx-auto mt-10 w-full max-w-277 lg:mt-16">
-            <div className="h-76 overflow-hidden lg:h-130 lg:overflow-x-visible lg:overflow-y-hidden">
-              <div className=" relative h-156.5 w-172.25 lg:h-auto lg:w-full">
-                <div
-                  className={`absolute top-0 left-2.5 w-277 origin-top-left lg:static lg:left-auto lg:w-full ${styles.phone}`}
-                  style={{ "--phone-scale": PHONE_SCALE } as React.CSSProperties}
-                >
+          <div className="@container mt-10 w-full overflow-hidden lg:mt-16">
+            <div className="relative h-[calc(304px*100cqw/390px)] lg:h-[calc(520px*min(1,100cqw/1440px))]">
+              <div className="absolute top-0 left-0 h-76 w-97.5 origin-top-left scale-[calc(100cqw/390px)] overflow-hidden lg:left-1/2 lg:h-130 lg:w-360 lg:-ml-180 lg:origin-top lg:scale-[min(1,100cqw/1440px)]">
+                <div className="absolute top-0 left-2.5 h-156.5 w-172.25 overflow-hidden lg:left-41.5 lg:h-130 lg:w-277">
+                  <div className="w-277 origin-top-left scale-[0.6128158845] lg:scale-100">
                   <Reveal
                     y={60}
                     duration={0.8}
                     delay={0.3}
-                    className="lg:min-h-254.75 w-277 rounded-panel bg-surface p-7 text-fg lg:w-full"
+                    className="min-h-254.75 w-277 rounded-panel bg-surface p-7 text-fg"
                     theme="light"
                   >
                     <div className="flex h-7.5 items-center gap-1.5">
@@ -117,17 +112,15 @@ export function AiVisibility() {
                       </table>
                     </div>
                   </Reveal>
+                  </div>
                 </div>
-              </div>
-            </div>
-
-            <Reveal
-              y={30}
-              duration={0.7}
-              delay={0.7}
-              className="hidden rounded-[20px] bg-chip-ok p-7 text-fg shadow-card lg:absolute lg:top-37 lg:block lg:-right-26.25 lg:w-113"
-              theme="light"
-            >
+                <Reveal
+                  y={30}
+                  duration={0.7}
+                  delay={0.7}
+                  className="hidden rounded-[20px] bg-chip-ok p-7 text-fg shadow-card lg:absolute lg:top-37 lg:left-231.75 lg:block lg:w-113"
+                  theme="light"
+                >
               <h3 className="font-display text-title-l">Named most often</h3>
               <p className="mt-1 text-body-s text-muted">Answers naming each business, of {ANSWER_TOTAL}</p>
               <ul className="mt-4 flex flex-col gap-4">
@@ -148,7 +141,9 @@ export function AiVisibility() {
                   </li>
                 ))}
               </ul>
-            </Reveal>
+                </Reveal>
+              </div>
+            </div>
           </div>
         </div>
       </HeroSurface>
