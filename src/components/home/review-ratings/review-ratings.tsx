@@ -6,7 +6,7 @@ export function ReviewRatings() {
   return (
     <section
       aria-label="Review ratings"
-      className="flex flex-wrap items-center justify-center gap-x-6 gap-y-5 px-5 pt-7 pb-2 lg:flex-nowrap lg:gap-14 lg:px-0 lg:pt-10"
+      className="grid grid-cols-[max-content_max-content] items-start justify-center gap-x-6 gap-y-5 px-5 pt-7 pb-2 lg:flex lg:items-center lg:gap-14 lg:px-0 lg:pt-10"
     >
       {REVIEW_RATINGS.map((rating) => (
         <div key={rating.name} className="flex items-center gap-2 lg:gap-2.5">
