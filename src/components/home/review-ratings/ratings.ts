@@ -1,0 +1,50 @@
+/**
+ * The review sources under the hero. Stand-in figures from the website design, until the live ratings (Google, G2,
+ * Capterra, Trustpilot) replace this list. `framed` puts the logo on the design's rounded tile; Google's mark has none.
+ */
+export const REVIEW_RATINGS = [
+  {
+    name: "Google",
+    score: "4.8",
+    reviewCount: 120,
+    logoSrc: "/images/reviews/google.svg",
+    logoWidth: 30,
+    logoHeight: 32,
+    logoClass: "h-6 w-5.75 lg:h-8 lg:w-7.5",
+    starsSrc: "/images/reviews/stars-5.svg",
+    framed: false,
+  },
+  {
+    name: "G2",
+    score: "4.7",
+    reviewCount: 64,
+    logoSrc: "/images/reviews/g2.svg",
+    logoWidth: 32,
+    logoHeight: 32,
+    logoClass: "size-6 lg:size-8",
+    starsSrc: "/images/reviews/stars-4-7.svg",
+    framed: true,
+  },
+  {
+    name: "Capterra",
+    score: "4.8",
+    reviewCount: 52,
+    logoSrc: "/images/reviews/capterra.png",
+    logoWidth: 2500,
+    logoHeight: 2500,
+    logoClass: "size-6 object-cover lg:size-7.5",
+    starsSrc: "/images/reviews/stars-5.svg",
+    framed: true,
+  },
+  {
+    name: "Trustpilot",
+    score: "4.6",
+    reviewCount: 210,
+    logoSrc: "/images/reviews/trustpilot.png",
+    logoWidth: 1200,
+    logoHeight: 1200,
+    logoClass: "size-6 object-cover lg:size-7.75",
+    starsSrc: "/images/reviews/stars-4-6.svg",
+    framed: true,
+  },
+] as const;
