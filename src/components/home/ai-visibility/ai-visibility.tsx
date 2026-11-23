@@ -15,7 +15,6 @@ export function AiVisibility() {
       <HeroSurface
         aria-labelledby="ai-visibility-title"
         markHero={false}
-        fadeDots={false}
         className="relative"
         panelClassName="absolute inset-0 overflow-hidden bg-ink"
       >

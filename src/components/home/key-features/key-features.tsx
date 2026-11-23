@@ -5,7 +5,7 @@ import { FEATURES, type Feature } from "./features";
 /** Six feature rows, shown in full. The scroll stack comes later, from the card-stack animation. */
 export function KeyFeatures() {
   return (
-    <section className="bg-bg pt-18 lg:pt-35">
+    <section className="bg-bg pt-hero lg:pt-35">
       <div className="mx-auto flex max-w-160 flex-col items-center gap-4 px-5 text-center lg:px-0">
         <h2 className="font-display text-headline-m text-fg lg:w-160 lg:text-headline-l">
           Everything that decides whether you get the call
@@ -43,7 +43,7 @@ const NEARBY = [
 
 function GradeCard() {
   return (
-    <article className="flex flex-col items-center overflow-hidden rounded-[28px] bg-surface p-2 shadow-lift outline outline-1 -outline-offset-1 outline-line lg:h-133 lg:flex-row lg:gap-12 lg:rounded-[40px] lg:p-4">
+    <article className="flex flex-col items-center overflow-hidden rounded-card-lg bg-surface p-2 shadow-lift outline outline-1 -outline-offset-1 outline-line lg:h-133 lg:flex-row lg:gap-12 lg:rounded-[40px] lg:p-4">
       <div className="flex w-full flex-col gap-6 px-4 pt-5 pb-6 lg:h-full lg:w-95 lg:justify-between lg:gap-0 lg:pt-8 lg:pr-0 lg:pb-12 lg:pl-8">
         <span className="grid size-14 place-items-center rounded-full bg-ink">
           <Image src="/icons/layout-grid.svg" alt="" width={24} height={24} />
@@ -156,7 +156,7 @@ function rankTone(label: string) {
 
 function MapCard() {
   return (
-    <article className="flex flex-col items-center overflow-hidden rounded-[28px] bg-surface p-2 shadow-lift outline outline-1 -outline-offset-1 outline-line lg:h-133 lg:flex-row-reverse lg:gap-12 lg:rounded-[40px] lg:p-4">
+    <article className="flex flex-col items-center overflow-hidden rounded-card-lg bg-surface p-2 shadow-lift outline outline-1 -outline-offset-1 outline-line lg:h-133 lg:flex-row-reverse lg:gap-12 lg:rounded-[40px] lg:p-4">
       <div className="flex w-full flex-col gap-6 px-4 pt-5 pb-6 lg:h-full lg:w-95 lg:justify-between lg:gap-0 lg:pt-8 lg:pr-8 lg:pb-12 lg:pl-0">
         <span className="grid size-14 place-items-center rounded-full bg-ink">
           <Image src="/icons/map-pin-area-24.svg" alt="" width={24} height={24} />
@@ -180,7 +180,7 @@ function MapCard() {
 function MapScene() {
   return (
     <div className="relative h-125 w-155">
-      <div className="absolute top-12 left-8 flex h-124 w-136 flex-col rounded-[28px] bg-surface p-7">
+      <div className="absolute top-12 left-8 flex h-124 w-136 flex-col rounded-card-lg bg-surface p-7">
         <div className="flex h-16 items-center justify-between pb-5">
           <p className="font-display text-headline-s text-fg">Local Search Grid</p>
           <span className="inline-flex h-11 items-center px-1 text-label-m text-fg">Open the grid</span>
@@ -212,7 +212,7 @@ function MapScene() {
             <ul className="flex flex-col gap-5">
               {LEGEND.map((item) => (
                 <li key={item.name} className="flex flex-col gap-2">
-                  <div className="flex h-[13px] items-center justify-between">
+                  <div className="flex h-3.25 items-center justify-between">
                     <p className="whitespace-nowrap">
                       <span className="text-label-m text-fg">{item.name}</span>
                       {item.note && <span className="text-label-s text-muted"> {item.note}</span>}
@@ -233,11 +233,11 @@ function MapScene() {
               alt=""
               width={425}
               height={359}
-              className="absolute top-[-18px] left-[-89px] h-[359px] w-[425px] max-w-none object-cover"
+              className="absolute -top-4.5 -left-22.25 h-89.75 w-106.25 max-w-none object-cover"
             />
-            <div className="absolute top-[17px] left-[17px] flex flex-col gap-[7px]">
+            <div className="absolute top-4.25 left-4.25 flex flex-col gap-1.75">
               {RANKS.map((row, rowIndex) => (
-                <div key={rowIndex} className="flex gap-[7px]">
+                <div key={rowIndex} className="flex gap-1.75">
                   {row.map((label, column) => (
                     <span
                       key={`${label}-${column}`}
@@ -269,7 +269,7 @@ const REVIEWS = [
 
 function ReviewsCard() {
   return (
-    <article className="flex flex-col items-center overflow-hidden rounded-[28px] bg-surface p-2 shadow-lift outline outline-1 -outline-offset-1 outline-line lg:h-133 lg:flex-row lg:gap-12 lg:rounded-[40px] lg:p-4">
+    <article className="flex flex-col items-center overflow-hidden rounded-card-lg bg-surface p-2 shadow-lift outline outline-1 -outline-offset-1 outline-line lg:h-133 lg:flex-row lg:gap-12 lg:rounded-[40px] lg:p-4">
       <div className="flex w-full flex-col gap-6 px-4 pt-5 pb-6 lg:h-full lg:w-95 lg:justify-between lg:gap-0 lg:pt-8 lg:pr-0 lg:pb-12 lg:pl-8">
         <span className="grid size-14 place-items-center rounded-full bg-ink">
           <Image src="/icons/message-square-more.svg" alt="" width={24} height={24} />
@@ -339,7 +339,7 @@ const DIRECTORIES = [
 
 function CitationsCard() {
   return (
-    <article className="flex flex-col items-center overflow-hidden rounded-[28px] bg-surface p-2 shadow-lift outline outline-1 -outline-offset-1 outline-line lg:h-133 lg:flex-row-reverse lg:gap-12 lg:rounded-[40px] lg:p-4">
+    <article className="flex flex-col items-center overflow-hidden rounded-card-lg bg-surface p-2 shadow-lift outline outline-1 -outline-offset-1 outline-line lg:h-133 lg:flex-row-reverse lg:gap-12 lg:rounded-[40px] lg:p-4">
       <div className="flex w-full flex-col gap-6 px-4 pt-5 pb-6 lg:h-full lg:w-95 lg:justify-between lg:gap-0 lg:pt-8 lg:pr-8 lg:pb-12 lg:pl-0">
         <span className="grid size-14 place-items-center rounded-full bg-ink">
           <Image src="/icons/search-24.svg" alt="" width={24} height={24} />
@@ -437,7 +437,7 @@ const FIXES: { text: string; effort: string; help: boolean; tall?: boolean }[] =
 
 function FixesCard() {
   return (
-    <article className="flex flex-col items-center overflow-hidden rounded-[28px] bg-surface p-2 shadow-lift outline outline-1 -outline-offset-1 outline-line lg:h-133 lg:flex-row lg:gap-12 lg:rounded-[40px] lg:p-4">
+    <article className="flex flex-col items-center overflow-hidden rounded-card-lg bg-surface p-2 shadow-lift outline outline-1 -outline-offset-1 outline-line lg:h-133 lg:flex-row lg:gap-12 lg:rounded-[40px] lg:p-4">
       <div className="flex w-full flex-col gap-6 px-4 pt-5 pb-6 lg:h-full lg:w-95 lg:justify-between lg:gap-0 lg:pt-8 lg:pr-0 lg:pb-12 lg:pl-8">
         <span className="grid size-14 place-items-center rounded-full bg-ink">
           <Image src="/icons/check-24.svg" alt="" width={24} height={24} />
@@ -467,7 +467,7 @@ function FixesCard() {
 function FixesScene() {
   return (
     <div className="relative h-125 w-155">
-      <div className="absolute top-11.5 left-7.5 w-277 rounded-[28px] bg-surface p-7">
+      <div className="absolute top-11.5 left-7.5 w-277 rounded-card-lg bg-surface p-7">
         <div className="flex flex-col gap-1">
           <p className="font-display text-headline-s text-fg">What to fix first</p>
           <p className="text-body-m text-muted">35 fixes in order: the ones that move your grade the most come first.</p>
@@ -476,23 +476,23 @@ function FixesScene() {
           {["#", "Fix", "Effort", "Do it yourself?"].map((label) => (
             <span
               key={label}
-              className={`border-b border-line px-2 pt-1 pb-[18px] text-label-m text-fg ${label === "Do it yourself?" ? "text-center" : ""}`}
+              className={`border-b border-line px-2 pt-1 pb-4.5 text-label-m text-fg ${label === "Do it yourself?" ? "text-center" : ""}`}
             >
               {label}
             </span>
           ))}
           {FIXES.map((fix, index) => (
             <div key={fix.text} className="contents">
-              <span className={`flex items-center border-b border-line px-2 text-label-m text-fg ${fix.tall ? "h-[100px]" : "h-[60px]"}`}>
+              <span className={`flex items-center border-b border-line px-2 text-label-m text-fg ${fix.tall ? "h-25" : "h-15"}`}>
                 {index + 1}
               </span>
-              <span className={`flex items-center border-b border-line px-2 text-label-m text-fg ${fix.tall ? "h-[100px]" : "h-[60px]"}`}>
+              <span className={`flex items-center border-b border-line px-2 text-label-m text-fg ${fix.tall ? "h-25" : "h-15"}`}>
                 {fix.text}
               </span>
-              <span className={`flex items-center border-b border-line px-2 text-body-m text-fg ${fix.tall ? "h-[100px]" : "h-[60px]"}`}>
+              <span className={`flex items-center border-b border-line px-2 text-body-m text-fg ${fix.tall ? "h-25" : "h-15"}`}>
                 {fix.effort}
               </span>
-              <span className={`flex items-center justify-center border-b border-line px-2 ${fix.tall ? "h-[100px]" : "h-[60px]"}`}>
+              <span className={`flex items-center justify-center border-b border-line px-2 ${fix.tall ? "h-25" : "h-15"}`}>
                 <span
                   className={`inline-flex h-6.5 items-center rounded-pill px-2.5 text-label-s ${fix.help ? "bg-chip-neutral text-muted" : "bg-chip-ok text-ok"}`}
                 >
@@ -511,7 +511,7 @@ const WEEK_BARS = ["h-[57px]", "h-[63px]", "h-[73px]", "h-[78px]", "h-[90px]", "
 
 function AlertsCard() {
   return (
-    <article className="flex flex-col items-center overflow-hidden rounded-[28px] bg-surface p-2 shadow-lift outline outline-1 -outline-offset-1 outline-line lg:h-133 lg:flex-row-reverse lg:gap-12 lg:rounded-[40px] lg:p-4">
+    <article className="flex flex-col items-center overflow-hidden rounded-card-lg bg-surface p-2 shadow-lift outline outline-1 -outline-offset-1 outline-line lg:h-133 lg:flex-row-reverse lg:gap-12 lg:rounded-[40px] lg:p-4">
       <div className="flex w-full flex-col gap-6 px-4 pt-5 pb-6 lg:h-full lg:w-95 lg:justify-between lg:gap-0 lg:pt-8 lg:pr-8 lg:pb-12 lg:pl-0">
         <span className="grid size-14 place-items-center rounded-full bg-ink">
           <Image src="/icons/mail-24.svg" alt="" width={24} height={24} />
@@ -548,7 +548,7 @@ function AlertsScene() {
             1.2
           </span>
         </div>
-        <div className="flex h-[126px] items-end gap-2.5">
+        <div className="flex h-31.5 items-end gap-2.5">
           {WEEK_BARS.map((height) => (
             <span key={height} className="flex min-w-0 flex-1 flex-col justify-end">
               <span
@@ -557,7 +557,7 @@ function AlertsScene() {
             </span>
           ))}
           <span className="flex min-w-0 flex-1 flex-col justify-end">
-            <span className="h-[111px] w-full rounded-pill bg-green" />
+            <span className="h-27.75 w-full rounded-pill bg-green" />
           </span>
         </div>
         <div className="flex justify-between text-body-s text-faint">
