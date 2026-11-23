@@ -28,6 +28,7 @@ function FeatureRow({ feature }: { feature: Feature }) {
   if (feature.icon === "grid") return <GradeCard />;
   if (feature.icon === "pin") return <MapCard />;
   if (feature.icon === "chat") return <ReviewsCard />;
+  if (feature.icon === "search") return <CitationsCard />;
 
   return (
     <article className="flex flex-col overflow-hidden rounded-panel border border-line bg-surface shadow-card lg:h-133 lg:flex-row">
@@ -54,7 +55,6 @@ function FeatureRow({ feature }: { feature: Feature }) {
 }
 
 function Visual({ feature }: { feature: Feature }) {
-  if (feature.icon === "search") return <CitationsVisual />;
   if (feature.icon === "check") return <FixesVisual />;
   return <AlertsVisual />;
 }
@@ -355,26 +355,77 @@ function ReviewsScene() {
   );
 }
 
-function CitationsVisual() {
-  const directories = ["Google", "Yelp", "Apple Maps", "Facebook"];
+const DIRECTORIES = [
+  { name: "Google", fields: [true, true, true] },
+  { name: "Yelp", fields: [true, true, false] },
+  { name: "Apple Maps", fields: [true, false, true] },
+  { name: "Facebook", fields: [true, true, true] },
+] as const;
+
+function CitationsCard() {
   return (
-    <div className="relative h-full min-h-72 rounded-card bg-chip-ok">
-      <div className="absolute top-6 left-6 w-80 rounded-card border border-line bg-surface p-5">
-        <p className="font-display text-title-s">Directories where we found you</p>
-        <p className="mt-2 font-display text-display-s">
-          17 <span className="text-title-s text-muted">of 36</span>
-        </p>
-        <div className="mt-4 h-3 overflow-hidden rounded-pill bg-line">
-          <div className="h-full w-[47%] rounded-pill bg-green" />
+    <article className="flex flex-col items-center overflow-hidden rounded-[28px] bg-surface p-2 shadow-lift outline outline-1 -outline-offset-1 outline-line lg:h-133 lg:flex-row-reverse lg:gap-12 lg:rounded-[40px] lg:p-4">
+      <div className="flex w-full flex-col gap-6 px-4 pt-5 pb-6 lg:h-full lg:w-95 lg:justify-between lg:gap-0 lg:pt-8 lg:pr-8 lg:pb-12 lg:pl-0">
+        <span className="grid size-14 place-items-center rounded-full bg-ink">
+          <Image src="/icons/search-24.svg" alt="" width={24} height={24} />
+        </span>
+        <div className="flex w-full flex-col gap-5">
+          <h3 className="font-display text-headline-s text-fg lg:text-display-s">Citations across 36 directories</h3>
+          <p className="text-body-l text-muted">
+            Where you’re listed, where you’re missing, and where your details don’t match.
+          </p>
         </div>
       </div>
-      <div className="absolute right-4 bottom-4 w-80 rounded-card border border-line bg-surface p-4">
-        {directories.map((name) => (
-          <div key={name} className="flex items-center justify-between py-2 text-label-m">
-            <span>{name}</span>
-            <span className="text-ok">Match</span>
+      <div className="@container w-full lg:w-155 lg:shrink-0">
+        <div className="relative h-[calc(500px*100cqw/620px)] w-full overflow-hidden rounded-[13.239px] bg-chip-ok lg:h-125 lg:rounded-panel-sm">
+          <div className="absolute top-0 left-0 h-125 w-155 origin-top-left scale-[calc(100cqw/620px)] lg:scale-100">
+            <CitationsScene />
           </div>
-        ))}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function CitationsScene() {
+  return (
+    <div className="relative h-125 w-155">
+      <div className="absolute top-8 left-8 flex w-90 flex-col gap-3.5 rounded-[20px] border border-line bg-surface p-6">
+        <p className="font-display text-title-s text-fg">Directories where we found you</p>
+        <p className="flex items-baseline gap-2">
+          <span className="font-display text-display-s text-fg">17</span>
+          <span className="text-body-m text-faint">of 36</span>
+        </p>
+        <div className="h-3 w-full overflow-hidden rounded-pill bg-surface-subtle bg-[url('/images/features/track.png')] bg-size-[10.5px_10.5px]">
+          <div className="h-full w-35 rounded-pill bg-ink" />
+        </div>
+        <div className="flex w-full flex-col gap-0.5 overflow-hidden rounded-md bg-chip-warn px-3 py-2.5 whitespace-nowrap">
+          <p className="text-label-m text-fg">2 listings with wrong details</p>
+          <p className="text-body-s text-muted">Name, address or phone doesn’t match Google.</p>
+        </div>
+      </div>
+      <div className="absolute top-49 left-51.5 flex w-95 flex-col gap-3 rounded-[20px] border border-line bg-surface p-5 shadow-card">
+        <p className="font-display text-title-s text-fg">Name, address and phone</p>
+        <div>
+          <div className="flex items-center justify-between pb-2 text-label-s text-faint">
+            <span className="flex-1">Source</span>
+            <span className="w-16 text-center">Name</span>
+            <span className="w-16 text-center">Address</span>
+            <span className="w-16 text-center">Phone</span>
+          </div>
+          {DIRECTORIES.map((row) => (
+            <div key={row.name} className="flex items-center justify-between border-t border-line py-2.5">
+              <span className="flex-1 text-label-m text-fg">{row.name}</span>
+              {row.fields.map((ok, index) => (
+                <span key={index} className="grid h-6 w-16 place-items-center">
+                  <span className={`grid size-7 place-items-center rounded-full ${ok ? "bg-chip-ok" : "bg-danger-soft"}`}>
+                    <Image src={ok ? "/icons/check.svg" : "/icons/x.svg"} alt="" width={ok ? 16 : 14} height={ok ? 16 : 14} />
+                  </span>
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -431,10 +482,7 @@ function AlertsVisual() {
 }
 
 function Icon({ name }: { name: Feature["icon"] }) {
-  const src = {
-    search: "/icons/search.svg",
-    check: "/icons/check.svg",
-  }[name as "search" | "check"];
+  const src = name === "check" ? "/icons/check.svg" : undefined;
 
   return (
     <span className="grid size-14 place-items-center rounded-full bg-ink text-white">
