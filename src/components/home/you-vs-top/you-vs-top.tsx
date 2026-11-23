@@ -2,7 +2,7 @@
 
 import { motion, useReducedMotion, type Variants } from "motion/react";
 import Link from "next/link";
-import { useRef, type ReactNode, type UIEvent } from "react";
+import { useEffect, useRef, type ReactNode, type UIEvent } from "react";
 import { PRIMARY_BUTTON } from "@/components/ui/button-styles";
 import { FREE_SCAN } from "@/config/navigation";
 import { COMPARISON } from "./comparison";
@@ -27,15 +27,31 @@ export function YouVsTop() {
   const reduceMotion = useReducedMotion();
   const scroller = useRef<HTMLDivElement>(null);
   const thumb = useRef<HTMLDivElement>(null);
+  const track = useRef<HTMLDivElement>(null);
 
-  const moveThumb = (event: UIEvent<HTMLDivElement>) => {
-    const el = event.currentTarget;
+  const placeThumb = (el: HTMLDivElement) => {
     const marker = thumb.current;
-    if (!marker) return;
+    const bar = track.current;
+    if (!marker || !bar) return;
     const max = el.scrollWidth - el.clientWidth;
+    bar.hidden = max <= 1;
     const travel = el.clientWidth - marker.offsetWidth;
     marker.style.transform = `translateX(${max > 0 ? (el.scrollLeft / max) * travel : 0}px)`;
   };
+
+  const moveThumb = (event: UIEvent<HTMLDivElement>) => placeThumb(event.currentTarget);
+
+  useEffect(() => {
+    const el = scroller.current;
+    const table = el?.firstElementChild;
+    if (!el) return;
+    const update = () => placeThumb(el);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    if (table) observer.observe(table);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section className="mx-auto flex w-full max-w-360 flex-col items-center gap-8 px-5 pt-16 lg:flex-row lg:items-center lg:gap-20 lg:px-30 lg:pt-35">
@@ -70,10 +86,10 @@ export function YouVsTop() {
         <div
           ref={scroller}
           onScroll={moveThumb}
-          className={`mt-4 overflow-x-auto px-3 lg:overflow-visible lg:px-6 ${styles.scroll}`}
+          className={`mt-4 overflow-x-auto px-3 lg:px-6 ${styles.scroll}`}
         >
           <motion.div
-            className="w-146.25 px-3 lg:w-full lg:px-0"
+            className="w-max min-w-full px-3 lg:px-0"
             initial={reduceMotion ? false : "hidden"}
             whileInView={reduceMotion ? undefined : "show"}
             viewport={{ once: true, amount: 0.4 }}
@@ -93,7 +109,7 @@ export function YouVsTop() {
                   item.named ? "" : "-mx-3 rounded-icon bg-danger-soft px-3"
                 }`}
               >
-                <span className="min-w-0 flex-1 truncate text-label-m text-fg">{item.name}</span>
+                <span className="flex-1 whitespace-nowrap text-label-m text-fg">{item.name}</span>
                 <span className="w-21 shrink-0 text-right text-body-m text-fg">{item.rank}</span>
                 <span className="w-21 shrink-0 text-right text-body-m text-fg">{item.reviews}</span>
                 <span className="w-16 shrink-0 text-right text-body-m text-fg">{item.rating}</span>
@@ -110,7 +126,7 @@ export function YouVsTop() {
             ))}
           </motion.div>
         </div>
-        <div className="mx-6 mt-4 h-1.5 overflow-hidden rounded-pill lg:hidden">
+        <div ref={track} className="mx-6 mt-4 h-1.5 overflow-hidden rounded-pill">
           <div ref={thumb} className="h-1.5 w-44.25 rounded-pill bg-line" />
         </div>
       </motion.div>
