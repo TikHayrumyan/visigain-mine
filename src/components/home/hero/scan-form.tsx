@@ -10,6 +10,7 @@ import {
   useSyncExternalStore,
   type FormEvent,
   type KeyboardEvent,
+  type MouseEvent,
   type PointerEvent,
 } from "react";
 import { motion, useMotionValue } from "motion/react";
@@ -215,10 +216,8 @@ function useDemo(running: boolean) {
 export function ScanForm({ variant = "hero", animate = false }: ScanFormProps) {
   const router = useRouter();
   const listId = useId();
-  const popupId = useId();
   const fieldRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const demoClick = useRef(false);
 
   const [mode, setMode] = useState<Mode>("business");
   const [value, setValue] = useState("");
@@ -272,14 +271,11 @@ export function ScanForm({ variant = "hero", animate = false }: ScanFormProps) {
     input.setCustomValidity("");
 
     if (!query) {
-      const stopDemo = demoRunning || demoClick.current;
-
-      demoClick.current = false;
       input.focus();
 
       // The demo paints a name over an empty input. A click ends the loop
       // and lets the user type, instead of reporting an empty field.
-      if (stopDemo) return;
+      if (demoRunning) return;
 
       input.setCustomValidity(isBusiness ? "Please enter your business name." : "Please enter your website.");
       input.reportValidity();
@@ -339,12 +335,14 @@ export function ScanForm({ variant = "hero", animate = false }: ScanFormProps) {
   function onPointerDown(event: PointerEvent<HTMLButtonElement>): void {
     if (!demoRunning || !event.isPrimary || event.button !== 0) return;
 
-    demoClick.current = true;
+    event.preventDefault();
+  }
+
+  function onClick(event: MouseEvent<HTMLButtonElement>): void {
+    if (!demoRunning) return;
+
     event.preventDefault();
     inputRef.current?.focus();
-    window.setTimeout(() => {
-      demoClick.current = false;
-    }, 0);
   }
 
   return (
@@ -399,7 +397,7 @@ export function ScanForm({ variant = "hero", animate = false }: ScanFormProps) {
               role={isBusiness ? "combobox" : undefined}
               aria-autocomplete={isBusiness ? "list" : undefined}
               aria-expanded={isBusiness ? open : undefined}
-              aria-controls={open ? popupId : undefined}
+              aria-controls={open ? listId : undefined}
               aria-activedescendant={highlighted ? `${listId}-${activeIndex}` : undefined}
               placeholder={demo.text ? "" : placeholder}
               value={value}
@@ -427,25 +425,24 @@ export function ScanForm({ variant = "hero", animate = false }: ScanFormProps) {
 
         {open && (
           <div
-            id={popupId}
             onMouseDown={(event) => event.preventDefault()}
             className="absolute top-full z-20 mt-2 w-full rounded-[20px] border border-line-darken bg-surface p-2 shadow-menu lg:rounded-panel-sm"
           >
-            {suggestions.length > 0 ? (
-              <ul id={listId} role="listbox" aria-label="Businesses">
-                {suggestions.map((business, index) => (
-                  <li key={`${business.name}-${business.address}`} role="presentation">
-                    <Suggestion
-                      id={`${listId}-${index}`}
-                      business={business}
-                      selected={index === activeIndex}
-                      onSelect={() => chooseBusiness(business)}
-                      onHighlight={() => setActive(index)}
-                    />
-                  </li>
-                ))}
-              </ul>
-            ) : (
+            <ul id={listId} role="listbox" aria-label="Businesses">
+              {suggestions.map((business, index) => (
+                <li key={`${business.name}-${business.address}`} role="presentation">
+                  <Suggestion
+                    id={`${listId}-${index}`}
+                    business={business}
+                    selected={index === activeIndex}
+                    onSelect={() => chooseBusiness(business)}
+                    onHighlight={() => setActive(index)}
+                  />
+                </li>
+              ))}
+            </ul>
+
+            {suggestions.length === 0 && (
               <span role="status" className="sr-only">
                 No matching businesses.
               </span>
@@ -465,6 +462,7 @@ export function ScanForm({ variant = "hero", animate = false }: ScanFormProps) {
       <motion.button
         type="submit"
         onPointerDown={onPointerDown}
+        onClick={onClick}
         className={`${PRIMARY_BUTTON} h-13 w-full cursor-pointer px-6 lg:absolute lg:right-1.5 lg:bottom-1.5 lg:z-30 lg:h-12 lg:w-auto`}
         style={{ scale: demoRunning ? demo.scale : 1 }}
       >
@@ -474,7 +472,7 @@ export function ScanForm({ variant = "hero", animate = false }: ScanFormProps) {
       {demoRunning && (
         <motion.span
           aria-hidden="true"
-          className="pointer-events-none absolute top-3.5 right-[78px] z-30 hidden text-ink lg:block"
+          className="pointer-events-none absolute top-3.5 right-19.5 z-30 hidden text-ink lg:block"
           style={{ x: demo.x, y: demo.y, opacity: demo.opacity }}
         >
           <Cursor />
