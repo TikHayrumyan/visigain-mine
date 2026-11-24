@@ -13,7 +13,7 @@ export const PRIMARY_NAV: readonly NavLink[] = [
 ];
 
 const HELP_CENTER: NavLink = { label: "Help center", href: "/faq" };
-const CONTACT: NavLink = { label: "Contact", href: "/contact" };
+export const CONTACT: NavLink = { label: "Contact", href: "/contact" };
 const BLOG: NavLink = { label: "Blog", href: "/blog" };
 
 /** The top bar's links (after Log in). */
