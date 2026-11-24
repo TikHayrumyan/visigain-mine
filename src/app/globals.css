@@ -442,6 +442,46 @@ html:has(dialog[open]) {
   overflow: hidden;
 }
 
+/* FAQ page title: characters type on with a blur, then the subtitle rises. Off when motion is reduced. */
+@keyframes faq-char {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@keyframes faq-rise {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+  to {
+    opacity: 1;
+    translate: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .faq-char {
+    animation-name: faq-char;
+    animation-duration: 0.28s;
+    animation-timing-function: ease-out;
+    animation-fill-mode: both;
+  }
+
+  .faq-subtitle {
+    animation-name: faq-rise;
+    animation-duration: 0.35s;
+    animation-delay: 0.72s;
+    animation-timing-function: ease-out;
+    animation-fill-mode: both;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
