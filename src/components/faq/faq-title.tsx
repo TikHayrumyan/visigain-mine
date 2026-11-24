@@ -17,7 +17,7 @@ export function FaqTitle() {
         data-theme="dark"
         className="relative z-10 flex min-h-full flex-col items-start px-4 pt-22.5 pb-12 lg:mx-auto lg:min-h-87.5 lg:w-full lg:max-w-360 lg:px-30 lg:pt-41 lg:pb-0"
       >
-        <div className="flex w-full flex-col gap-4 lg:w-200">
+        <div className="flex w-full max-w-200 flex-col gap-4">
           <h1
             id="faq-title"
             aria-label={TITLE}

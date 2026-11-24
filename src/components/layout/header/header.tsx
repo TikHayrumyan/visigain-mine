@@ -16,7 +16,7 @@ export function Header() {
   return (
     <header
       data-theme="dark"
-      className="absolute inset-x-0 top-0 z-30 mx-auto box-content flex max-w-content items-center justify-between px-6 pt-5.5 pb-3 lg:px-10 lg:pt-10 lg:pb-5"
+      className="absolute inset-x-0 top-0 z-30 mx-auto box-content flex max-w-content items-center justify-between px-6 pt-5.5 pb-3 lg:px-30 lg:pt-10 lg:pb-5"
     >
       <LogoLink className="w-32.75 lg:w-41" />
       <MainNav />

@@ -18,7 +18,7 @@ export function CompactHeader({ children }: { children: ReactNode }) {
     <div
       data-theme="light"
       inert={!shown}
-      className={`fixed inset-x-0 top-2 z-20 px-2 transition-[opacity,translate] duration-500 ease-reveal lg:top-5 lg:px-10 ${
+      className={`fixed inset-x-0 top-2 z-20 px-2 transition-[opacity,translate] duration-500 ease-reveal lg:top-5 lg:px-30 ${
         shown ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-6 opacity-0"
       }`}
     >
