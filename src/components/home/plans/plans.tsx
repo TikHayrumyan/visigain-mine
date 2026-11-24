@@ -42,7 +42,7 @@ function PlanCard({ plan, index }: { plan: Plan; index: number }) {
   return (
     <motion.article
       className={`flex min-h-96.25 min-w-0 flex-1 flex-col gap-5 rounded-[20px] px-6 pt-7 pb-6 lg:min-h-0 lg:gap-6 ${
-        ink ? "relative z-10 bg-ink shadow-plan" : "bg-surface ring-1 ring-line ring-inset"
+        ink ? "bg-ink shadow-plan" : "bg-surface ring-1 ring-line ring-inset"
       }`}
       initial={reduceMotion ? false : { opacity: 0, y: 36 }}
       whileInView={{ opacity: 1, y: 0 }}
