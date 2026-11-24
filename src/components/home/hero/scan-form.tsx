@@ -215,9 +215,10 @@ function useDemo(running: boolean) {
 export function ScanForm({ variant = "hero", animate = false }: ScanFormProps) {
   const router = useRouter();
   const listId = useId();
-  const emptyId = useId();
+  const popupId = useId();
   const fieldRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const demoClick = useRef(false);
 
   const [mode, setMode] = useState<Mode>("business");
   const [value, setValue] = useState("");
@@ -271,11 +272,14 @@ export function ScanForm({ variant = "hero", animate = false }: ScanFormProps) {
     input.setCustomValidity("");
 
     if (!query) {
+      const stopDemo = demoRunning || demoClick.current;
+
+      demoClick.current = false;
       input.focus();
 
       // The demo paints a name over an empty input. A click ends the loop
       // and lets the user type, instead of reporting an empty field.
-      if (demoRunning) return;
+      if (stopDemo) return;
 
       input.setCustomValidity(isBusiness ? "Please enter your business name." : "Please enter your website.");
       input.reportValidity();
@@ -335,8 +339,12 @@ export function ScanForm({ variant = "hero", animate = false }: ScanFormProps) {
   function onPointerDown(event: PointerEvent<HTMLButtonElement>): void {
     if (!demoRunning || !event.isPrimary || event.button !== 0) return;
 
+    demoClick.current = true;
     event.preventDefault();
     inputRef.current?.focus();
+    window.setTimeout(() => {
+      demoClick.current = false;
+    }, 0);
   }
 
   return (
@@ -391,9 +399,9 @@ export function ScanForm({ variant = "hero", animate = false }: ScanFormProps) {
               role={isBusiness ? "combobox" : undefined}
               aria-autocomplete={isBusiness ? "list" : undefined}
               aria-expanded={isBusiness ? open : undefined}
-              aria-controls={!isBusiness || !open ? undefined : suggestions.length > 0 ? listId : emptyId}
+              aria-controls={open ? popupId : undefined}
               aria-activedescendant={highlighted ? `${listId}-${activeIndex}` : undefined}
-              placeholder={demoRunning ? "" : placeholder}
+              placeholder={demo.text ? "" : placeholder}
               value={value}
               onChange={(event) => {
                 event.currentTarget.setCustomValidity("");
@@ -406,7 +414,7 @@ export function ScanForm({ variant = "hero", animate = false }: ScanFormProps) {
               className="block w-full min-w-0 border-none bg-transparent text-body-l text-fg caret-green outline-none placeholder:text-faint focus:border-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none!"
             />
 
-            {demoRunning && (
+            {demo.text && (
               <span
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-0 flex items-center overflow-hidden whitespace-nowrap bg-surface text-body-l text-fg"
@@ -419,6 +427,7 @@ export function ScanForm({ variant = "hero", animate = false }: ScanFormProps) {
 
         {open && (
           <div
+            id={popupId}
             onMouseDown={(event) => event.preventDefault()}
             className="absolute top-full z-20 mt-2 w-full rounded-[20px] border border-line-darken bg-surface p-2 shadow-menu lg:rounded-panel-sm"
           >
@@ -437,7 +446,7 @@ export function ScanForm({ variant = "hero", animate = false }: ScanFormProps) {
                 ))}
               </ul>
             ) : (
-              <span id={emptyId} role="status" className="sr-only">
+              <span role="status" className="sr-only">
                 No matching businesses.
               </span>
             )}
