@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
 import { Marquee } from "@/components/ui/marquee";
 import { BUSINESS_GROUPS, CATEGORY_ROWS } from "./categories";
+import { CategorySearch } from "./category-search";
 
 /** Each tile fades and rises 40px; the next starts 0.08s later (the page timeline's 6.5–10.6s window). */
 const TILE_RISE = 0.8;
@@ -30,6 +31,7 @@ export function WhoItsFor() {
 
       <div className="mt-7 flex flex-col gap-3 lg:mt-12 lg:gap-8">
         <div
+          id="who-its-for-groups"
           className="scrollbar-none flex gap-3 overflow-x-auto overflow-y-hidden px-5 lg:mx-auto lg:w-full lg:max-w-360 lg:gap-5 lg:overflow-visible lg:px-30"
         >
           {BUSINESS_GROUPS.map((group, index) => (
@@ -82,26 +84,7 @@ export function WhoItsFor() {
           <div
             className="pointer-events-none absolute top-5 left-1/2 z-10 h-30 w-[calc(100%-2.5rem)] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,var(--color-bg)_35%,transparent_70%)] lg:h-37.5 lg:w-190"
           />
-          <form
-            role="search"
-            className="absolute top-16.5 left-1/2 z-20 flex h-15 w-[calc(100%-2.5rem)] -translate-x-1/2 items-center gap-3 rounded-pill border border-line-darken bg-surface px-5.5 shadow-search lg:w-140"
-          >
-            <Image src="/icons/search.svg" alt="" width={20} height={20} />
-            <label className="relative min-w-0 flex-1">
-              <span className="sr-only">Your business type</span>
-              <input
-                name="category"
-                type="search"
-                placeholder=" "
-                className="peer w-full bg-transparent text-body-l text-fg outline-none!"
-              />
-              <span className="pointer-events-none absolute inset-0 flex items-center truncate text-body-l text-faint peer-not-placeholder-shown:hidden">
-                <span className="lg:hidden">Search your business type</span>
-                <span className="hidden lg:inline">Search your business type, e.g. “roofing contractor”</span>
-              </span>
-            </label>
-            <span className="hidden shrink-0 text-body-s text-muted lg:inline">638 categories</span>
-          </form>
+          <CategorySearch />
         </div>
       </div>
     </section>
