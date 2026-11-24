@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useId, useState, type FocusEvent, type KeyboardEvent, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type FocusEvent, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
 import { FREE_SCAN } from "@/config/navigation";
 import { PRIMARY_BUTTON } from "@/components/ui/button-styles";
 import {
@@ -20,6 +20,8 @@ const PANEL = "absolute top-full z-20 mt-2 w-full border border-line-darken bg-s
 /** The business-type search over the marquee: a grouped list, a found card, or a no-match note. */
 export function CategorySearch() {
   const listId = useId();
+  const fieldRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
   const [value, setValue] = useState("");
   const [selected, setSelected] = useState<BusinessType | null>(null);
   const [active, setActive] = useState(0);
@@ -37,11 +39,7 @@ export function CategorySearch() {
   ];
   const open = focused && !dismissed && query.length > 0 && confirmed === null;
   const showList = open && hits.length > 0;
-  const showEmpty =
-    query.length > 0 &&
-    confirmed === null &&
-    hits.length === 0 &&
-    ((focused && !dismissed) || askingEmail || notified !== null);
+  const showEmpty = query.length > 0 && confirmed === null && hits.length === 0 && focused && !dismissed;
   const highlighted = showList ? Math.min(active, hits.length - 1) : 0;
   const engaged = focused || confirmed !== null || open;
 
@@ -61,8 +59,20 @@ export function CategorySearch() {
     setNotified(null);
   }
 
+  useEffect(() => {
+    const list = listRef.current;
+    const option = document.getElementById(`${listId}-${highlighted}`);
+    if (!showList || !list || !option) return;
+    const listBox = list.getBoundingClientRect();
+    const optionBox = option.getBoundingClientRect();
+    if (optionBox.top < listBox.top) list.scrollTop -= listBox.top - optionBox.top;
+    else if (optionBox.bottom > listBox.bottom) list.scrollTop += optionBox.bottom - listBox.bottom;
+  }, [showList, highlighted, listId]);
+
   function onKeyDown(event: KeyboardEvent<HTMLInputElement>): void {
+    if (event.nativeEvent.isComposing) return;
     if (event.key === "Escape") {
+      event.preventDefault();
       setDismissed(true);
       return;
     }
@@ -100,8 +110,9 @@ export function CategorySearch() {
         <label className="relative min-w-0 flex-1">
           <span className="sr-only">Your business type</span>
           <input
+            ref={fieldRef}
             name="category"
-            type="search"
+            type="text"
             role="combobox"
             aria-autocomplete="list"
             aria-expanded={showList}
@@ -146,7 +157,13 @@ export function CategorySearch() {
           onMouseDown={(event) => event.preventDefault()}
           className={`${PANEL} rounded-[20px] p-2 lg:rounded-panel-sm`}
         >
-          <ul id={listId} role="listbox" aria-label="Business types and Google categories">
+          <ul
+            ref={listRef}
+            id={listId}
+            role="listbox"
+            aria-label="Business types and Google categories"
+            className="max-h-[min(24rem,calc(100dvh-8rem))] overflow-y-auto overscroll-contain"
+          >
             {found.types.length > 0 && (
               <Group label="Business types">
                 {found.types.map((type, index) => (
@@ -217,7 +234,10 @@ export function CategorySearch() {
       )}
 
       {showEmpty && (
-        <div className={`${PANEL} flex flex-col gap-2 rounded-[20px] p-5 lg:rounded-panel-sm lg:p-6`}>
+        <div
+          onMouseDown={keepFieldFocus}
+          className={`${PANEL} flex flex-col gap-2 rounded-[20px] p-5 lg:rounded-panel-sm lg:p-6`}
+        >
           <p className="font-display text-title-s text-fg">We don’t cover “{query}” yet</p>
           <p className="text-body-m text-muted">
             We add new business types every month. Leave your email and we’ll let you know when yours is live, or try a
@@ -229,7 +249,10 @@ export function CategorySearch() {
               asking={askingEmail}
               notified={notified}
               onAsk={() => setAskingEmail(true)}
-              onNotified={setNotified}
+              onNotified={(email) => {
+                fieldRef.current?.focus();
+                setNotified(email);
+              }}
             />
             <button
               type="button"
@@ -246,6 +269,21 @@ export function CategorySearch() {
       )}
     </div>
   );
+}
+
+/** A press inside the note must not blur the field, except a press on the email input itself. */
+function keepFieldFocus(event: MouseEvent<HTMLDivElement>): void {
+  const target = event.target;
+  if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return;
+  event.preventDefault();
+}
+
+/** Enough to reject a bare word or `a@`. The page has no mail endpoint, so this only gates the confirmation. */
+function emailError(value: string): string {
+  const email = value.trim();
+  if (!email) return "Please enter your email.";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Please enter a valid email address.";
+  return "";
 }
 
 function matchLabel(count: number): string {
@@ -347,7 +385,7 @@ function NotifyForm({
         const input = event.currentTarget.elements.namedItem("email");
         if (!(input instanceof HTMLInputElement)) return;
         const email = input.value.trim();
-        input.setCustomValidity(email.includes("@") && !email.startsWith("@") ? "" : "Please enter your email.");
+        input.setCustomValidity(emailError(email));
         if (!input.reportValidity()) return;
         onNotified(email);
       }}
@@ -359,11 +397,12 @@ function NotifyForm({
         placeholder="Email address"
         aria-label="Email address"
         autoFocus
+        onChange={(event) => event.currentTarget.setCustomValidity("")}
         className="h-12 w-full rounded-pill border border-line-darken bg-surface px-4 text-body-l text-fg outline-none placeholder:text-faint focus:border-green lg:w-56"
       />
       <button
         type="submit"
-        className="inline-flex h-12 items-center justify-center rounded-button border border-line-darken bg-surface px-6 text-body-l text-fg"
+        className="inline-flex h-12 w-full items-center justify-center rounded-button border border-line-darken bg-surface px-6 text-body-l text-fg lg:w-auto"
       >
         Notify me when it’s live
       </button>
