@@ -22,7 +22,7 @@ export function CompactHeader({ children }: { children: ReactNode }) {
         shown ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-6 opacity-0"
       }`}
     >
-      <div className="mx-auto flex h-15 max-w-content items-center justify-between rounded-pill border border-line bg-surface pr-2 pl-4 text-fg shadow-pill lg:h-17.5 lg:pr-3 lg:pl-6">
+      <div className="mx-auto flex h-15 max-w-content items-center z-999 relative justify-between rounded-pill border border-line bg-surface pr-2 pl-4 text-fg shadow-pill lg:h-17.5 lg:pr-3 lg:pl-6">
         {children}
       </div>
     </div>
