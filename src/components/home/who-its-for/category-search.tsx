@@ -134,9 +134,9 @@ export function CategorySearch() {
               setDismissed(false);
             }}
             onKeyDown={onKeyDown}
-            className="peer block w-full min-w-0 border-none bg-transparent text-body-l text-fg caret-green outline-none placeholder:text-faint focus:border-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none!"
+            className="peer block w-full min-w-0 border-none bg-transparent text-base text-fg caret-green outline-none placeholder:text-faint focus:border-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none! lg:text-body-l"
           />
-          <span className="pointer-events-none absolute inset-0 flex items-center truncate text-body-l text-faint peer-not-placeholder-shown:hidden">
+          <span className="pointer-events-none absolute inset-0 flex items-center truncate text-base text-faint peer-not-placeholder-shown:hidden lg:text-body-l">
             <span className="lg:hidden">Search your business type</span>
             <span className="hidden lg:inline">Search your business type, e.g. “roofing contractor”</span>
           </span>
@@ -398,7 +398,7 @@ function NotifyForm({
         aria-label="Email address"
         autoFocus
         onChange={(event) => event.currentTarget.setCustomValidity("")}
-        className="h-12 w-full rounded-pill border border-line-darken bg-surface px-4 text-body-l text-fg outline-none placeholder:text-faint focus:border-green lg:w-56"
+        className="h-12 w-full rounded-pill border border-line-darken bg-surface px-4 text-base text-fg outline-none placeholder:text-faint focus:border-green lg:w-56 lg:text-body-l"
       />
       <button
         type="submit"

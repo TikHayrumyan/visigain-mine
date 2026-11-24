@@ -409,13 +409,13 @@ export function ScanForm({ variant = "hero", animate = false }: ScanFormProps) {
               }}
               onFocus={() => setDismissed(false)}
               onKeyDown={onKeyDown}
-              className="block w-full min-w-0 border-none bg-transparent text-body-l text-fg caret-green outline-none placeholder:text-faint focus:border-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none!"
+              className="block w-full min-w-0 border-none bg-transparent text-base text-fg caret-green outline-none placeholder:text-faint focus:border-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none! lg:text-body-l"
             />
 
             {demo.text && (
               <span
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 flex items-center overflow-hidden whitespace-nowrap bg-surface text-body-l text-fg"
+                className="pointer-events-none absolute inset-0 flex items-center overflow-hidden whitespace-nowrap bg-surface text-base text-fg lg:text-body-l"
               >
                 {demo.text}
               </span>
