@@ -204,8 +204,8 @@ function Step({
 function FindDemo({ phase }: { phase: Phase }) {
   return (
     <div className="flex h-full flex-col justify-center gap-4 p-6">
-      <Field label="Business" value={BUSINESS.slice(0, phase.business)} focused={phase.businessFocus} caret={phase.businessFocus} />
-      <Field label="Email" value={EMAIL.slice(0, phase.email)} focused={phase.emailFocus} caret={phase.emailFocus} />
+      <Field label="Business" value={BUSINESS.slice(0, phase.business)} focused={phase.businessFocus} caret={phase.businessFocus && phase.business > 0} />
+      <Field label="Email" value={EMAIL.slice(0, phase.email)} focused={phase.emailFocus} caret={phase.emailFocus && phase.email > 0} />
       <div
         className={`grid h-11 place-items-center rounded-button bg-green text-label-m text-ink ${phase.pressed ? "scale-95 opacity-85" : "scale-100 opacity-100"}`}
         style={{ transition: "scale 0.15s ease-out, opacity 0.15s ease-out" }}
@@ -221,10 +221,10 @@ function Field({ label, value, focused, caret }: { label: string; value: string;
     <label className="flex flex-col gap-1.5">
       <span className="text-label-s text-muted">{label}</span>
       <span
-        className={`flex min-h-5 items-center overflow-hidden rounded-[12px] border px-4 py-3.5 ${focused ? "border-green" : "border-line-darken"}`}
+        className={`flex items-center overflow-hidden rounded-[12px] border px-4 py-3.5 ${focused ? "border-green" : "border-line-darken"}`}
         style={{ transition: "border-color 0.2s ease-out" }}
       >
-        <span className="text-body-m whitespace-nowrap text-fg">{value}</span>
+        <span className="min-h-5 text-body-m whitespace-nowrap text-fg">{value}</span>
         {caret ? <span className="ml-px h-4 w-px shrink-0 bg-fg" /> : null}
       </span>
     </label>
