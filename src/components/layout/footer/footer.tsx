@@ -1,20 +1,31 @@
+"use client";
+
 import Link from "next/link";
 import { Fragment } from "react";
-import { ThemeSwitch } from "@/components/ui/theme-switch";
+import { motion, useReducedMotion } from "motion/react";
 import { COMPANY, FOOTER_COLUMNS, LEGAL_LINKS } from "@/config/navigation";
-import type { Theme } from "@/lib/theme/theme";
 import { LogoLink } from "../logo-link";
 
-/** The dark footer on every page (dark in both themes). The theme switch sits under the logo. */
-export function Footer({ theme }: { theme: Theme }) {
+/** The footer fades in over the last 0.7s of the homepage timeline (44.3–45.0s). */
+const REVEAL_SECONDS = 0.7;
+const REVEAL_EASE = [0, 0, 0.58, 1] as const;
+
+/** The dark footer on every page. It stays dark in both themes. */
+export function Footer() {
+  const reduceMotion = useReducedMotion();
+
   return (
-    <footer data-theme="dark" className="border-t border-line bg-ink text-fg">
-      <div className="mx-auto box-content flex max-w-content flex-col gap-8 px-5 pt-12 pb-10 lg:gap-10 lg:px-10 lg:pt-16">
+    <motion.footer
+      data-theme="dark"
+      className="border-t border-line bg-ink text-fg"
+      initial={reduceMotion ? false : { opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true, amount: 0.4 }}
+      transition={reduceMotion ? { duration: 0 } : { duration: REVEAL_SECONDS, ease: REVEAL_EASE }}
+    >
+      <div className="mx-auto flex w-full max-w-360 flex-col gap-8 px-5 pt-12 pb-10 lg:gap-10 lg:px-30 lg:pt-16">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div className="flex flex-col gap-6">
-            <LogoLink />
-            <ThemeSwitch theme={theme} />
-          </div>
+          <LogoLink />
           <div className="flex gap-12 lg:gap-20">
             {FOOTER_COLUMNS.map((column) => (
               <div key={column.title} className="flex flex-col gap-3">
@@ -31,10 +42,10 @@ export function Footer({ theme }: { theme: Theme }) {
 
         <div className="flex flex-col gap-3 border-t border-line pt-6 text-body-s">
           <p className="flex flex-wrap items-center gap-2">
-            {LEGAL_LINKS.map((link, i) => (
+            {LEGAL_LINKS.map((link, index) => (
               <Fragment key={link.label}>
-                {i > 0 ? (
-                  <span aria-hidden="true" className="text-faint">
+                {index > 0 ? (
+                  <span aria-hidden className="text-faint">
                     ·
                   </span>
                 ) : null}
@@ -44,8 +55,8 @@ export function Footer({ theme }: { theme: Theme }) {
               </Fragment>
             ))}
           </p>
-          <div className="flex flex-col lg:flex-row lg:justify-between">
-            <p className="flex items-start gap-1">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between lg:gap-0">
+            <p className="flex flex-wrap gap-x-1">
               <span className="text-muted">
                 {COMPANY.legalName} · {COMPANY.address} ·
               </span>
@@ -59,6 +70,6 @@ export function Footer({ theme }: { theme: Theme }) {
           </div>
         </div>
       </div>
-    </footer>
+    </motion.footer>
   );
 }
