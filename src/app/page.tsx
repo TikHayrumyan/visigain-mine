@@ -6,6 +6,7 @@ import { Testimonials } from "@/components/home/testimonials/testimonials";
 import { HowItWorks } from "@/components/home/how-it-works/how-it-works";
 import { Plans } from "@/components/home/plans/plans";
 import { Faq } from "@/components/home/faq/faq";
+import { Cta } from "@/components/home/cta/cta";
 import { WhoItsFor } from "@/components/home/who-its-for/who-its-for";
 import { YouVsTop } from "@/components/home/you-vs-top/you-vs-top";
 
@@ -22,8 +23,7 @@ export default function HomePage() {
       <HowItWorks />
       <Plans />
       <Faq />
-      {/* TODO: the home page's sections; a placeholder until then, so the page scrolls past the hero. */}
-      <div className="h-screen" />
+      <Cta />
     </>
   );
 }
