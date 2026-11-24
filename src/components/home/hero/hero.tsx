@@ -13,7 +13,7 @@ export function Hero() {
     >
       <div
         data-theme="dark"
-        className="relative flex flex-col items-start gap-4 px-4 pt-26.5 text-fg lg:mx-auto lg:max-w-177.5 lg:items-center lg:gap-5 lg:px-0 lg:pt-48 lg:text-center"
+        className="relative z-10 flex flex-col items-start gap-4 px-4 pt-26.5 text-fg lg:mx-auto lg:max-w-177.5 lg:items-center lg:gap-5 lg:px-0 lg:pt-48 lg:text-center"
       >
         <p className="inline-flex items-center gap-1.5 rounded-pill border border-line bg-surface py-1.5 pr-3.25 pl-2.5 text-label-m">
           <Image src="/icons/map-pin-area.svg" alt="Map pin area icon" width={16} height={16} />

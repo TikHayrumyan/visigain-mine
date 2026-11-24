@@ -215,6 +215,8 @@ export const SHADOW = {
   lift: "0 -8px 40px rgb(23 20 13 / 0.06)",
   /** The highlighted plan, lifted off the row. */
   plan: "0 -8px 40px rgb(23 20 13 / 0.15)",
+  /** The scan field's suggestion list, over the product shot. */
+  menu: "0 16px 40px rgb(0 0 0 / 0.35)",
 } as const;
 /** The web type scale: Poppins 400 body, 600 UI, 700 subheads, 800 display. */
 export const WEB_TYPE: Record<
