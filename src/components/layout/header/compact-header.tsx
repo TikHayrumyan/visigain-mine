@@ -18,12 +18,14 @@ export function CompactHeader({ children }: { children: ReactNode }) {
     <div
       data-theme="light"
       inert={!shown}
-      className={`fixed inset-x-0 top-2 z-20 px-2 transition-[opacity,translate] duration-500 ease-reveal lg:top-5 lg:px-30 ${
+      className={`fixed inset-x-0 top-2 z-20 px-2 transition-[opacity,translate] duration-500 ease-reveal lg:top-5 lg:px-0 ${
         shown ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-6 opacity-0"
       }`}
     >
-      <div className="mx-auto flex h-15 max-w-content items-center justify-between rounded-pill border border-line bg-surface pr-2 pl-4 text-fg shadow-pill lg:h-17.5 lg:pr-3 lg:pl-6">
-        {children}
+      <div className="mx-auto w-full max-w-360 lg:px-30">
+        <div className="flex h-15 items-center justify-between rounded-pill border border-line bg-surface pr-2 pl-4 text-fg shadow-pill lg:h-17.5 lg:pr-3 lg:pl-6">
+          {children}
+        </div>
       </div>
     </div>
   );
