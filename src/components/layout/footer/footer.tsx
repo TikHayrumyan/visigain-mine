@@ -65,7 +65,7 @@ export function Footer() {
               </a>
             </p>
             <p className="text-faint">
-              © {new Date().getFullYear()} {COMPANY.legalName}
+              © 2026 {COMPANY.legalName}
             </p>
           </div>
         </div>
