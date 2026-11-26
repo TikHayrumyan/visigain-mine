@@ -50,8 +50,10 @@ function PlanCard({ plan, index, bare }: { plan: Plan; index: number; bare: bool
   return (
     <motion.article
       className={`flex min-h-96.25 min-w-0 flex-1 flex-col gap-5 rounded-[20px] px-6 pt-7 pb-6 lg:gap-6 ${
-        bare ? "shadow-window lg:min-h-[429px]" : "lg:min-h-0"
-      } ${ink ? `bg-ink ${bare ? "" : "shadow-plan"}` : "bg-surface ring-1 ring-line ring-inset"}`}
+        bare
+          ? `border shadow-[var(--shadow-planCard)] lg:min-h-[429px] ${ink ? "border-faint bg-ink" : "border-line bg-surface"}`
+          : `lg:min-h-0 ${ink ? "bg-ink shadow-plan" : "bg-surface ring-1 ring-line ring-inset"}`
+      }`}
       initial={reduceMotion ? false : { opacity: 0, y: 36 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.3 }}
