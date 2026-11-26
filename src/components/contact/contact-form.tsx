@@ -55,7 +55,7 @@ export function ContactForm() {
   };
 
   return (
-    <div className="grid rounded-panel-sm border border-line bg-surface p-[21px] lg:min-h-[670px] lg:p-8">
+    <div className="grid rounded-panel-sm border border-line bg-surface p-5.25 lg:min-h-167.5 lg:p-8">
       {sent ? (
         <div className="contact-sent z-10 col-start-1 row-start-1 flex flex-col items-center justify-center gap-4 text-center">
           <Image src="/icons/contact-success.svg" alt="" width={64} height={64} />
