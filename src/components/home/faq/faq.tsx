@@ -49,9 +49,9 @@ export function Faq({
       {...(stacked || framed ? {} : { id: "faq" })}
       className={
         framed
-          ? "bg-bg pt-18 lg:pt-35"
+          ? "bg-bg pt-hero lg:pt-35"
           : stacked
-            ? "bg-bg pt-10 lg:pt-18"
+            ? "bg-bg pt-10 lg:pt-hero"
             : "scroll-mt-28 bg-bg pt-hero lg:scroll-mt-32 lg:pt-35"
       }
     >
