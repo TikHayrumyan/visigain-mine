@@ -28,7 +28,6 @@ const LINK = "cursor-pointer text-muted underline decoration-current decoration-
 export function Result() {
   const website = useSearchParams().get("website") || "skinworksmed.com";
   const reduceMotion = useReducedMotion();
-  const recorded = website === "skinworksmed.com";
 
   return (
     <>
@@ -49,15 +48,15 @@ export function Result() {
         </div>
       </HeroSurface>
 
-      <section className="bg-bg px-5 pt-8 pb-16 lg:px-30 lg:pt-16 lg:pb-24">
-        <div className="mx-auto flex w-full max-w-360 flex-col gap-3 lg:gap-5">
-          {recorded ? <Walkthrough website={website} /> : null}
-          <div className="grid gap-5 lg:grid-cols-2">
-            <article className="flex flex-col justify-between rounded-card-lg bg-surface p-5 lg:h-105.5 lg:p-7">
+      <section className="bg-bg px-5 pt-8 pb-16 lg:px-30 lg:pt-16 lg:pb-35">
+        <div className="mx-auto flex w-full max-w-300 flex-col gap-3 lg:gap-5">
+          <Walkthrough website={website} />
+          <div className="grid w-full gap-3 lg:grid-cols-2 lg:gap-5">
+            <article className="flex w-full max-w-300 flex-col justify-between rounded-card-lg bg-surface p-5 lg:h-105.5 lg:max-w-147.5 lg:p-7">
               <div className="flex flex-col gap-5">
                 <h2 className="font-display text-headline-s text-fg">Visibility Grade</h2>
                 <div className="flex items-center gap-3.5">
-                  <span className="grid size-18 place-items-center rounded-2xl bg-grade-b font-display text-[32px] leading-9 tracking-[-0.03em] text-ink">
+                  <span className="grid size-hero place-items-center rounded-2xl bg-grade-b font-display text-[32px] leading-9 tracking-[-0.03em] text-ink">
                     B
                   </span>
                   <div>
@@ -90,7 +89,7 @@ export function Result() {
                 </p>
               </div>
             </article>
-            <article className="rounded-card-lg bg-surface p-5 lg:p-7">
+            <article className="w-full max-w-300 rounded-card-lg bg-surface p-5 lg:max-w-147.5 lg:p-7">
               <h2 className="font-display text-headline-s text-fg">By area</h2>
               <p className="mt-1 text-body-m text-muted">Your score in each area, out of 100</p>
               <ul className="flex flex-col gap-5 pt-6">
@@ -124,8 +123,8 @@ export function Result() {
 
 function Walkthrough({ website }: { website: string }) {
   return (
-    <article className="flex flex-col gap-4 rounded-card-lg bg-surface p-4 lg:flex-row lg:items-center lg:gap-10 lg:p-7">
-      <div className="relative h-45 overflow-hidden rounded-[20px] lg:h-108 lg:w-192 lg:shrink-0">
+    <article className="flex w-full max-w-300 flex-col gap-4 rounded-card-lg bg-surface p-4 lg:flex-row lg:items-center lg:gap-10 lg:p-7">
+      <div className="relative h-45 w-full shrink-0 overflow-hidden rounded-[20px] lg:h-108 lg:w-192">
         <Image src="/images/scan/walkthrough.png" alt="" fill sizes="(min-width: 64rem) 768px, 100vw" className="object-cover" />
         <div className="absolute inset-0 bg-ink/65" />
         <Image
@@ -133,7 +132,7 @@ function Walkthrough({ website }: { website: string }) {
           alt=""
           width={128}
           height={128}
-          className="absolute top-1/2 left-1/2 max-lg:scale-[0.42] -translate-x-1/2 -translate-y-1/2 lg:-translate-y-[calc(50%-8px)]"
+          className="absolute top-[calc(50%-56px)] left-[calc(50%-64px)] origin-[64px_56px] scale-[0.42] lg:scale-100"
         />
         <p className="absolute top-3 right-3 rounded-full bg-ink px-2.5 py-1 text-label-s text-surface lg:top-5 lg:right-5">3 min</p>
         <div className="absolute right-3 bottom-3 left-3 flex items-center gap-3 lg:right-5 lg:bottom-5 lg:left-5">
