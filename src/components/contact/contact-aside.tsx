@@ -14,7 +14,7 @@ export function ContactAside() {
           <IconTile src="/icons/contact-mail.svg" />
           <div className="flex min-w-0 flex-col gap-1">
             <p className="text-label-m text-muted">Write to us</p>
-            <a href={`mailto:${COMPANY.email}`} className="font-display text-title-s text-fg no-underline hover:underline">
+            <a href={`mailto:${COMPANY.email}`} className="cursor-pointer font-display text-title-s text-fg no-underline hover:underline">
               {COMPANY.email}
             </a>
           </div>
@@ -29,11 +29,11 @@ export function ContactAside() {
             <div className="flex items-center gap-4 pt-1">
               <button
                 type="button"
-                className="inline-flex h-9 items-center rounded-full border border-ink bg-surface px-4 text-body-m text-fg"
+                className="inline-flex h-9 cursor-pointer items-center rounded-full border border-ink bg-surface px-4 text-body-m text-fg"
               >
                 Book a call
               </button>
-              <button type="button" className="inline-flex items-center gap-1 text-label-m text-muted">
+              <button type="button" className="inline-flex cursor-pointer items-center gap-1 text-label-m text-muted">
                 Calendar
                 <Image src="/icons/contact-arrow-muted.svg" alt="" width={20} height={20} />
               </button>
@@ -68,7 +68,7 @@ export function ContactAside() {
             href={MAPS}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex shrink-0 items-center gap-1 text-label-m text-fg no-underline hover:underline"
+            className="inline-flex shrink-0 cursor-pointer items-center gap-1 text-label-m text-fg no-underline hover:underline"
           >
             Directions
             <Image src="/icons/contact-arrow.svg" alt="" width={20} height={20} />

@@ -398,6 +398,12 @@ body {
     text-decoration-thickness: 2px;
     text-underline-offset: 3px;
   }
+  button:not(:disabled),
+  summary,
+  label:has(:checked, input, select, textarea),
+  [role="button"] {
+    cursor: pointer;
+  }
   h1,
   h2,
   h3 {

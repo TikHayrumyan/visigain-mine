@@ -15,7 +15,7 @@ export function ContactHero() {
   return (
     <HeroSurface
       aria-labelledby="contact-title"
-      className="relative mx-2 mt-2 min-h-[304px] overflow-hidden rounded-panel-sm lg:mx-auto lg:mt-0 lg:h-[334px] lg:min-h-0 lg:w-full lg:overflow-visible lg:rounded-none"
+      className="relative mx-2 mt-2 min-h-76 overflow-hidden rounded-panel-sm lg:mx-auto lg:mt-0 lg:h-83.5 lg:min-h-0 lg:w-full lg:overflow-visible lg:rounded-none"
       panelClassName="absolute inset-0 overflow-hidden rounded-panel-sm bg-ink lg:inset-x-4 lg:rounded-panel"
     >
       <div

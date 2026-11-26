@@ -123,9 +123,9 @@ export function ContactForm() {
           }}
         />
 
-        <fieldset className="flex flex-col gap-2.5 border-0 p-0">
-          <legend id="contact-topic" className="text-label-m text-fg">
-            What’s this about?
+        <fieldset className="border-0 p-0">
+          <legend id="contact-topic" className="p-0">
+            <span className="block pb-2.5 text-label-m text-fg">What’s this about?</span>
           </legend>
           <div className="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="contact-topic">
             {TOPICS.map((item) => (
@@ -161,9 +161,12 @@ export function ContactForm() {
 
         <div className="flex flex-col gap-3 pt-1 lg:flex-row lg:items-center lg:gap-5">
           <SubmitButton failed={state.status === "failed"} />
-          <p className="text-body-s text-muted">
+          <p className="min-w-0 text-body-s text-muted lg:flex-1">
             By submitting this form you agree that we may use what you send to reply to you, as our{" "}
-            <Link href="/privacy" className="underline underline-offset-2">
+            <Link
+              href="/privacy"
+              className="cursor-pointer text-muted underline decoration-current decoration-1 underline-offset-2"
+            >
               Privacy Policy
             </Link>{" "}
             describes.
@@ -181,7 +184,7 @@ function SubmitButton({ failed }: { failed: boolean }) {
     <button
       type="submit"
       disabled={pending}
-      className={`${PRIMARY_BUTTON} h-12 w-full shrink-0 px-6 whitespace-nowrap lg:w-auto`}
+      className={`${PRIMARY_BUTTON} h-12 w-full shrink-0 cursor-pointer px-6 whitespace-nowrap disabled:cursor-default lg:w-auto`}
     >
       {pending ? "Sending…" : failed ? "Try again" : "Send message"}
     </button>
@@ -194,7 +197,7 @@ function ResetButton() {
     <button
       type="submit"
       disabled={pending}
-      className="mt-1 inline-flex h-12 items-center rounded-full border border-ink bg-surface px-6 text-body-l text-fg disabled:text-faint"
+      className="mt-1 inline-flex h-12 cursor-pointer items-center rounded-full border border-ink bg-surface px-6 text-body-l text-fg disabled:cursor-default disabled:text-faint"
     >
       Send another message
     </button>
