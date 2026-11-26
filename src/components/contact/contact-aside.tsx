@@ -42,22 +42,22 @@ export function ContactAside() {
         </div>
       </div>
 
-      <article className="relative h-[416px] overflow-hidden rounded-[20px] bg-ink">
-        <div className="absolute top-[-11px] left-[-135px] h-[467px] w-[553px] lg:left-[-9px]">
+      <article className="relative h-104 overflow-hidden rounded-[20px] bg-ink">
+        <div className="absolute -top-2.75 -left-33.75 h-116.75 w-138.25 lg:-left-2.25">
           <Image
             src="/images/contact-map.png"
             alt=""
             width={553}
             height={467}
-            className="h-[467px] w-[553px] max-w-none"
+            className="h-116.75 w-138.25 max-w-none"
           />
-          <span className="contact-pin absolute top-[167px] left-[266px]">
+          <span className="contact-pin absolute top-41.75 left-66.5">
             <Image src="/icons/contact-pin-halo.svg" alt="" width={88} height={88} />
           </span>
-          <span className="contact-pin absolute top-[189px] left-[288px]">
+          <span className="contact-pin absolute top-47.25 left-72">
             <Image src="/icons/contact-pin-halo-inner.svg" alt="" width={44} height={44} />
           </span>
-          <Image src="/icons/contact-pin.svg" alt="" width={20} height={20} className="absolute top-[201px] left-[300px]" />
+          <Image src="/icons/contact-pin.svg" alt="" width={20} height={20} className="absolute top-50.25 left-75" />
         </div>
         <div className="absolute inset-x-4 bottom-4 flex flex-col gap-2 rounded-[14px] bg-surface px-4 py-3.5 lg:flex-row lg:items-end lg:justify-between">
           <div className="flex min-w-0 flex-col gap-0.5">
