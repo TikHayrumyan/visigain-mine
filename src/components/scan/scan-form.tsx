@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useActionState, useId, useState, type FormEvent } from "react";
 import { useFormStatus } from "react-dom";
@@ -10,14 +11,16 @@ import { fieldIssue, initialScanState, scanSchema, type ScanField } from "./sche
 import { startScan } from "./start-scan";
 
 const ORDER: readonly ScanField[] = ["website", "business", "email", "terms"];
-const LINK = "cursor-pointer text-fg underline decoration-current decoration-1 underline-offset-2";
-const MUTED_LINK = "cursor-pointer text-muted underline decoration-current decoration-1 underline-offset-2";
+const UNDERLINE =
+  "underline decoration-current decoration-from-font underline-offset-0 [text-decoration-skip-ink:none] [text-underline-position:from-font]";
+const LINK = `cursor-pointer text-fg ${UNDERLINE}`;
+const MUTED_LINK = `cursor-pointer text-muted ${UNDERLINE}`;
 const TERMS = LEGAL_LINKS.find((link) => link.href === "/terms");
 const PRIVACY = LEGAL_LINKS.find((link) => link.href === "/privacy");
 
 function inputClass(invalid: boolean): string {
   return `h-12 w-full rounded-xl border bg-surface px-4 text-base text-fg caret-green outline-none placeholder:text-faint focus-visible:outline-none! lg:text-body-m ${
-    invalid ? "border-grade-f" : "border-line-darken focus:border-green"
+    invalid ? "border-grade-f" : "[border-color:var(--color-line)] focus:border-green"
   }`;
 }
 
@@ -68,6 +71,7 @@ export function ScanForm() {
     <form
       action={action}
       noValidate
+      data-theme="light"
       onSubmit={onSubmit}
       className="flex flex-col gap-5 rounded-card-lg bg-surface p-5 shadow-[var(--shadow-planCard)] lg:w-130 lg:p-10"
     >
@@ -263,16 +267,16 @@ function BusinessField({
             setOpen(true);
             onChange(event.target.value);
           }}
-          className={`${inputClass(Boolean(error))} pr-12`}
+          className={`${inputClass(Boolean(error))} pr-11.5`}
         />
         <button
           type="button"
           aria-label="Show business types"
           onMouseDown={(event) => event.preventDefault()}
           onClick={() => setOpen((current) => !current)}
-          className="absolute top-1/2 right-1.5 grid size-9 -translate-y-1/2 cursor-pointer place-items-center rounded-full text-muted"
+          className="absolute top-1/2 right-1.5 grid size-9 -translate-y-1/2 cursor-pointer place-items-center rounded-full"
         >
-          <Chevron />
+          <Image src="/icons/chevron-down.svg" alt="" width={18} height={18} />
         </button>
       </div>
       {open && options.length > 0 ? (
@@ -304,14 +308,6 @@ function BusinessField({
       ) : null}
       {error ? <p className="text-body-s text-grade-f">{error}</p> : null}
     </div>
-  );
-}
-
-function Chevron() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-      <path d="M4.5 7L9 11.5L13.5 7" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
   );
 }
 
