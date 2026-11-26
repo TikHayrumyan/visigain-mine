@@ -73,7 +73,7 @@ export function ScanForm() {
       noValidate
       data-theme="light"
       onSubmit={onSubmit}
-      className="flex flex-col gap-5 rounded-card-lg bg-surface p-5 shadow-[var(--shadow-planCard)] lg:w-130 lg:p-10"
+      className="flex flex-col gap-5 rounded-card-lg bg-surface p-5 shadow-(--shadow-planCard) lg:w-130 lg:p-10"
     >
       <Field
         id="scan-website"
@@ -283,13 +283,14 @@ function BusinessField({
         <ul
           id={listId}
           role="listbox"
-          className="absolute top-full z-20 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-line bg-surface py-1 shadow-[var(--shadow-planCard)]"
+          className="absolute top-full z-20 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-line bg-surface py-1 shadow-(--shadow-planCard)"
         >
           {options.map((type) => (
             <li key={type.name}>
               <button
                 type="button"
                 role="option"
+                aria-selected={type.name === value}
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => {
                   setValue(type.name);

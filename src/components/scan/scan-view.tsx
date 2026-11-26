@@ -22,12 +22,12 @@ export function ScanView() {
   return (
     <HeroSurface
       aria-labelledby="scan-title"
-      className="relative mx-2 mt-2 overflow-hidden rounded-panel-sm lg:mx-auto lg:mt-0 lg:overflow-visible lg:rounded-none"
+      className="relative mx-2 mt-2 mb-12 overflow-hidden rounded-panel-sm lg:mx-auto lg:mt-0 lg:mb-0 lg:overflow-visible lg:rounded-none"
       panelClassName="absolute inset-0 overflow-hidden rounded-panel-sm bg-ink lg:inset-x-4 lg:bottom-auto lg:h-206.25 lg:rounded-panel"
     >
       <div
         data-theme="dark"
-        className="relative z-10 mx-auto flex w-full max-w-360 flex-col gap-4 px-4 pt-26.5 pb-10 lg:grid lg:grid-cols-[520px_minmax(0,600px)] lg:items-start lg:justify-between lg:gap-x-20 lg:px-30 lg:pt-42 lg:pb-16"
+        className="relative z-10 mx-auto flex w-full max-w-360 flex-col gap-4 px-4 pt-26.5 pb-8 lg:grid lg:grid-cols-[520px_minmax(0,600px)] lg:items-start lg:justify-between lg:gap-x-20 lg:px-30 lg:pt-42 lg:pb-30"
       >
         <div className="contents lg:col-start-2 lg:row-start-1 lg:flex lg:flex-col lg:pt-6">
         <motion.div
