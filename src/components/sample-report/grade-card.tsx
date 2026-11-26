@@ -13,7 +13,7 @@ export function GradeCard() {
       <div className="flex flex-col gap-5">
         <h2 className="font-display text-headline-s text-fg">Visibility Grade</h2>
         <div className="flex items-center gap-3.5">
-          <span className="grid size-18 place-items-center rounded-2xl bg-grade-c font-display text-[32px] leading-9 tracking-[-0.03em] text-ink">
+          <span className="grid size-hero place-items-center rounded-2xl bg-grade-c font-display text-[32px] leading-9 tracking-[-0.03em] text-ink">
             C
           </span>
           <div className="flex flex-col gap-1.5">

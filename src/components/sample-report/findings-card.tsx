@@ -36,7 +36,7 @@ export function FindingsCard() {
               <p className="text-body-m text-fg">{finding.detail}</p>
               {finding.evidence ? <EvidenceList rows={finding.evidence} /> : null}
             </div>
-            <span className="grid size-8 shrink-0 place-items-center self-center rounded-2xl bg-surface-subtle">
+            <span className="grid size-8 shrink-0 rotate-90 place-items-center self-center rounded-2xl bg-surface-subtle lg:rotate-0">
               <Image src="/icons/arrow-right-ink.svg" alt="" width={16} height={16} />
             </span>
             <div className="flex w-full min-w-0 flex-1 flex-col gap-2 rounded-[20px] bg-chip-ok p-4 lg:p-5">
