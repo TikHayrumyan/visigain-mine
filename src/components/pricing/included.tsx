@@ -51,14 +51,14 @@ export function Included() {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section className="bg-bg pt-18 lg:pt-35">
+    <section className="bg-bg pt-hero lg:pt-35">
       <div className="mx-auto flex w-full max-w-360 flex-col gap-7 px-5 lg:gap-10 lg:px-30">
         <h2 className="font-display text-headline-m text-fg lg:text-headline-l">What’s included</h2>
         <div className="grid gap-6 lg:grid-cols-2">
           {CARDS.map((card, index) => (
             <motion.article
               key={card.name}
-              className="flex flex-col gap-5 rounded-panel-sm bg-surface p-[25px] ring-1 ring-line ring-inset lg:p-8"
+              className="flex flex-col gap-5 rounded-panel-sm border border-line bg-surface p-6.25 lg:p-8"
               initial={reduceMotion ? false : { opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.3 }}
