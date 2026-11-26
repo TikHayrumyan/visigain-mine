@@ -11,7 +11,7 @@ export function OwnGrade() {
       fadeDots={false}
       aria-labelledby="sample-own-grade"
       className="relative overflow-hidden rounded-panel"
-      panelClassName="absolute inset-0 overflow-hidden bg-ink"
+      panelClassName="absolute inset-0 overflow-hidden rounded-panel bg-ink"
     >
       <div
         data-theme="dark"
