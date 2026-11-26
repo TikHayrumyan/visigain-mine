@@ -124,7 +124,7 @@ export function Result() {
 function Walkthrough({ website }: { website: string }) {
   return (
     <article className="flex w-full max-w-300 flex-col gap-4 rounded-card-lg bg-surface p-4 lg:flex-row lg:items-center lg:gap-10 lg:p-7">
-      <div className="relative h-45 w-full shrink-0 overflow-hidden rounded-[20px] lg:h-108 lg:w-192">
+      <div className="relative h-45 w-full shrink-0 overflow-hidden rounded-[20px] lg:h-108 lg:w-3xl">
         <Image src="/images/scan/walkthrough.png" alt="" fill sizes="(min-width: 64rem) 768px, 100vw" className="object-cover" />
         <div className="absolute inset-0 bg-ink/65" />
         <Image
