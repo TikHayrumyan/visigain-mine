@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { OUTLINE_LINK } from "@/components/ui/button-styles";
+const POLICY_BUTTON =
+  "inline-flex h-11 shrink-0 items-center justify-center rounded-button border border-line-darken bg-surface px-5 text-body-l text-fg no-underline transition-colors duration-300 ease-reveal hover:bg-surface-subtle focus-visible:bg-surface-subtle focus-visible:outline-none";
 
 const REVEAL_SECONDS = 0.6;
 const REVEAL_EASE = [0, 0, 0.58, 1] as const;
@@ -26,7 +27,7 @@ export function Refunds() {
           <h2 className="font-display text-headline-m text-fg lg:text-headline-l">
             Refunds and cancelling, in plain words
           </h2>
-          <Link href="/refunds" className={OUTLINE_LINK}>
+          <Link href="/refunds" className={POLICY_BUTTON}>
             Read the Refund Policy
           </Link>
         </div>
@@ -81,7 +82,7 @@ function Row({
 }) {
   return (
     <motion.article
-      className="flex flex-col gap-4 rounded-panel bg-surface p-4 ring-1 ring-line ring-inset lg:flex-row lg:items-stretch lg:gap-12"
+      className="flex flex-col gap-4 rounded-panel border border-line bg-surface p-4 lg:flex-row lg:items-stretch lg:gap-12"
       initial={reduceMotion ? false : { opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.35 }}
@@ -110,7 +111,7 @@ function Row({
 
 function Mini({ children }: { children: ReactNode }) {
   return (
-    <div className="flex w-full max-w-[380px] flex-col gap-3.5 rounded-[18px] bg-surface p-5 shadow-window-sm ring-1 ring-line ring-inset">
+    <div className="flex w-full max-w-[380px] flex-col gap-3.5 rounded-[18px] border border-line bg-surface p-5 shadow-mini">
       {children}
     </div>
   );
@@ -123,7 +124,7 @@ function ReportCard() {
         <span className="flex size-11 shrink-0 items-center justify-center rounded-[12px] bg-grade-b font-display text-headline-s text-ink">
           B
         </span>
-        <span className="flex min-w-0 flex-col">
+        <span className="flex min-w-0 flex-col gap-0.5">
           <span className="text-label-m text-fg">Full report: skinworksmed.com</span>
           <span className="text-body-s text-faint">Ready · Oct 8, 2026</span>
         </span>
@@ -132,7 +133,7 @@ function ReportCard() {
         <span className="text-label-s text-fg">$199 credit toward Monitoring</span>
         <span className="shrink-0 text-body-s text-muted">12 days left</span>
       </div>
-      <Note>Refund if not delivered within 3 business days</Note>
+      <Note divided={false}>Refund if not delivered within 3 business days</Note>
     </Mini>
   );
 }
@@ -184,9 +185,9 @@ function Line({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Note({ children }: { children: ReactNode }) {
+function Note({ children, divided = true }: { children: ReactNode; divided?: boolean }) {
   return (
-    <p className="flex items-center gap-2 border-t border-line pt-2.5 text-body-s text-faint">
+    <p className={`flex items-center gap-2 pt-2.5 text-body-s text-faint ${divided ? "border-t border-line" : ""}`}>
       <Image src="/icons/check.svg" alt="" width={16} height={16} className="shrink-0" />
       {children}
     </p>

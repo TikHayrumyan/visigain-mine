@@ -53,6 +53,7 @@
   --shadow-lift: 0 -8px 40px rgb(23 20 13 / 0.06);
   --shadow-plan: 0 -8px 40px rgb(23 20 13 / 0.15);
   --shadow-planCard: 0 24px 64px rgb(14 15 15 / 0.12);
+  --shadow-mini: 0 12px 32px rgb(14 15 15 / 0.1);
   --shadow-menu: 0 16px 40px rgb(0 0 0 / 0.35);
 
   /* Type: Poppins 400 body, 600 UI, 700 subheads, 800 display. */

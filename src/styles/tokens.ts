@@ -217,6 +217,8 @@ export const SHADOW = {
   plan: "0 -8px 40px rgb(23 20 13 / 0.15)",
   /** A pricing-page plan card, the same lift on every card in the row. */
   planCard: "0 24px 64px rgb(14 15 15 / 0.12)",
+  /** The small account card inside a refund illustration. */
+  mini: "0 12px 32px rgb(14 15 15 / 0.1)",
   /** The scan field's suggestion list, over the product shot. */
   menu: "0 16px 40px rgb(0 0 0 / 0.35)",
 } as const;
