@@ -78,9 +78,9 @@ export function Faq({
           </div>
         )}
         <div
-          className={`flex w-full flex-col rounded-panel-sm bg-surface px-5 py-2 ring-1 ring-line ring-inset ${
-            stacked ? "max-w-200 lg:px-8" : "lg:flex-row lg:gap-16 lg:px-8"
-          }`}
+          className={`flex w-full flex-col rounded-panel-sm bg-surface px-5 py-2 ${
+            framed ? "border border-line" : "ring-1 ring-line ring-inset"
+          } ${stacked ? "max-w-200 lg:px-8" : "lg:flex-row lg:gap-16 lg:px-8"}`}
         >
           {stacked ? (
             <ul className="flex min-w-0 flex-1 flex-col">

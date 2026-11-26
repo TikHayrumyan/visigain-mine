@@ -4,8 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
-const POLICY_BUTTON =
-  "inline-flex h-11 shrink-0 items-center justify-center rounded-button border border-line-darken bg-surface px-5 text-body-l text-fg no-underline transition-colors duration-300 ease-reveal hover:bg-surface-subtle focus-visible:bg-surface-subtle focus-visible:outline-none";
+import { OUTLINE_LINK } from "@/components/ui/button-styles";
 
 const REVEAL_SECONDS = 0.6;
 const REVEAL_EASE = [0, 0, 0.58, 1] as const;
@@ -21,13 +20,13 @@ export function Refunds() {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section className="bg-bg pt-18 lg:pt-35">
+    <section className="bg-bg pt-hero lg:pt-35">
       <div className="mx-auto flex w-full max-w-360 flex-col gap-7 px-5 lg:gap-10 lg:px-30">
         <div className="flex flex-col items-start gap-4 lg:flex-row lg:items-center lg:justify-between">
           <h2 className="font-display text-headline-m text-fg lg:text-headline-l">
             Refunds and cancelling, in plain words
           </h2>
-          <Link href="/refunds" className={POLICY_BUTTON}>
+          <Link href="/refunds" className={OUTLINE_LINK}>
             Read the Refund Policy
           </Link>
         </div>
@@ -111,7 +110,7 @@ function Row({
 
 function Mini({ children }: { children: ReactNode }) {
   return (
-    <div className="flex w-full max-w-[380px] flex-col gap-3.5 rounded-[18px] border border-line bg-surface p-5 shadow-mini">
+    <div className="flex w-full max-w-95 flex-col gap-3.5 rounded-site-card border border-line bg-surface p-5 shadow-mini">
       {children}
     </div>
   );
