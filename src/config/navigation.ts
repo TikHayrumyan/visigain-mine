@@ -8,7 +8,7 @@ export const LOGIN: NavLink = { label: "Log in", href: "/login" };
 
 export const PRIMARY_NAV: readonly NavLink[] = [
   { label: "How it works", href: "/#how-it-works" },
-  { label: "Pricing", href: "/#pricing" },
+  { label: "Pricing", href: "/pricing" },
   { label: "Sample report", href: "/sample-report" },
 ];
 

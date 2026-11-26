@@ -53,3 +53,6 @@ export const QUESTIONS: readonly Question[] = [
     answer: "No. We measure what a buyer, a search engine or an AI assistant can see from the outside.",
   },
 ];
+
+/** The six pricing questions, in the order of the pricing page. The first is open. */
+export const PRICING_QUESTIONS: readonly Question[] = QUESTIONS.slice(1, 7);

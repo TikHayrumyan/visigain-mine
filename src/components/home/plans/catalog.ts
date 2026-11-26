@@ -17,6 +17,8 @@ export type Plan = {
 };
 
 const PRICING = "/pricing";
+const REPORT_CHECKOUT = "/checkout/report";
+const MONITORING_CHECKOUT = "/checkout/monitoring";
 
 export const PLANS: readonly Plan[] = [
   {
@@ -70,3 +72,13 @@ export const PLANS: readonly Plan[] = [
     highlighted: false,
   },
 ];
+
+/**
+ * The pricing page's cards. The full report is $199 here; Home still shows $99.
+ * The mobile frame's plan card still says $99, which the design notes flag as a mistake.
+ */
+export const PAGE_PLANS: readonly Plan[] = PLANS.map((plan) => {
+  if (plan.price === "$99") return { ...plan, price: "$199", href: REPORT_CHECKOUT };
+  if (plan.name === "Monitoring") return { ...plan, href: MONITORING_CHECKOUT };
+  return plan;
+});

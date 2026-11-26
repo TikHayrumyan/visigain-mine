@@ -1,25 +1,39 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { QUESTIONS } from "./questions";
+import { OUTLINE_LINK } from "@/components/ui/button-styles";
+import { QUESTIONS, type Question } from "./questions";
 
 /** Each row fades and rises 8px in 0.5s, the next starting 0.05s later (37.5–38.3s). */
 const REVEAL_SECONDS = 0.5;
 const STAGGER_SECONDS = 0.05;
 const REVEAL_EASE = [0, 0, 0.58, 1] as const;
 
-const LEFT = QUESTIONS.slice(0, 5);
-const RIGHT = QUESTIONS.slice(5);
-
 /**
  * Ten questions on one card. The first is open; each click opens or closes its own answer.
  * `stack` is the standalone page: one 800px column, no heading (the page title sits above it).
+ * A heading plus an action is the pricing page: the given questions, split in half.
  */
-export function Faq({ layout = "split" }: { layout?: "split" | "stack" }) {
+export function Faq({
+  layout = "split",
+  questions = QUESTIONS,
+  heading,
+  action,
+}: {
+  layout?: "split" | "stack";
+  questions?: readonly Question[];
+  heading?: string;
+  action?: { href: string; label: string };
+}) {
   const [open, setOpen] = useState<ReadonlySet<number>>(() => new Set([0]));
   const stacked = layout === "stack";
+  const framed = Boolean(heading);
+  const mid = Math.ceil(questions.length / 2);
+  const left = questions.slice(0, mid);
+  const right = questions.slice(mid);
 
   const toggle = (index: number) => {
     setOpen((current) => {
@@ -32,15 +46,30 @@ export function Faq({ layout = "split" }: { layout?: "split" | "stack" }) {
 
   return (
     <section
-      {...(stacked ? {} : { id: "faq" })}
-      className={stacked ? "bg-bg pt-10 lg:pt-18" : "scroll-mt-28 bg-bg pt-hero lg:scroll-mt-32 lg:pt-35"}
+      {...(stacked || framed ? {} : { id: "faq" })}
+      className={
+        framed
+          ? "bg-bg pt-18 lg:pt-35"
+          : stacked
+            ? "bg-bg pt-10 lg:pt-18"
+            : "scroll-mt-28 bg-bg pt-hero lg:scroll-mt-32 lg:pt-35"
+      }
     >
       <div
         className={`mx-auto flex w-full max-w-360 flex-col px-5 lg:px-30 ${
           stacked ? "items-center" : "items-start gap-7 lg:gap-12"
         }`}
       >
-        {stacked ? null : (
+        {framed ? (
+          <div className="flex w-full flex-col items-start gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <h2 className="font-display text-headline-m text-fg lg:text-headline-l">{heading}</h2>
+            {action ? (
+              <Link href={action.href} className={OUTLINE_LINK}>
+                {action.label}
+              </Link>
+            ) : null}
+          </div>
+        ) : stacked ? null : (
           <div className="flex flex-col gap-4">
             <h2 className="font-display text-headline-m text-fg lg:text-headline-l">Frequently asked questions</h2>
             <p className="text-body-l text-muted">
@@ -55,21 +84,21 @@ export function Faq({ layout = "split" }: { layout?: "split" | "stack" }) {
         >
           {stacked ? (
             <ul className="flex min-w-0 flex-1 flex-col">
-              {QUESTIONS.map((item, index) => (
+              {questions.map((item, index) => (
                 <FaqItem
                   key={item.question}
                   item={item}
                   index={index}
                   open={open.has(index)}
                   onToggle={toggle}
-                  divider={index < QUESTIONS.length - 1}
+                  divider={index < questions.length - 1}
                 />
               ))}
             </ul>
           ) : (
             <>
               <ul className="flex min-w-0 flex-1 flex-col">
-                {LEFT.map((item, index) => (
+                {left.map((item, index) => (
                   <FaqItem
                     key={item.question}
                     item={item}
@@ -77,19 +106,19 @@ export function Faq({ layout = "split" }: { layout?: "split" | "stack" }) {
                     open={open.has(index)}
                     onToggle={toggle}
                     divider
-                    hideDividerOnWide={index === LEFT.length - 1}
+                    hideDividerOnWide={index === left.length - 1}
                   />
                 ))}
               </ul>
               <ul className="flex min-w-0 flex-1 flex-col">
-                {RIGHT.map((item, index) => (
+                {right.map((item, index) => (
                   <FaqItem
                     key={item.question}
                     item={item}
-                    index={index + LEFT.length}
-                    open={open.has(index + LEFT.length)}
+                    index={index + left.length}
+                    open={open.has(index + left.length)}
                     onToggle={toggle}
-                    divider={index < RIGHT.length - 1}
+                    divider={index < right.length - 1}
                   />
                 ))}
               </ul>
@@ -109,7 +138,7 @@ function FaqItem({
   divider,
   hideDividerOnWide = false,
 }: {
-  item: (typeof QUESTIONS)[number];
+  item: Question;
   index: number;
   open: boolean;
   onToggle: (index: number) => void;

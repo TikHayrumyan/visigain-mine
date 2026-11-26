@@ -15,35 +15,43 @@ const OUTLINE_BUTTON =
   "inline-flex h-12 w-full items-center justify-center rounded-button border border-ink bg-surface text-body-l text-fg no-underline transition-colors duration-300 ease-reveal hover:bg-surface-subtle focus-visible:bg-surface-subtle focus-visible:outline-none";
 
 /** Four plans. The cards arrive left to right when the section enters the screen. */
-export function Plans() {
+export function Plans({ plans = PLANS, bare = false }: { plans?: readonly Plan[]; bare?: boolean }) {
+  const row = (
+    <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-stretch lg:gap-5">
+      {plans.map((plan, index) => (
+        <PlanCard key={plan.name} plan={plan} index={index} bare={bare} />
+      ))}
+    </div>
+  );
+
+  if (bare) return row;
+
   return (
     <section id="pricing" className="scroll-mt-28 bg-bg pt-hero lg:scroll-mt-32 lg:pt-35">
       <div className="mx-auto flex w-full max-w-360 flex-col items-center gap-7 px-5 lg:gap-14 lg:px-30">
         <div className="flex flex-col items-center gap-4 text-center">
-          <h2 className="w-64 font-display text-headline-m text-fg lg:w-auto lg:text-headline-l">Pick how far you want to go</h2>
+          <h2 className="w-64 font-display text-headline-m text-fg lg:w-auto lg:text-headline-l">
+            Pick how far you want to go
+          </h2>
           <p className="text-body-l text-muted lg:w-132">
             Start free. Upgrade when you want the full report or someone to do the work.
           </p>
         </div>
-        <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-stretch lg:gap-5">
-          {PLANS.map((plan, index) => (
-            <PlanCard key={plan.name} plan={plan} index={index} />
-          ))}
-        </div>
+        {row}
       </div>
     </section>
   );
 }
 
-function PlanCard({ plan, index }: { plan: Plan; index: number }) {
+function PlanCard({ plan, index, bare }: { plan: Plan; index: number; bare: boolean }) {
   const reduceMotion = useReducedMotion();
   const ink = plan.highlighted;
 
   return (
     <motion.article
-      className={`flex min-h-96.25 min-w-0 flex-1 flex-col gap-5 rounded-[20px] px-6 pt-7 pb-6 lg:min-h-0 lg:gap-6 ${
-        ink ? "bg-ink shadow-plan" : "bg-surface ring-1 ring-line ring-inset"
-      }`}
+      className={`flex min-h-96.25 min-w-0 flex-1 flex-col gap-5 rounded-[20px] px-6 pt-7 pb-6 lg:gap-6 ${
+        bare ? "shadow-window lg:min-h-[429px]" : "lg:min-h-0"
+      } ${ink ? `bg-ink ${bare ? "" : "shadow-plan"}` : "bg-surface ring-1 ring-line ring-inset"}`}
       initial={reduceMotion ? false : { opacity: 0, y: 36 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.3 }}
