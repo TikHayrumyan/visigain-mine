@@ -492,6 +492,18 @@ html:has(dialog[open]) {
   }
 }
 
+@keyframes scan-pulse {
+  0%,
+  100% {
+    scale: 1;
+    opacity: 1;
+  }
+  50% {
+    scale: 0.72;
+    opacity: 0.45;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .faq-char {
     animation-name: faq-char;
@@ -518,6 +530,12 @@ html:has(dialog[open]) {
   .contact-pin {
     animation-name: contact-pin;
     animation-duration: 2.4s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+  }
+  .scan-pulse {
+    animation-name: scan-pulse;
+    animation-duration: 1.2s;
     animation-timing-function: ease-in-out;
     animation-iteration-count: infinite;
   }
