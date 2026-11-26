@@ -467,6 +467,25 @@ html:has(dialog[open]) {
   }
 }
 
+@keyframes contact-sent {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes contact-pin {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.12;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .faq-char {
     animation-name: faq-char;
@@ -481,6 +500,20 @@ html:has(dialog[open]) {
     animation-delay: 0.72s;
     animation-timing-function: ease-out;
     animation-fill-mode: both;
+  }
+
+  .contact-sent {
+    animation-name: contact-sent;
+    animation-duration: 0.3s;
+    animation-timing-function: ease-out;
+    animation-fill-mode: both;
+  }
+
+  .contact-pin {
+    animation-name: contact-pin;
+    animation-duration: 2.4s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
   }
 }
 
