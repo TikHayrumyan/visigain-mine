@@ -19,12 +19,12 @@ export function PricingHero() {
     <section className="bg-bg">
       <HeroSurface
         aria-labelledby="pricing-title"
-        className="relative mx-2 mt-2 overflow-hidden rounded-panel-sm lg:mx-auto lg:mt-0 lg:w-full  lg:overflow-visible lg:rounded-none"
+        className="relative mx-2 mt-2 overflow-hidden rounded-panel-sm lg:mx-auto lg:mt-0 lg:w-full lg:overflow-visible lg:rounded-none"
         panelClassName="absolute inset-0 overflow-hidden rounded-panel-sm bg-ink lg:inset-x-4 lg:bottom-auto lg:h-[549px] lg:rounded-panel"
       >
         <div
           data-theme="dark"
-          className="relative z-10 flex  flex-col items-center px-4 pt-26.5 pb-12 text-center lg:mx-auto lg:w-full lg:max-w-200 lg:px-0 lg:pt-44 lg:pb-0"
+          className="relative z-10 flex flex-col items-start px-4 pt-26.5 pb-12 text-left lg:mx-auto lg:w-full lg:max-w-200 lg:items-center lg:px-0 lg:pt-44 lg:pb-0 lg:text-center"
         >
           <h1
             id="pricing-title"
@@ -55,7 +55,7 @@ export function PricingHero() {
         <Plans plans={PAGE_PLANS} bare />
       </div>
       <div className="mx-auto mt-7 w-full max-w-360 px-5 lg:mt-14 lg:px-30">
-        <p className="mx-auto max-w-200 text-center text-body-l text-muted">{NOTE}</p>
+        <p className="mx-auto max-w-200  lg:text-center text-body-l text-muted">{NOTE}</p>
       </div>
     </section>
   );

@@ -5,7 +5,7 @@ import { useRef, type MouseEvent, type ReactNode } from "react";
 import styles from "@/components/home/hero/hero.module.css";
 
 const MENU_ID = "mobile-menu";
-const ICON_BUTTON = "inline-flex shrink-0 items-center justify-center rounded-button border border-line";
+const ICON_BUTTON = "inline-flex shrink-0 items-center justify-center rounded-button border border-line bg-surface";
 const MENU_ICON = { light: "/icons/menu.svg", dark: "/icons/menu-dark.svg" } as const;
 
 /** The phone's menu button (in the header and in the compact header). `tone`: a light icon on dark, dark on light. */
