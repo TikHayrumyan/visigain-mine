@@ -1,6 +1,6 @@
 import { HeroSurface } from "@/components/home/hero/hero-surface";
 
-const TITLE = "About";
+const TITLE = "About Visigain";
 
 /** Characters finish inside the first 0.65s; the subtitle rises over the rest of the first second. */
 const TYPE_WINDOW_MS = 650;

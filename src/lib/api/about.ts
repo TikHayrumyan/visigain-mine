@@ -52,14 +52,8 @@ const FALLBACK_KEYS: readonly { section: string; text: string }[] = [
   { section: "contact", text: "site.contact.write_to_us_and_a_person" },
 ];
 
-/** Quiet headings for the sections the about payload names. An unknown section stays unlabeled. */
-const SECTION_LABEL: Record<string, string | null> = {
-  intro: null,
-  who: "The company",
-  monitoring: "Monitoring",
-  values: "How we grade",
-  contact: "Write to us",
-};
+/** Quiet headings are chosen in the page. An unknown section is kept with the nearest block. */
+const KNOWN_SECTIONS = new Set(["intro", "who", "monitoring", "values", "contact"]);
 
 export type CompanyFacts = {
   legalName: string;
@@ -67,15 +61,14 @@ export type CompanyFacts = {
   email: string;
 };
 
-export type AboutSection = {
-  label: string | null;
-  paragraphs: string[];
-};
-
 export type AboutContent = {
   company: CompanyFacts;
   lead: string;
-  sections: AboutSection[];
+  standard: readonly string[];
+  companyLine: string | null;
+  monitoring: readonly string[];
+  principles: readonly string[];
+  contact: string | null;
 };
 
 async function readJson(path: string): Promise<unknown> {
@@ -160,14 +153,16 @@ export async function aboutContent(): Promise<AboutContent> {
 
   if (intro) intro.paragraphs = intro.paragraphs.slice(1);
 
+  const paragraphs = (section: string) => groups.find((group) => group.section === section)?.paragraphs ?? [];
+  const extras = groups.filter((group) => !KNOWN_SECTIONS.has(group.section)).flatMap((group) => group.paragraphs);
+
   return {
     company: company ?? COMPANY,
     lead,
-    sections: groups
-      .filter((group) => group.paragraphs.length > 0)
-      .map((group) => ({
-        label: SECTION_LABEL[group.section] ?? null,
-        paragraphs: group.paragraphs,
-      })),
+    standard: [...(intro?.paragraphs ?? []), ...extras],
+    companyLine: paragraphs("who")[0] ?? null,
+    monitoring: paragraphs("monitoring"),
+    principles: paragraphs("values"),
+    contact: paragraphs("contact")[0] ?? null,
   };
 }
