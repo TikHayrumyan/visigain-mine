@@ -36,6 +36,7 @@ export const FOOTER_COLUMNS: readonly { title: string; links: readonly NavLink[]
     title: "Company",
     links: [
       { label: "Pricing", href: "/pricing" },
+      { label: "About", href: "/about" },
       { label: "Contact", href: "/contact" },
       { label: "Blog", href: "/blog" },
       { label: "FAQ", href: "/faq" },
