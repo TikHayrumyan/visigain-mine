@@ -81,6 +81,7 @@ export function ContactForm() {
         onSubmit={onSubmit}
         className={`col-start-1 row-start-1 flex flex-col gap-5 ${sent ? "invisible" : ""}`}
       >
+        <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden defaultValue="" className="sr-only" />
         {state.status === "failed" ? (
           <div role="alert" className="flex gap-3 rounded-[14px] bg-danger-soft px-4 py-3.5">
             <span className="mt-1.5 size-2 shrink-0 rounded-full bg-grade-f" aria-hidden />
