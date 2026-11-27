@@ -82,3 +82,21 @@ export const PAGE_PLANS: readonly Plan[] = PLANS.map((plan) => {
   if (plan.name === "Monitoring") return { ...plan, href: MONITORING_CHECKOUT };
   return plan;
 });
+
+const API_PRICE = {
+  "Free Scan": "free",
+  "Full Visibility Grade Report": "fullReport",
+  Monitoring: "monitoring",
+} as const;
+
+/** Swaps the three priced cards. Growth retainer stays "By proposal". */
+export function withApiPrices(
+  plans: readonly Plan[],
+  prices: { free: string; fullReport: string; monitoring: string },
+): readonly Plan[] {
+  return plans.map((plan) => {
+    const key = API_PRICE[plan.name as keyof typeof API_PRICE];
+
+    return key ? { ...plan, price: prices[key] } : plan;
+  });
+}

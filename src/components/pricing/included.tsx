@@ -6,15 +6,27 @@ import { motion, useReducedMotion } from "motion/react";
 const REVEAL_SECONDS = 0.6;
 const REVEAL_EASE = [0, 0, 0.58, 1] as const;
 
-const CARDS: readonly { name: string; price: string; items: readonly string[] }[] = [
+type IncludedPrices = {
+  free: string;
+  fullReport: string;
+  monitoring: string;
+};
+
+const DESIGN_PRICES: IncludedPrices = {
+  free: "$0",
+  fullReport: "$199 one time",
+  monitoring: "$149 a month",
+};
+
+const CARDS: readonly { name: string; price: keyof IncludedPrices | "proposal"; items: readonly string[] }[] = [
   {
     name: "Free Scan",
-    price: "$0",
+    price: "free",
     items: ["Your letter grade and score", "Your biggest finding and your easiest win", "By email, usually in about 15 minutes"],
   },
   {
     name: "Full Visibility Grade Report",
-    price: "$199 one time",
+    price: "fullReport",
     items: [
       "Every finding, each with its evidence and its exact fix",
       "Fixes ranked: what to do first, and what you can do yourself",
@@ -26,7 +38,7 @@ const CARDS: readonly { name: string; price: string; items: readonly string[] }[
   },
   {
     name: "Monitoring",
-    price: "$149 a month",
+    price: "monitoring",
     items: [
       "A full re-check every week, with a short summary on Monday morning",
       "A quick check every day: site up, certificate valid, listed by search engines, booking link working",
@@ -37,7 +49,7 @@ const CARDS: readonly { name: string; price: string; items: readonly string[] }[
   },
   {
     name: "Growth retainer",
-    price: "By proposal",
+    price: "proposal",
     items: [
       "We do the fixes for you, month by month",
       "A call first, then a written proposal with the scope and the price",
@@ -47,8 +59,11 @@ const CARDS: readonly { name: string; price: string; items: readonly string[] }[
 ];
 
 /** Four cards, two to a row. Each pair fades in and rises together. */
-export function Included() {
+export function Included({ prices }: { prices?: IncludedPrices }) {
   const reduceMotion = useReducedMotion();
+  const shown = prices
+    ? { free: prices.free, fullReport: `${prices.fullReport} one time`, monitoring: `${prices.monitoring} a month` }
+    : DESIGN_PRICES;
 
   return (
     <section className="bg-bg pt-hero lg:pt-35">
@@ -70,7 +85,9 @@ export function Included() {
             >
               <div className="flex items-baseline justify-between gap-4">
                 <h3 className="font-display text-headline-s text-fg">{card.name}</h3>
-                <p className="shrink-0 font-display text-title-s text-muted">{card.price}</p>
+                <p className="shrink-0 font-display text-title-s text-muted">
+                  {card.price === "proposal" ? "By proposal" : shown[card.price]}
+                </p>
               </div>
               <ul className="flex flex-col gap-3 border-t border-line pt-5">
                 {card.items.map((item) => (
