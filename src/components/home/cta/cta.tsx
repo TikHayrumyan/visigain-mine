@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState, type RefObject } from "react";
+import { PLACE_SEARCH_DEFAULTS, type PlaceSearchSettings } from "@/lib/api/places";
 import { ScanForm } from "../hero/scan-form";
 import { HeroSurface } from "../hero/hero-surface";
 
@@ -21,7 +22,7 @@ function useOnScreen(ref: RefObject<HTMLElement | null>) {
 }
 
 /** The closing panel: the same dotted field as the hero, a scan, and the rank-tracking screen. */
-export function Cta() {
+export function Cta({ search = PLACE_SEARCH_DEFAULTS }: { search?: PlaceSearchSettings }) {
   const section = useRef<HTMLElement>(null);
   const onScreen = useOnScreen(section);
 
@@ -38,7 +39,7 @@ export function Cta() {
             <h2 id="cta-title" className="font-display text-headline-m text-fg lg:w-140 lg:text-headline-l">
               See your grade before your competitors do.
             </h2>
-            <ScanForm variant="cta" animate={onScreen} />
+            <ScanForm variant="cta" animate={onScreen} search={search} />
           </div>
           <div className="relative mt-8 h-75 overflow-hidden lg:mx-auto lg:mt-16 lg:h-103.75 lg:w-250">
             <div className="absolute top-0 left-2 w-250 origin-top-left scale-[0.55] lg:left-0 lg:scale-100">

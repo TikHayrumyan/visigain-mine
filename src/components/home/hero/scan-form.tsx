@@ -17,7 +17,8 @@ import { motion, useMotionValue } from "motion/react";
 
 import { PRIMARY_BUTTON } from "@/components/ui/button-styles";
 import { FREE_SCAN } from "@/config/navigation";
-import { suggestBusinesses, type Business } from "./businesses";
+import { PLACE_SEARCH_DEFAULTS, type PlaceSearchSettings, type PlaceSuggestion } from "@/lib/api/places";
+import { usePlaceSearch } from "./use-place-search";
 
 type Variant = "hero" | "cta";
 type Mode = "business" | "website";
@@ -26,11 +27,12 @@ type FocusScope = "field" | "form" | null;
 type ScanFormProps = {
   variant?: Variant;
   animate?: boolean;
+  search?: PlaceSearchSettings;
 };
 
 type SuggestionProps = {
   id: string;
-  business: Business;
+  business: PlaceSuggestion;
   selected: boolean;
   onSelect: () => void;
   onHighlight: () => void;
@@ -213,7 +215,7 @@ function useDemo(running: boolean) {
   };
 }
 
-export function ScanForm({ variant = "hero", animate = false }: ScanFormProps) {
+export function ScanForm({ variant = "hero", animate = false, search = PLACE_SEARCH_DEFAULTS }: ScanFormProps) {
   const router = useRouter();
   const listId = useId();
   const fieldRef = useRef<HTMLDivElement>(null);
@@ -233,8 +235,15 @@ export function ScanForm({ variant = "hero", animate = false }: ScanFormProps) {
   const demoRunning = variant === "cta" && animate && !reducedMotion && scope === null && value === "" && isBusiness;
 
   const demo = useDemo(demoRunning);
-  const suggestions = isBusiness && query.length > 0 ? suggestBusinesses(query) : [];
-  const open = fieldFocused && isBusiness && query.length > 0 && !dismissed;
+  const places = usePlaceSearch(query, isBusiness, search);
+  const suggestions = places.suggestions;
+  const open =
+    fieldFocused &&
+    isBusiness &&
+    !places.pending &&
+    query.length >= search.minChars &&
+    query.length <= search.maxChars &&
+    !dismissed;
   const activeIndex = open && suggestions.length > 0 ? Math.min(active, suggestions.length - 1) : -1;
   const highlighted = activeIndex >= 0 ? suggestions[activeIndex] : undefined;
   const placeholder = isBusiness ? "Enter your business name" : "Enter your website";
@@ -244,12 +253,13 @@ export function ScanForm({ variant = "hero", animate = false }: ScanFormProps) {
     setActive(0);
   }
 
-  function chooseBusiness(business: Business): void {
+  function chooseBusiness(business: PlaceSuggestion): void {
     inputRef.current?.setCustomValidity("");
     setValue(business.name);
     setActive(0);
     inputRef.current?.focus();
     setDismissed(true);
+    places.renewSession();
   }
 
   function switchToWebsite(): void {
@@ -430,7 +440,7 @@ export function ScanForm({ variant = "hero", animate = false }: ScanFormProps) {
           >
             <ul id={listId} role="listbox" aria-label="Businesses">
               {suggestions.map((business, index) => (
-                <li key={`${business.name}-${business.address}`} role="presentation">
+                <li key={business.placeId} role="presentation">
                   <Suggestion
                     id={`${listId}-${index}`}
                     business={business}

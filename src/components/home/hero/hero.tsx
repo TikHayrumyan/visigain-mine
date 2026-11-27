@@ -1,10 +1,11 @@
 import Image from "next/image";
+import type { PlaceSearchSettings } from "@/lib/api/places";
 import { HeroSurface } from "./hero-surface";
 import { ProductPreview } from "./product-preview";
 import { ScanForm } from "./scan-form";
 
 /** The home page's hero: the dark dotted panel (under the header) with the pitch, the scan form and the product. */
-export function Hero() {
+export function Hero({ search }: { search: PlaceSearchSettings }) {
   return (
     <HeroSurface
       aria-labelledby="hero-title"
@@ -26,7 +27,7 @@ export function Hero() {
           Your Visibility Grade, A to F, across Google, AI assistants and your own website. The three fixes that matter
           most, and how you compare with the businesses Google shows first.
         </p>
-        <ScanForm />
+        <ScanForm search={search} />
         <p className="text-body-s text-faint lg:whitespace-nowrap">
           Free · No call · No access to your accounts · Results in about 15 minutes
         </p>
