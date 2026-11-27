@@ -1,9 +1,13 @@
 import type { Metadata, Viewport } from "next";
+import { cookies, headers } from "next/headers";
 import localFont from "next/font/local";
 import "./globals.css";
+import { CookieBanner } from "@/components/layout/cookie-banner";
 import { Footer } from "@/components/layout/footer/footer";
 import { Header } from "@/components/layout/header/header";
 import { TopBar } from "@/components/layout/top-bar";
+import { liveLegalNotice } from "@/lib/api/legal";
+import { hasNoticeChoice, NOTICE_COOKIE } from "@/lib/consent";
 import { currentTheme } from "@/lib/theme/server";
 import { BRAND } from "@/styles/tokens";
 
@@ -69,7 +73,10 @@ export const viewport: Viewport = { themeColor: BRAND.ink, colorScheme: "light d
  * page's hero, and the footer.
  */
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const theme = await currentTheme();
+  const [theme, notice, jar, headerList] = await Promise.all([currentTheme(), liveLegalNotice(), cookies(), headers()]);
+  const gpc = headerList.get("sec-gpc") === "1";
+  const showNotice = notice !== null && !hasNoticeChoice(jar.get(NOTICE_COOKIE)?.value, notice.version);
+
   return (
     <html
       lang="en"
@@ -83,6 +90,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           {children}
         </div>
         <Footer />
+        {showNotice && notice ? (
+          <CookieBanner
+            version={notice.version}
+            markdown={gpc ? notice.gpcMarkdown : notice.standardMarkdown}
+            agree={notice.agree}
+            optOut={notice.optOut}
+          />
+        ) : null}
       </body>
     </html>
   );
