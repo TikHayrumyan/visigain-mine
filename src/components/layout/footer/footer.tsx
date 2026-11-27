@@ -11,7 +11,11 @@ const REVEAL_SECONDS = 0.7;
 const REVEAL_EASE = [0, 0, 0.58, 1] as const;
 
 /** The dark footer on every page. It stays dark in both themes. */
-export function Footer() {
+export function Footer({
+  company = COMPANY,
+}: {
+  company?: { legalName: string; address: string; email: string };
+}) {
   const reduceMotion = useReducedMotion();
 
   return (
@@ -58,15 +62,13 @@ export function Footer() {
           <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between lg:gap-0">
             <p className="flex flex-wrap gap-x-1">
               <span className="text-muted">
-                {COMPANY.legalName} · {COMPANY.address} ·
+                {company.legalName} · {company.address} ·
               </span>
-              <a href={`mailto:${COMPANY.email}`} className="text-fg no-underline hover:underline">
-                {COMPANY.email}
+              <a href={`mailto:${company.email}`} className="text-fg no-underline hover:underline">
+                {company.email}
               </a>
             </p>
-            <p className="text-faint">
-              © 2026 {COMPANY.legalName}
-            </p>
+            <p className="text-faint">© 2026 {company.legalName}</p>
           </div>
         </div>
       </div>

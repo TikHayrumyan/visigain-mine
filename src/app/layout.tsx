@@ -6,6 +6,7 @@ import { CookieBanner } from "@/components/layout/cookie-banner";
 import { Footer } from "@/components/layout/footer/footer";
 import { Header } from "@/components/layout/header/header";
 import { TopBar } from "@/components/layout/top-bar";
+import { companyFacts } from "@/lib/api/about";
 import { liveLegalNotice } from "@/lib/api/legal";
 import { hasNoticeChoice, NOTICE_COOKIE } from "@/lib/consent";
 import { currentTheme } from "@/lib/theme/server";
@@ -73,7 +74,13 @@ export const viewport: Viewport = { themeColor: BRAND.ink, colorScheme: "light d
  * page's hero, and the footer.
  */
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [theme, notice, jar, headerList] = await Promise.all([currentTheme(), liveLegalNotice(), cookies(), headers()]);
+  const [theme, notice, company, jar, headerList] = await Promise.all([
+    currentTheme(),
+    liveLegalNotice(),
+    companyFacts(),
+    cookies(),
+    headers(),
+  ]);
   const gpc = headerList.get("sec-gpc") === "1";
   const showNotice = notice !== null && !hasNoticeChoice(jar.get(NOTICE_COOKIE)?.value, notice.version);
 
@@ -89,7 +96,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <Header />
           {children}
         </div>
-        <Footer />
+        <Footer company={company ?? undefined} />
         {showNotice && notice ? (
           <CookieBanner
             version={notice.version}
